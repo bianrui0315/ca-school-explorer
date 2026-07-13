@@ -76,7 +76,7 @@ export function ControlBar({
               <option key={year} value={year}>
                 {year === latestYear
                   ? formatSchoolYear(year)
-                  : `${formatSchoolYear(year)}–${formatSchoolYear(latestYear)}`}
+                  : `${formatSchoolYear(year)} to ${formatSchoolYear(latestYear)}`}
               </option>
             ))}
           </select>

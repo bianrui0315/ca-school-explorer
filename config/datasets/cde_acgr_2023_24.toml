@@ -1,0 +1,56 @@
+manifest_version = 1
+dataset_id = "cde_acgr_2023_24"
+adapter = "acgr_v1"
+schema_version = "cde-acgr-2023-24-v1"
+source_id = "cde_acgr"
+source_name = "CDE Adjusted Cohort Graduation Rate and Outcome Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filesacgr.asp"
+download_url = "https://www3.cde.ca.gov/demo-downloads/acgr/acgr24.txt"
+academic_year = "2023-24"
+release_date = "2024-11-21"
+filename = "acgr24.txt"
+media_type = "text/tab-separated-values"
+encoding = "utf-8"
+sha256 = "7fc0cf61afb18d99c0c2df934de01f7c7c4233d866cc6dd8533b0f1ab787aece"
+byte_size = 16496994
+record_count = 113867
+terms_status = "review-required"
+columns = [
+  "AcademicYear",
+  "AggregateLevel",
+  "CountyCode",
+  "DistrictCode",
+  "SchoolCode",
+  "CountyName",
+  "DistrictName",
+  "SchoolName",
+  "CharterSchool",
+  "DASS",
+  "ReportingCategory",
+  "CohortStudents",
+  "Regular HS Diploma Graduates (Count)",
+  "Regular HS Diploma Graduates (Rate)",
+  "Met UC/CSU Grad Req's (Count)",
+  "Met UC/CSU Grad Req's (Rate)",
+  "Seal of Biliteracy (Count)",
+  "Seal of Biliteracy (Rate)",
+  "Golden State Seal Merit Diploma (Count)",
+  "Golden State Seal Merit Diploma (Rate",
+  "Graduates Meeting Local Requirements Exemption (Count)",
+  "Graduates Meeting Local Requirements Exemption (Rate)",
+  "CPP Completer (Count)",
+  "CPP Completer (Rate)",
+  "Adult Ed. HS Diploma (Count)",
+  "Adult Ed. HS Diploma (Rate)",
+  "SPED Certificate (Count)",
+  "SPED Certificate (Rate)",
+  "GED Completer (Count)",
+  "GED Completer (Rate)",
+  "Other Transfer (Count)",
+  "Other Transfer (Rate)",
+  "Dropout (Count)",
+  "Dropout (Rate)",
+  "Still Enrolled (Count)",
+  "Still Enrolled (Rate)",
+]

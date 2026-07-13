@@ -2,16 +2,16 @@
 
 ## Current real datasets
 
-The production pipeline ingests five official California Department of Education 2024–25 snapshots:
+The production pipeline ingests five official California Department of Education outcome snapshots for each of 2023–24 and 2024–25:
 
-| Snapshot | Source rows | Canonical facts | Metrics |
-| --- | ---: | ---: | --- |
-| Chronic Absenteeism | 341,490 | 341,490 | Chronic absenteeism rate |
-| Academic Indicator ELA | 176,088 | 176,088 | ELA distance from standard |
-| Academic Indicator Mathematics | 176,260 | 176,260 | Mathematics distance from standard |
-| Suspension | 226,461 | 226,461 | Suspension rate |
-| Adjusted Cohort Graduation Rate and Outcomes | 113,653 | 340,959 | Graduation, A–G completion, dropout |
-| **Total** | **1,033,952** | **1,261,258** | **7 metrics** |
+| Snapshot | 2023–24 rows | 2024–25 rows | Combined canonical facts | Metrics |
+| --- | ---: | ---: | ---: | --- |
+| Chronic Absenteeism | 343,602 | 341,490 | 685,092 | Chronic absenteeism rate |
+| Academic Indicator ELA | 176,564 | 176,088 | 352,652 | ELA distance from standard |
+| Academic Indicator Mathematics | 176,806 | 176,260 | 353,066 | Mathematics distance from standard |
+| Suspension | 225,157 | 226,461 | 451,618 | Suspension rate |
+| Adjusted Cohort Graduation Rate and Outcomes | 113,867 | 113,653 | 682,560 | Graduation, A–G completion, dropout |
+| **Total** | **1,035,996** | **1,033,952** | **2,524,988** | **7 metrics** |
 
 The database also contains 9,946 public-school profiles from CDE's public-domain 2025–26 geographic layer. Every profile has quality-controlled coordinates and includes school type, level, grade range, charter, virtual, magnet, Title I, DASS, enrollment, and selected staff context.
 
@@ -85,7 +85,9 @@ Adapters fail closed on:
 
 CDE `*` values are stored as null measures with `suppression_status = 'suppressed'`. Academic observations with zero current-year denominator are `not-available`. Reported groups with fewer than 30 students receive `reliability_status = 'small-sample'`; this is a product caution, not a replacement for CDE suppression policy.
 
-The 2024–25 Suspension snapshot contains one CDS code associated with three distinct school names. The pipeline retains all three with `identity_resolution = 'ambiguous'` and name-qualified identity keys. It does not silently merge them. Public publishing should exclude or visibly qualify unresolved identities until the school directory adapter provides an authoritative crosswalk.
+The 2024–25 Suspension snapshot contains one CDS code associated with three distinct school names. The pipeline retains all three with `identity_resolution = 'ambiguous'` and name-qualified identity keys. It does not silently merge them. Public publishing excludes unresolved identities until the school directory adapter provides an authoritative crosswalk.
+
+The 2023–24 chronic-absence file includes reporting code `GZ`, which the official CDE file structure defines as `Missing Gender`. The pipeline maps it to the explicit `gender_missing` subgroup. The initial unmapped-code failure and the successful retry remain in the import audit log.
 
 ## Schema
 
@@ -127,7 +129,7 @@ where cds_code = $1
 order by metric_id, subgroup_id;
 ```
 
-The verified local import contains 11,891 entities, six snapshots, 1,261,258 metric facts, and 9,946 school profiles. All six import runs succeeded and reconcile to 1,043,898 source rows and 1,271,204 loaded facts/profiles. Three entities are explicitly ambiguous; the remaining 11,888 are resolved at the source-ingestion level.
+The verified local import contains 12,038 entity identities, 11 imported snapshots, 2,524,988 metric facts, and 9,946 school profiles. Metric facts reference 11,971 of those identities. Eleven successful import runs reconcile to 2,079,894 source rows and 2,534,934 loaded facts/profiles. One earlier fail-closed run records the historical `GZ` mapping error before the explicit CDE-defined subgroup was added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
 
 ## Roles and credentials
 
@@ -165,4 +167,4 @@ Treat backups as data artifacts, not source code. Store them encrypted with rete
 
 ## Cost and operations
 
-Local development uses one container and no paid service. The verified database is approximately 1,009 MB for six snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database already exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers will serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.
+Local development uses one container and no paid service. The verified database is approximately 1.98 GB for 11 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.

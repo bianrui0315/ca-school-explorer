@@ -32,17 +32,17 @@ CDE's website copyright statement says that permission may be required to reprod
 
 See the versioned source catalog at [`config/sources.toml`](config/sources.toml). A source with `license_review = "required"` is not approved for redistribution.
 
-The v0.1.0 website publishes selected factual derived records rather than copies of CDE source files. Each public release carries source names, landing pages, release years, and immutable snapshot digests; suppression remains null and cannot be reconstructed by the client. The website does not relicense source data, reproduce CDE branding, or claim CDE endorsement. This technical boundary reduces redistribution risk but is not a substitute for formal source-specific permission review.
+The website publishes selected factual derived records rather than copies of CDE source files. Each public release carries source names, landing pages, release years, and immutable snapshot digests; suppression remains null and cannot be reconstructed by the client. The website does not relicense source data, reproduce CDE branding, or claim CDE endorsement. This technical boundary reduces redistribution risk but is not a substitute for formal source-specific permission review.
 
 ## Implemented official sources
 
-The canonical database has pinned 2024–25 adapters for:
+The canonical database has pinned adapters for 2023–24 and 2024–25:
 
-- Chronic Absenteeism: 341,490 source rows;
-- Academic Indicator ELA: 176,088 source rows;
-- Academic Indicator Mathematics: 176,260 source rows;
-- Suspension: 226,461 source rows;
-- Adjusted Cohort Graduation Rate and Outcomes: 113,653 source rows expanded into graduation, A–G completion, and dropout facts.
+- Chronic Absenteeism: 685,092 source rows;
+- Academic Indicator ELA: 352,652 source rows;
+- Academic Indicator Mathematics: 353,066 source rows;
+- Suspension: 451,618 source rows;
+- Adjusted Cohort Graduation Rate and Outcomes: 227,520 source rows expanded into graduation, A–G completion, and dropout facts.
 - Public School Geography 2025–26: 9,946 quality-controlled school coordinates and classification profiles.
 
 Each manifest records the official URL, release date, encoding, byte size, record count, header contract, and SHA-256 digest. Adapters preserve CDE suppression markers, flag reported samples below 30, and reconcile published rates to source counts where counts are available.

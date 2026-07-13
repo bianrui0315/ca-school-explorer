@@ -149,7 +149,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directory for the generated manifest, index, and county shards.",
     )
     publish_parser.add_argument(
-        "--release", default="0.1.0", help="Application/data release identifier."
+        "--release", default="0.2.0", help="Application/data release identifier."
     )
     return parser
 
