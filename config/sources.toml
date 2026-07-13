@@ -40,9 +40,9 @@ publisher = "California Department of Education"
 category = "attendance"
 landing_page_url = "https://www.cde.ca.gov/ds/ad/filesabd.asp"
 refresh_cadence = "annual"
-status = "planned"
+status = "active"
 license_review = "required"
-notes = "School and subgroup data with suppression and cross-year comparability notes."
+notes = "The 2024-25 release has a pinned manifest and production ingestion adapter; redistribution review remains required."
 
 [[sources]]
 id = "cde_suspension"

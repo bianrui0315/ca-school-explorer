@@ -1,4 +1,4 @@
-.PHONY: install lint typecheck test check web-install web-check full-check
+.PHONY: install lint typecheck test check web-install web-check full-check db-up db-down db-migrate db-roles data-fetch data-inspect data-ingest
 
 install:
 	python -m pip install -e ".[dev]"
@@ -25,3 +25,24 @@ web-check:
 	npm run web:build
 
 full-check: check web-check
+
+db-up:
+	docker compose up -d database
+
+db-down:
+	docker compose down
+
+db-migrate:
+	python -m ca_school_explorer db-migrate
+
+db-roles:
+	python -m ca_school_explorer db-install-roles
+
+data-fetch:
+	python -m ca_school_explorer fetch-dataset
+
+data-inspect:
+	python -m ca_school_explorer inspect-chronic-absenteeism
+
+data-ingest:
+	python -m ca_school_explorer ingest-chronic-absenteeism

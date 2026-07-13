@@ -24,19 +24,22 @@ Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the resea
 
 ## Repository status
 
-The repository now includes a first interactive product slice:
+The repository now includes a first interactive product slice and a real-data foundation:
 
 - a responsive React comparison experience for desktop and mobile;
 - synthetic fixture data for five fictional schools;
 - four metrics, three student-group lenses, multi-year trends, and exact-value tables;
 - visible denominators, reliability labels, district context, and source notes;
 - an initial catalog of official data sources;
-- a dependency-free Python CLI for catalog inspection and validation;
+- a PostgreSQL canonical store with deterministic migrations and least-privilege roles;
+- a pinned, checksum-verified adapter for the complete CDE 2024–25 chronic absenteeism file;
+- source validation, audited bulk ingestion, suppression handling, and idempotent re-imports;
+- a Python CLI for catalog, source snapshot, and database operations;
 - data governance and methodology documents;
 - continuous integration, issue templates, and contribution guidance;
 - a validated, self-contained HTML project plan.
 
-The web experience intentionally uses synthetic values. No displayed value describes a real school, and the current version must not be used for school or housing decisions. Source licensing and redistribution terms must be reviewed before raw or derived datasets are published.
+The database pipeline uses real official records. The web experience still intentionally uses synthetic values until a reviewed publishing layer connects the canonical store to frontend bundles. No currently displayed value describes a real school, and the web experience must not yet be used for school or housing decisions. Source licensing and redistribution terms must be reviewed before raw or derived datasets are published.
 
 ## Quick start
 
@@ -77,13 +80,32 @@ make check
 
 Run both stacks with `make full-check` after installing the Python and Node.js dependencies.
 
+### Real-data database
+
+Requirements: Docker Desktop and the Python environment from the previous section.
+
+```bash
+docker compose up -d database
+export DATABASE_URL=postgresql://cse_admin:local-development-only@127.0.0.1:54329/ca_school_explorer
+
+ca-school-explorer db-migrate
+ca-school-explorer db-install-roles
+ca-school-explorer fetch-dataset
+ca-school-explorer inspect-chronic-absenteeism
+ca-school-explorer ingest-chronic-absenteeism
+```
+
+The pinned source is the official CDE 2024–25 chronic absenteeism release: 341,490 observations across state, county, district, and school aggregation levels. Raw files are downloaded into ignored local storage and are never committed by default. See [Database and real-data ingestion](docs/database.md) for the schema, verification gates, queries, backup and restore procedures, and deployment guidance.
+
 ## Documentation
 
 - [Data sources and licensing](DATA_SOURCES.md)
 - [Methodology](METHODOLOGY.md)
 - [Roadmap](ROADMAP.md)
 - [Architecture](docs/architecture.md)
+- [Database and real-data ingestion](docs/database.md)
 - [Static-first architecture decision](docs/adr/0001-static-first-delivery.md)
+- [Canonical PostgreSQL architecture decision](docs/adr/0002-postgresql-canonical-store.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 

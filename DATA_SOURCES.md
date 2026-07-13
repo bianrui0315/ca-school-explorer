@@ -34,12 +34,14 @@ See the versioned source catalog at [`config/sources.toml`](config/sources.toml)
 
 ## Initial official sources
 
-The first implementation priority is:
+The first implemented real-data adapter is CDE Chronic Absenteeism. Its 2024–25 manifest pins the official URL, release date, CP1252 encoding, byte size, row count, header contract, and SHA-256 digest in [`config/datasets/cde_chronic_absenteeism_2024_25.toml`](config/datasets/cde_chronic_absenteeism_2024_25.toml). The adapter preserves CDE suppression markers and validates rates against their numerators and denominators before database writes.
+
+The broader implementation priority is:
 
 1. CDE Public School and District Directory;
 2. CDE Census Day Enrollment;
 3. CDE Academic Indicator Data;
-4. CDE Chronic Absenteeism Data;
+4. additional years of CDE Chronic Absenteeism Data;
 5. CDE Suspension Data;
 6. CDE graduation and college-going data.
 

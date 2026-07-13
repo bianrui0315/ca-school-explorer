@@ -12,7 +12,8 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 ## Phase 1: Build the data foundation
 
 - Implement the CDE Directory adapter and entity lineage.
-- Add immutable source manifests and checksums.
+- Add immutable source manifests and checksums. The first chronic absenteeism snapshot is implemented.
+- Maintain normalized canonical records and ingestion audit history in PostgreSQL.
 - Implement Census Day Enrollment and one academic indicator.
 - Add fixtures and reconciliation tests.
 
@@ -26,7 +27,7 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 
 ## Phase 3: Expand outcome coverage
 
-- Add chronic absenteeism and suspension.
+- Publish chronic absenteeism from the canonical store and add suspension.
 - Add graduation and college-going for high schools.
 - Add staff ratios and selected SARC measures.
 - Add a public data freshness and correction page.
