@@ -56,6 +56,10 @@ async function fetchJson<T>(path: string, cache: RequestCache = "force-cache") {
   return (await response.json()) as T;
 }
 
+function releasePath(path: string, release: string) {
+  return `${path}?release=${encodeURIComponent(release)}`;
+}
+
 let catalogPromise: Promise<PublicCatalog> | undefined;
 
 function loadCatalog() {
@@ -68,7 +72,9 @@ function loadCatalog() {
     }
     const indexes = await Promise.all(
       manifest.schoolIndexFiles.map((file) =>
-        fetchJson<SchoolIndexResponse>(`${basePath}/${file}`, "no-cache"),
+        fetchJson<SchoolIndexResponse>(
+          releasePath(`${basePath}/${file}`, manifest.release),
+        ),
       ),
     );
     if (indexes.some((index) => index.schemaVersion !== 1)) {
@@ -124,30 +130,32 @@ function decodeObservations(
   return metrics;
 }
 
-function schoolShard(shard: string) {
-  let request = schoolShardCache.get(shard);
+function schoolShard(shard: string, release: string) {
+  const cacheKey = `${release}:${shard}`;
+  let request = schoolShardCache.get(cacheKey);
   if (!request) {
     request = fetchJson<SchoolShardResponse>(
-      `${basePath}/schools/${shard}.json`,
+      releasePath(`${basePath}/schools/${shard}.json`, release),
     );
-    schoolShardCache.set(shard, request);
+    schoolShardCache.set(cacheKey, request);
   }
   return request;
 }
 
-function districtShard(countyCode: string) {
-  let request = districtShardCache.get(countyCode);
+function districtShard(countyCode: string, release: string) {
+  const cacheKey = `${release}:${countyCode}`;
+  let request = districtShardCache.get(cacheKey);
   if (!request) {
     request = fetchJson<DistrictShardResponse>(
-      `${basePath}/districts/${countyCode}.json`,
+      releasePath(`${basePath}/districts/${countyCode}.json`, release),
     );
-    districtShardCache.set(countyCode, request);
+    districtShardCache.set(cacheKey, request);
   }
   return request;
 }
 
 async function loadSchool(summary: SchoolSummary, catalog: PublicCatalog) {
-  const shard = await schoolShard(summary.shard);
+  const shard = await schoolShard(summary.shard, catalog.manifest.release);
   const record = shard.schools[summary.id];
   if (!record) {
     throw new Error(`Published school data is missing for ${summary.id}.`);
@@ -164,7 +172,7 @@ async function loadDistrict(
   districtId: string,
   catalog: PublicCatalog,
 ) {
-  const shard = await districtShard(countyCode);
+  const shard = await districtShard(countyCode, catalog.manifest.release);
   const record = shard.districts[districtId];
   if (!record) {
     return undefined;

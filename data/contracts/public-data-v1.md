@@ -1,6 +1,6 @@
 # Public Data Contract v1
 
-Release `0.2.0` publishes a static, browser-safe read model under `apps/web/public/data`.
+Release `0.2.1` publishes a static, browser-safe read model under `apps/web/public/data`.
 It contains derived factual records and source metadata; it does not contain the raw CDE files.
 
 ## Files
