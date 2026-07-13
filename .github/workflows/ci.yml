@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+
+      - name: Lint
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+
+      - name: Type check
+        run: python -m mypy src
+
+      - name: Test
+        run: python -m pytest
+
+      - name: Validate source catalog
+        run: python -m ca_school_explorer validate-sources
+
+      - name: Reject non-English CJK text in tracked source files
+        run: |
+          if git grep -nP '[\x{3400}-\x{9FFF}]'; then
+            echo "Repository source files must be written in English."
+            exit 1
+          fi

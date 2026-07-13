@@ -1,0 +1,200 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "California School Explorer: Project and MVP Plan",
+    "generatedAt": "2026-07-13T12:00:00-07:00",
+    "description": "An actionable project plan for founders, early contributors, and potential partners.",
+    "cards": [],
+    "charts": [
+      {
+        "id": "mvp_effort_range",
+        "title": "Estimated MVP effort by workstream",
+        "subtitle": "Planning ranges total 250–400 hours; these are estimates, not observed time logs",
+        "type": "bar",
+        "dataset": "mvp_effort_by_workstream",
+        "sourceId": "planning_assumptions",
+        "encodings": {
+          "x": {"field": "workstream", "type": "nominal", "label": "Workstream"},
+          "y": {"fields": ["min_hours", "max_hours"], "type": "quantitative", "label": "Hours"},
+          "tooltip": [
+            {"field": "min_hours", "type": "quantitative", "label": "Low estimate"},
+            {"field": "max_hours", "type": "quantitative", "label": "High estimate"},
+            {"field": "scope", "type": "text", "label": "Scope"}
+          ]
+        },
+        "xAxisTitle": "Workstream",
+        "yAxisTitle": "Estimated hours",
+        "valueFormat": "number",
+        "unit": "hours",
+        "layout": "full",
+        "compatibleTypes": ["bar"]
+      }
+    ],
+    "tables": [],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# California School Explorer: Project and MVP Plan\n\n**Decision date: July 13, 2026 | Audience: project founders, early contributors, and potential partners**"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n**The project is worth building, but it should not become another school rating site.** California already publishes extensive education data, and Ed-Data already supports many conventional school and district comparisons. The stronger opportunity is a family decision explorer that places two to five schools on the same multi-year view, applies a child-relevant subgroup lens, and compares results against three distinct baselines: the same district, nearby schools, and schools serving similar populations.\n\n**Start with an 8–10 week static-first MVP.** The initial product should include search, multi-school trends, subgroup views, transparent peer groups, and visible source and reliability notes. It should exclude overall scores, rankings, accounts, AI chat, admissions predictions, housing recommendations, and unverified qualitative claims.\n\n**The core does not require a database, GPU, or language model.** A small public beta can operate for roughly $0–$25 per month plus a domain. The material cost is approximately 250–400 hours of product, data, frontend, research, and validation work.\n\n**Trust rules are product requirements.** Never infer suppressed values, connect incomparable years, describe nearby schools as assigned schools, or use a child's protected characteristics to steer housing choices."
+      },
+      {
+        "id": "opportunity",
+        "type": "markdown",
+        "body": "## The gap is not data availability; it is decision-ready comparison\n\nCalifornia reported approximately **5.73 million public school students across 1,011 districts** in the 2025–26 school year. The California Department of Education publishes enrollment, assessment, attendance, discipline, staff, disability, graduation, and college-going data, but the files are distributed across separate pages, years, formats, schemas, and reporting rules.\n\nA 2024 CRPE review gave California a **D** for state assessment data transparency. It found that navigation was relatively straightforward but data extraction and longitudinal comparison were difficult. The review is directional evidence rather than a complete audit of the 2026 experience.\n\nFamilies need answers to questions that a single rating cannot resolve:\n\n- Is the school improving, or did a reporting definition change?\n- Do students in my child's public subgroup show a different pattern?\n- How does the school compare with its district, nearby schools, and similar-context peers?\n- Do academics, attendance, discipline, staffing, and postsecondary outcomes tell a consistent story?\n- Can I inspect the numerator, denominator, source date, suppression status, and limitations?\n\nSources: [CDE Fingertip Facts](https://www.cde.ca.gov/ds/sd/cb/ceffingertipfacts.asp), [CDE Downloadable Data Files](https://www.cde.ca.gov/ds/ad/downloadabledata.asp), and [CRPE Report Card Map](https://crpe.org/our-publications/research-reports/report-card-map-24/)"
+      },
+      {
+        "id": "competition",
+        "type": "markdown",
+        "body": "## Existing products prove demand and narrow the differentiation\n\n| Product | Existing strength | What not to duplicate | Defensible differentiation |\n|---|---|---|---|\n| CDE School Dashboard | Official multi-measure accountability and subgroup reporting | One-school reports and same-district, selected-year comparison | Multi-school, multi-year views with plain-language methods |\n| Ed-Data | School and district comparison, similar-demographic peers, trends, and finance | Standard profiles and conventional comparison | Question-led workflows, three baselines, cross-metric subgroup trends, open reproducibility |\n| GreatSchools | Simple entry point and strong consumer awareness | Composite ratings and labels | Multi-dimensional evidence without an overall score |\n| Niche | Reviews and nonacademic information | Crowdsourced grades and opaque weighting | Traceable public data and verified claims only |\n| SchoolDigger | Simple test-score rankings and maps | Test-centric ranking | Outcomes, growth, attendance, discipline, staffing, and pathways together |\n| SEDA and C2C | Deeper research and postsecondary pathway data | Rebuilding specialized research systems | Later integration, explanation, or linking |\n\nCDE's 2025 comparison guide allows families to compare schools **within the same district** for a selected year. The opportunity is therefore not a generic comparison button; it is cross-district, longitudinal, subgroup-aware comparison with clearer interpretation.\n\nSources: [CDE 2025 Compare Schools Guide](https://www.cde.ca.gov/Ta/ac/cm/documents/compareschools25.pdf), [Ed-Data Comparisons](https://www.ed-data.org/Comparisons?compType=schools), [GreatSchools Ratings](https://www.greatschools.org/gk/ratings-methodology/), [Niche Methodology](https://www.niche.com/k12/rankings/methodology/), and [SchoolDigger Methodology](https://www.schooldigger.com/AboutRanking.aspx)"
+      },
+      {
+        "id": "mvp",
+        "type": "markdown",
+        "body": "## The MVP should solve one task in under three minutes\n\n**Core job:** Help a family compare two to five candidate schools, understand the multi-year pattern, see whether it also holds for a relevant public subgroup, compare it with three defensible baselines, and identify which conclusions are not reliable.\n\n### Required in the first release\n\n1. Search by school, district, city, or ZIP code, with a clear statement that nearby does not mean assigned.\n2. Compare two to five schools on the same timeline without connecting missing years.\n3. Apply public subgroup lenses for grade, race or ethnicity, English learner status, students with disabilities, and socioeconomic disadvantage. Store selections only in the browser or URL.\n4. Show same-district, nearby, and transparent similar-context baselines.\n5. Explain every metric with its definition, numerator, denominator, year, source, refresh date, suppression status, and comparability status.\n6. Create a reproducible share link and a short finding-evidence-limitation summary.\n\n### Initial metrics\n\n- School identity, status, type, grade span, charter or DASS status, and location.\n- Census Day enrollment and student composition.\n- ELA and mathematics academic indicators or distance from standard; growth only where officially available and sample-eligible.\n- Chronic absenteeism and suspension.\n- Graduation and college-going for high schools.\n- Student-to-staff ratios as a stretch goal.\n\n### Explicit exclusions\n\nOverall scores, best-school rankings, individual outcome predictions, AI chat, accounts, user reviews, address-level attendance assignment, and unverified principal, safety, or program claims."
+      },
+      {
+        "id": "data_scope",
+        "type": "markdown",
+        "body": "## The data can support the MVP, but source maturity varies\n\n| Priority | Data theme | Recommended source | Value and limitation |\n|---|---|---|---|\n| P0 | Entity, status, address, and type | CDE Public School and District Directory | Required for identity and search; some fields are organization-reported and may lag |\n| P0 | Enrollment and demographics | CDE Census Day Enrollment | School-year-grade-demographic grain; small-cell suppression and a 2023–24 schema change |\n| P0 | ELA, mathematics, and growth | CDE accountability and assessment files | School and subgroup coverage; pandemic gaps and definitions that must not be mixed |\n| P0 | Chronic absence and suspension | CDE downloadable files | Family-relevant and explainable; suppression and pandemic comparability limits |\n| P0 | Graduation and college-going | CDE CALPADS and National Student Clearinghouse | High value for high schools; release lag and small-cell suppression |\n| P1 | Staffing, experience, and assignments | CDE Staff, SARC, and TAMO | Adds teaching conditions; large files and difficult interpretation |\n| P1 | AP, CTE, counselors, support staff, and spending | SARC and ESSA expenditure files | Adds opportunity and resource context; some SARC fields are LEA-provided and delayed |\n| P2 | Program access, discipline, and security | Federal CRDC | Rich civil-rights dimensions; currently older and generally biennial |\n| P2 | Community income, language, and housing context | Census ACS five-year estimates | Useful context; margins of error and non-equivalent geographic boundaries |\n| P2 | Learning rates and long-run opportunity | Stanford SEDA | Strong research value; methods are too complex for an unqualified headline metric |\n| P2 | Postsecondary pathways | California Cradle-to-Career | Complements high-school outcomes; integrate or link instead of rebuilding |\n| Deferred | Attendance boundaries, principal history, incidents, awards, and local programs | Local education agencies and school sites | No consistent statewide contract, history, or verification standard |\n\nEach source should be implemented as an independent adapter. Immutable source snapshots should retain the URL, retrieval timestamp, SHA-256 digest, schema version, and source notes. The browser should consume only reviewed derived assets.\n\nPrimary sources: [CDE Directory Data](https://www.cde.ca.gov/ds/si/ds/pubschls.asp), [Census Day Enrollment](https://www.cde.ca.gov/ds/ad/filesenrcensus.asp), [Academic Indicator](https://www.cde.ca.gov/ta/ac/cm/acaddatafiles.asp), [Chronic Absenteeism](https://www.cde.ca.gov/ds/ad/filesabd.asp), [Suspension](https://www.cde.ca.gov/ds/ad/filessd.asp), [Staff Data](https://www.cde.ca.gov/ds/ad/staff.asp), [SARC Data](https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp), [CRDC](https://civilrightsdata.ed.gov/data), [ACS five-year API](https://www.census.gov/data/developers/data-sets/acs-5year.html), [SEDA](https://edopportunity.org/opportunity/data/downloads/), and [California Cradle-to-Career](https://c2c.ca.gov/query-builder-student-pathways-dataset/)"
+      },
+      {
+        "id": "comparison_method",
+        "type": "markdown",
+        "body": "## Comparison design matters more than adding more metrics\n\nA statewide average should not be the only baseline. Every school should be shown against:\n\n- **Same-district peers:** a comparison within a related governance and funding context.\n- **Nearby schools:** calculated from school coordinates, with a prominent statement that proximity does not determine attendance assignment.\n- **Similar-context peers:** a transparent peer set based on grade span, traditional or charter or DASS status, urbanicity, enrollment size, and the shares of socioeconomically disadvantaged students, English learners, and students with disabilities.\n\nA child's race or another protected characteristic may be used to view an officially published subgroup outcome. It must not be used to recommend where a family should live or to label a neighborhood as suitable for a demographic group. The peer selection rules should be public, and users should be able to inspect why each peer was included.\n\nThe first release should not calculate an overall score. It should present outcomes, growth, attendance, discipline, staffing or resources, and postsecondary evidence side by side so families can apply their own priorities."
+      },
+      {
+        "id": "quality_privacy",
+        "type": "markdown",
+        "body": "## Data quality, privacy, and fairness must be visible product features\n\n### Required rules\n\n- **Never reverse suppressed values.** Several CDE student files suppress selected cells with counts of 10 or fewer. Dashboard reporting also applies minimum sample rules. Display suppression as suppression; do not reconstruct it by subtraction.\n- **Do not present small samples as stable trends.** When a source publishes a value for 11–29 students, label it small-N and avoid peer percentiles or confident trend claims.\n- **Do not connect methodology breaks.** CAASPP and accountability data have pandemic gaps, 2019–20 chronic absence is unavailable, and the 2023–24 enrollment schema added changes such as transitional kindergarten treatment. Show breaks explicitly.\n- **Preserve denominators.** Store numerator, denominator, value, and eligibility. Never mix Census Day and cumulative enrollment.\n- **Track entity history.** Use CDS codes as the primary identifier while retaining rename, close, merge, and NCES crosswalk records.\n- **Do not assume subgroups are additive.** English learner, disability, socioeconomic, and demographic categories may overlap.\n- **Collect no child-level personal data in the MVP.** Do not require accounts, precise home addresses, or free-text child profiles. Keep selections local and provide a clear reset action.\n\n### Automated release gates\n\nEvery data update should test schema and type stability, key uniqueness, CDS formats, parent-child coverage, join multiplicity, value ranges, numerator less than or equal to denominator, suppression preservation, category drift, row-count anomalies, valid aggregate reconciliation, historical hash changes, and comparison eligibility. A failed check must block publication and produce a readable diff.\n\nReferences: [CDE California School Dashboard Technical Guide](https://www6.cde.ca.gov/californiamodel/report?indicator=ela&year=2024) and [CDE Enrollment Data](https://www.cde.ca.gov/ds/ad/filesenrcensus.asp)"
+      },
+      {
+        "id": "architecture",
+        "type": "markdown",
+        "body": "## A static-first architecture is sufficient for the public beta\n\n```text\nCDE, federal, and community sources\n        -> scheduled adapters and checksum manifest\nimmutable raw snapshots in object storage\n        -> Polars and DuckDB validation and normalization\ncanonical Parquet fact and dimension model\n        -> precomputed search, nearby, and peer sets\nper-entity data bundles and compressed search index\n        -> CDN\nNext.js and React client: search, compare, trend, subgroup, provenance\n```\n\n### Recommended stack\n\n- Data: Python 3.12, uv, Polars, DuckDB, PyArrow, and pytest.\n- Model: `dim_entity`, `dim_metric`, `dim_subgroup`, `dim_geography`, `fact_metric`, and `source_snapshot`, with a long-form fact grain of entity, school year, metric, subgroup, grade, and subject.\n- Web: Next.js, React, and TypeScript. Add MapLibre and PMTiles only when a map becomes decision-critical.\n- Hosting: Cloudflare Pages or Workers and R2, with GitHub Actions checking source manifests and rebuilding only when a source changes.\n- Operations: build logs, a data freshness page, schema-drift issues, frontend errors, and privacy-preserving performance metrics.\n\nThe MVP does not need a runtime database. Precompute small school-level bundles and perform comparison in the client. Add Postgres and PostGIS only when accounts, saved lists, complex dynamic queries, or partner APIs create a real requirement.\n\nThe core requires no GPU or language model. A standard four-core machine with 8–16 GB of memory is sufficient for the first source set when larger files are streamed through DuckDB or Polars. If generated explanations are added later, use templates or human-reviewed outputs; a model must never calculate official metrics, fill suppressed values, or receive child data."
+      },
+      {
+        "id": "costs",
+        "type": "markdown",
+        "body": "## Cash cost is low; maintenance labor is the real budget\n\n| Stage | Infrastructure estimate | Labor estimate | Notes |\n|---|---:|---:|---|\n| Prototype | $0–$50 per year | 80–140 hours | Domain plus local or CI builds and free static hosting |\n| 8–10 week public beta | $0–$25 per month plus domain | 250–400 cumulative hours | Static-first delivery usually avoids a database |\n| Steady maintenance | $0–$50 per month | 8–20 hours per month | Source checks, dependencies, security, and feedback |\n| Annual release windows | Same infrastructure | 20–40 hours per release | New school-year files, schema changes, backfills, and method review |\n| Larger traffic | $30–$150 per month, high uncertainty | At least 0.1–0.2 FTE | Depends on cache hit rate, maps, APIs, and logs; load test before budgeting |\n\nThese figures are planning estimates, not vendor quotes. Public repositories can use standard GitHub-hosted Actions runners without usage charges, and current Cloudflare developer plans include free Workers and R2 allowances. The static architecture lets cost grow with demonstrated usage rather than projected usage.\n\nThe chart below shows why infrastructure is not the primary constraint: data engineering and quality are likely to consume the largest share of the MVP effort, but frontend, research, and release work remain material. Read each pair of bars as a low and high planning estimate, not as measured productivity.\n\nPricing references: [GitHub Actions Billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions), [Cloudflare Developer Platform Pricing](https://www.cloudflare.com/plans/developer-platform-pricing/), [Neon Pricing](https://neon.com/pricing), and [Supabase Pricing](https://supabase.com/pricing)"
+      },
+      {
+        "id": "mvp_effort_chart",
+        "type": "chart",
+        "chartId": "mvp_effort_range"
+      },
+      {
+        "id": "roadmap",
+        "type": "markdown",
+        "body": "## An 8–10 week roadmap should validate the task before expanding coverage\n\n| Weeks | Deliverable | Exit criterion |\n|---|---|---|\n| 0–1 | Interviews with 15 parents and 3–5 educators; task script; 8–12 sample schools | At least 70% recognize the core task and understand that nearby does not mean assigned |\n| 1–2 | Directory, entity lineage, source manifest, data contracts, and fixtures | Identity, status, and parent-child tests pass |\n| 2–4 | Enrollment, academic, absence, and suspension adapters with quality reports | Sample schools and years reconcile with official reports |\n| 3–5 | Search, school profile, two-to-five-school comparison, and source details | A share link reproduces the same comparison |\n| 5–6 | Subgroup lens and district, nearby, and similar-context baselines | Peer selection is explainable and all suppression rules are covered |\n| 6–7 | Graduation and college-going; mobile, accessibility, and bilingual terminology foundation | Core flow is keyboard-usable and has no mobile overflow |\n| 7–8 | Reliability labels, methods, automated updates, and issue templates | A failed data update blocks deployment and opens an issue |\n| 9–10 | Limited beta, fixes, and first version | Median task time is under three minutes and more than 70% can state one limitation correctly |\n\nA practical first team is one data and product lead, one frontend engineer, and a quarter-time designer or researcher. One person may cover several roles, but data rules and user research should not be omitted. Good early open-source contributions include source adapters, data dictionaries, fixtures, accessibility, translations, and city-level pilots."
+      },
+      {
+        "id": "governance",
+        "type": "markdown",
+        "body": "## Open-source governance must separate project code from source data\n\nUse **Apache-2.0** for code and optionally **CC BY 4.0** for original documentation. Source datasets do not inherit the project license. Maintain a dedicated `DATA_SOURCES.md` that records each source URL, terms, attribution, redistribution status, snapshot digest, and update date.\n\nCDE's copyright statement says that, unless otherwise noted, reproducing website material generally requires permission. CDE marks and seals also must not be used as project branding. The first release should therefore:\n\n- avoid committing large raw files to Git;\n- avoid applying the project license to CDE source data;\n- retrieve sources from official locations and publish reviewed factual derivatives only after terms are confirmed;\n- avoid CDE seals and any claim of official endorsement;\n- preserve source, version, method, and correction links on every relevant page.\n\nThe repository should contain the web application, data pipeline, data contracts, fixtures, tests, architecture decisions, workflows, methodology, contribution guide, code of conduct, security policy, and versioned data changelog.\n\nReferences: [CDE Copyright Statement](https://www.cde.ca.gov/RE/di/cr/index.asp) and [CDE Web Policy](https://www.cde.ca.gov/re/di/ws/webpolicy.asp)"
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Recommended Next Steps\n\nThe next two weeks should contain only five workstreams:\n\n1. Write a one-page interview guide and recruit 15 parents across moving, school transition, English learner, special education, demographic, urban, suburban, and rural contexts.\n2. Select one bounded pilot region and 8–12 schools, including elementary, middle, high, charter, and at least one renamed or closed entity for lineage testing.\n3. Build an end-to-end slice for the CDE Directory, Census Day Enrollment, and one academic indicator: download, hash, schema, normalize, test, and browser bundle.\n4. Produce one clickable comparison page that shows multi-year trends, three baselines, a subgroup lens, and reliability labels using real sample data.\n5. Review data licensing and fair-housing boundaries before public promotion or partner outreach.\n\n**Recommended first GitHub milestone:** A public URL lets a parent compare three schools in under three minutes and correctly identify one trend, one subgroup difference, and one data limitation."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## Further Questions\n\n- Should the first pilot go deep in one metropolitan area or offer statewide search with a narrow metric set? The recommended default is one deep metro pilot with statewide entity search.\n- Should Spanish launch alongside English, or follow the first prototype? Spanish terminology research should begin early even if full localization follows.\n- Will the project remain an information utility, or work with real estate, school consulting, or nonprofit partners? The business model changes trust, licensing, and fair-housing requirements.\n- Will families trust a rule-based or statistical peer set more? Prototype testing should decide.\n- Who owns annual data-release windows and has authority to pause an update when definitions change?\n- Which derived data may be redistributed, and which must be rebuilt from official sources by each deployment? This requires source-by-source review."
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## Caveats and Assumptions\n\n- This report is desk research and product planning as of July 13, 2026. It is not legal advice, a complete accessibility audit, or an audit of every local education agency.\n- Cost and labor ranges assume a static-first MVP and exclude founder compensation, legal services, paid translation, marketing, and large-scale support.\n- CRPE's D grade reflects a 2024 review window and demonstrates a historical transparency gap; CDE features may have improved since then.\n- Student and district counts indicate reach, not addressable users or revenue. Interviews, usability tests, and traffic experiments are still required.\n- CDE now publishes statewide school district areas, but school attendance boundaries remain largely local. A map must not claim to determine enrollment eligibility for an address.\n- Public subgroup data can still contribute to stigma or discriminatory housing behavior. Copy, defaults, sorting, sharing, and partnerships require ongoing fairness review.\n- Sources may backfill historical files, change schemas, or issue corrections. Every project release must bind to an immutable source manifest."
+      }
+    ],
+    "sources": [
+      {"id": "cde_downloads", "label": "CDE Downloadable Data Files", "href": "https://www.cde.ca.gov/ds/ad/downloadabledata.asp"},
+      {"id": "cde_facts", "label": "CDE Fingertip Facts", "href": "https://www.cde.ca.gov/ds/sd/cb/ceffingertipfacts.asp"},
+      {"id": "cde_compare", "label": "CDE 2025 Compare Schools Guide", "href": "https://www.cde.ca.gov/Ta/ac/cm/documents/compareschools25.pdf"},
+      {"id": "ed_data", "label": "Ed-Data School Comparisons", "href": "https://www.ed-data.org/Comparisons?compType=schools"},
+      {"id": "crpe", "label": "CRPE Report Card Map", "href": "https://crpe.org/our-publications/research-reports/report-card-map-24/"},
+      {"id": "cde_directory", "label": "CDE Public School and District Data Files", "href": "https://www.cde.ca.gov/ds/si/ds/pubschls.asp"},
+      {"id": "cde_enrollment", "label": "CDE Census Day Enrollment", "href": "https://www.cde.ca.gov/ds/ad/filesenrcensus.asp"},
+      {"id": "cde_academic", "label": "CDE Academic Indicator Data", "href": "https://www.cde.ca.gov/ta/ac/cm/acaddatafiles.asp"},
+      {"id": "cde_absence", "label": "CDE Chronic Absenteeism Data", "href": "https://www.cde.ca.gov/ds/ad/filesabd.asp"},
+      {"id": "cde_suspension", "label": "CDE Suspension Data", "href": "https://www.cde.ca.gov/ds/ad/filessd.asp"},
+      {"id": "cde_staff", "label": "CDE Staff Data", "href": "https://www.cde.ca.gov/ds/ad/staff.asp"},
+      {"id": "cde_sarc", "label": "CDE SARC Data", "href": "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"},
+      {"id": "crdc", "label": "Civil Rights Data Collection", "href": "https://civilrightsdata.ed.gov/data"},
+      {"id": "acs", "label": "Census ACS Five-Year API", "href": "https://www.census.gov/data/developers/data-sets/acs-5year.html"},
+      {"id": "seda", "label": "Stanford Education Data Archive", "href": "https://edopportunity.org/opportunity/data/downloads/"},
+      {"id": "c2c", "label": "California Cradle-to-Career", "href": "https://c2c.ca.gov/query-builder-student-pathways-dataset/"},
+      {"id": "github_actions", "label": "GitHub Actions Billing", "href": "https://docs.github.com/en/billing/concepts/product-billing/github-actions"},
+      {"id": "cloudflare", "label": "Cloudflare Developer Platform Pricing", "href": "https://www.cloudflare.com/plans/developer-platform-pricing/"},
+      {"id": "cde_copyright", "label": "CDE Copyright Statement", "href": "https://www.cde.ca.gov/RE/di/cr/index.asp"},
+      {
+        "id": "planning_assumptions",
+        "label": "MVP planning assumptions",
+        "path": "docs/ca-school-explorer-plan.artifact.json",
+        "query": {
+          "engine": "duckdb",
+          "language": "sql",
+          "id": "mvp-effort-assumptions-v1",
+          "executed_at": "2026-07-13T12:00:00-07:00",
+          "description": "Materializes the planning ranges used in the effort chart; values are estimates, not observed time logs.",
+          "sql": "SELECT * FROM (VALUES ('Data engineering and quality', 100, 160, 'Source adapters, modeling, tests, and publishing'), ('Product and frontend', 80, 120, 'Search, comparison, trends, and responsive interface'), ('Research and design', 40, 70, 'Interviews, prototypes, terminology, and usability'), ('QA, docs, and launch', 30, 50, 'Review, accessibility, methods, and beta launch')) AS t(workstream, min_hours, max_hours, scope)"
+        }
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-13T12:00:00-07:00",
+    "status": "ready",
+    "datasets": {
+      "mvp_effort_by_workstream": [
+        {"workstream": "Data engineering and quality", "min_hours": 100, "max_hours": 160, "scope": "Source adapters, modeling, tests, and publishing"},
+        {"workstream": "Product and frontend", "min_hours": 80, "max_hours": 120, "scope": "Search, comparison, trends, and responsive interface"},
+        {"workstream": "Research and design", "min_hours": 40, "max_hours": 70, "scope": "Interviews, prototypes, terminology, and usability"},
+        {"workstream": "QA, docs, and launch", "min_hours": 30, "max_hours": 50, "scope": "Review, accessibility, methods, and beta launch"}
+      ]
+    }
+  },
+  "sources": [
+    {"id": "cde_downloads", "label": "CDE Downloadable Data Files", "href": "https://www.cde.ca.gov/ds/ad/downloadabledata.asp"},
+    {"id": "cde_facts", "label": "CDE Fingertip Facts", "href": "https://www.cde.ca.gov/ds/sd/cb/ceffingertipfacts.asp"},
+    {"id": "cde_compare", "label": "CDE 2025 Compare Schools Guide", "href": "https://www.cde.ca.gov/Ta/ac/cm/documents/compareschools25.pdf"},
+    {"id": "ed_data", "label": "Ed-Data School Comparisons", "href": "https://www.ed-data.org/Comparisons?compType=schools"},
+    {"id": "crpe", "label": "CRPE Report Card Map", "href": "https://crpe.org/our-publications/research-reports/report-card-map-24/"},
+    {"id": "cde_directory", "label": "CDE Public School and District Data Files", "href": "https://www.cde.ca.gov/ds/si/ds/pubschls.asp"},
+    {"id": "cde_enrollment", "label": "CDE Census Day Enrollment", "href": "https://www.cde.ca.gov/ds/ad/filesenrcensus.asp"},
+    {"id": "cde_academic", "label": "CDE Academic Indicator Data", "href": "https://www.cde.ca.gov/ta/ac/cm/acaddatafiles.asp"},
+    {"id": "cde_absence", "label": "CDE Chronic Absenteeism Data", "href": "https://www.cde.ca.gov/ds/ad/filesabd.asp"},
+    {"id": "cde_suspension", "label": "CDE Suspension Data", "href": "https://www.cde.ca.gov/ds/ad/filessd.asp"},
+    {"id": "cde_staff", "label": "CDE Staff Data", "href": "https://www.cde.ca.gov/ds/ad/staff.asp"},
+    {"id": "cde_sarc", "label": "CDE SARC Data", "href": "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"},
+    {"id": "crdc", "label": "Civil Rights Data Collection", "href": "https://civilrightsdata.ed.gov/data"},
+    {"id": "acs", "label": "Census ACS Five-Year API", "href": "https://www.census.gov/data/developers/data-sets/acs-5year.html"},
+    {"id": "seda", "label": "Stanford Education Data Archive", "href": "https://edopportunity.org/opportunity/data/downloads/"},
+    {"id": "c2c", "label": "California Cradle-to-Career", "href": "https://c2c.ca.gov/query-builder-student-pathways-dataset/"},
+    {"id": "github_actions", "label": "GitHub Actions Billing", "href": "https://docs.github.com/en/billing/concepts/product-billing/github-actions"},
+    {"id": "cloudflare", "label": "Cloudflare Developer Platform Pricing", "href": "https://www.cloudflare.com/plans/developer-platform-pricing/"},
+    {"id": "cde_copyright", "label": "CDE Copyright Statement", "href": "https://www.cde.ca.gov/RE/di/cr/index.asp"},
+    {
+      "id": "planning_assumptions",
+      "label": "MVP planning assumptions",
+      "path": "docs/ca-school-explorer-plan.artifact.json",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "id": "mvp-effort-assumptions-v1",
+        "executed_at": "2026-07-13T12:00:00-07:00",
+        "description": "Materializes the planning ranges used in the effort chart; values are estimates, not observed time logs.",
+        "sql": "SELECT * FROM (VALUES ('Data engineering and quality', 100, 160, 'Source adapters, modeling, tests, and publishing'), ('Product and frontend', 80, 120, 'Search, comparison, trends, and responsive interface'), ('Research and design', 40, 70, 'Interviews, prototypes, terminology, and usability'), ('QA, docs, and launch', 30, 50, 'Review, accessibility, methods, and beta launch')) AS t(workstream, min_hours, max_hours, scope)"
+      }
+    }
+  ]
+}

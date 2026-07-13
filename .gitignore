@@ -1,0 +1,25 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.idea/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.vscode/
+__pycache__/
+*.egg-info/
+*.py[cod]
+build/
+dist/
+htmlcov/
+.coverage
+
+# Raw and generated data must not be committed by default.
+data/raw/
+data/interim/
+data/processed/
+data/published/
+*.duckdb
+*.parquet

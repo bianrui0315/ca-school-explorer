@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.html linguist-generated=true
+*.json text eol=lf
+*.toml text eol=lf

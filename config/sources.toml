@@ -1,0 +1,133 @@
+catalog_version = 1
+
+[[sources]]
+id = "cde_school_directory"
+name = "California Public School and District Directory"
+publisher = "California Department of Education"
+category = "directory"
+landing_page_url = "https://www.cde.ca.gov/ds/si/ds/pubschls.asp"
+refresh_cadence = "continuous"
+status = "planned"
+license_review = "required"
+notes = "Canonical entity foundation; organization-reported fields can be incomplete or outdated."
+
+[[sources]]
+id = "cde_census_enrollment"
+name = "Census Day Enrollment"
+publisher = "California Department of Education"
+category = "enrollment"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filesenrcensus.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Includes school, district, grade, and demographic cuts with small-cell suppression."
+
+[[sources]]
+id = "cde_academic_indicator"
+name = "Academic Indicator Data Files"
+publisher = "California Department of Education"
+category = "academics"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/cm/acaddatafiles.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Accountability definitions differ from raw CAASPP reporting and include pandemic gaps."
+
+[[sources]]
+id = "cde_chronic_absenteeism"
+name = "Chronic Absenteeism Data"
+publisher = "California Department of Education"
+category = "attendance"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filesabd.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "School and subgroup data with suppression and cross-year comparability notes."
+
+[[sources]]
+id = "cde_suspension"
+name = "Suspension Data"
+publisher = "California Department of Education"
+category = "discipline"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filessd.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Historical school and subgroup data; pandemic years require explicit interpretation."
+
+[[sources]]
+id = "cde_college_going"
+name = "College-Going Rate Data"
+publisher = "California Department of Education"
+category = "postsecondary"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/pse.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Combines CALPADS and National Student Clearinghouse records and has a publication lag."
+
+[[sources]]
+id = "cde_staff"
+name = "Staff Data"
+publisher = "California Department of Education"
+category = "staffing"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/staff.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Covers staff demographics, education, experience, ratios, and assignment monitoring."
+
+[[sources]]
+id = "cde_sarc"
+name = "School Accountability Report Card Data"
+publisher = "California Department of Education"
+category = "school_conditions"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Many standardized files are available, while several narrative fields remain LEA-provided."
+
+[[sources]]
+id = "federal_crdc"
+name = "Civil Rights Data Collection"
+publisher = "United States Department of Education"
+category = "civil_rights"
+landing_page_url = "https://civilrightsdata.ed.gov/data"
+refresh_cadence = "biennial"
+status = "planned"
+license_review = "required"
+notes = "Provides program access, discipline, safety, staffing, and subgroup dimensions with release lag."
+
+[[sources]]
+id = "census_acs5"
+name = "American Community Survey Five-Year Estimates"
+publisher = "United States Census Bureau"
+category = "community_context"
+landing_page_url = "https://www.census.gov/data/developers/data-sets/acs-5year.html"
+refresh_cadence = "annual"
+status = "planned"
+license_review = "required"
+notes = "Use five-year estimates with margins of error and explicit geographic crosswalks."
+
+[[sources]]
+id = "stanford_seda"
+name = "Stanford Education Data Archive"
+publisher = "Educational Opportunity Project at Stanford University"
+category = "research"
+landing_page_url = "https://edopportunity.org/opportunity/data/downloads/"
+refresh_cadence = "periodic"
+status = "planned"
+license_review = "required"
+notes = "Research-grade achievement and learning-rate measures require careful methodological explanation."
+
+[[sources]]
+id = "california_c2c"
+name = "California Cradle-to-Career Data System"
+publisher = "California Cradle-to-Career Data System"
+category = "pathways"
+landing_page_url = "https://c2c.ca.gov/query-builder-student-pathways-dataset/"
+refresh_cadence = "periodic"
+status = "planned"
+license_review = "required"
+notes = "Potential source for postsecondary pathway outcomes; prefer integration over duplication."
