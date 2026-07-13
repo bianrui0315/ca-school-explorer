@@ -36,7 +36,7 @@ Official source pages
 
 ### Web application
 
-- Next.js, React, and TypeScript;
+- Vite, React, and TypeScript for the current comparison slice;
 - pre-rendered public pages where practical;
 - client-side comparison of bounded school bundles;
 - MapLibre and PMTiles only when mapping becomes essential;
@@ -48,17 +48,19 @@ Official source pages
 - PostgreSQL for private batch ingestion, normalized data, and provenance;
 - CDN delivery for search indexes and school bundles;
 - no public request-time database dependency in the MVP;
+- Cloudflare Worker Static Assets for the deployable SPA shell;
+- R2 or Worker-served precomputed JSON bundles when reviewed real data are published;
 - optional PostGIS when dynamic geography or partner APIs require it.
 
 ## Canonical data model
 
 - `entity`: state, county, district, and school identity and lineage;
 - `metric`: definition, unit, numerator and denominator meaning, and methodology version;
-- `subgroup`: source-specific subgroup definitions and crosswalks;
+- `subgroup`: canonical subgroup definitions plus source-specific code crosswalks;
 - `fact_metric`: entity-year-metric-subgroup-grade-subject observations;
 - `source_snapshot`: source URL, release, retrieval time, digest, schema, and terms status.
 
-The current schema is intentionally smaller than the target model. Geography, school status, directory attributes, and cross-source identity reconciliation will arrive with their source adapters.
+Entity identity uses a stable `identity_key`. Source records with one CDS code but multiple school names are retained as separate ambiguous entities until a directory crosswalk resolves them. Geography, school status, and directory attributes will arrive with their source adapters.
 
 ## Operational controls
 

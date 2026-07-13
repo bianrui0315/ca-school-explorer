@@ -8,6 +8,12 @@
     "web:dev": "npm --workspace @ca-school-explorer/web run dev",
     "web:build": "npm --workspace @ca-school-explorer/web run build",
     "web:lint": "npm --workspace @ca-school-explorer/web run lint",
-    "web:test": "npm --workspace @ca-school-explorer/web run test"
+    "web:test": "npm --workspace @ca-school-explorer/web run test",
+    "worker:dev": "npm run web:build && wrangler dev",
+    "worker:dry-run": "npm run web:build && wrangler deploy --dry-run",
+    "worker:deploy": "npm run web:build && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.110.0"
   }
 }

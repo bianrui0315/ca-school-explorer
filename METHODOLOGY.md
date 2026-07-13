@@ -17,6 +17,7 @@ The primary fact model is long-form:
 
 ```text
 entity_id
+entity_identity_resolution
 school_year
 metric_id
 subgroup_id
@@ -29,19 +30,22 @@ suppression_status
 reliability_status
 methodology_version
 source_snapshot_id
+source_row_number
 ```
 
 Dimensions retain entity history, metric definitions, subgroup definitions, geographic crosswalks, and source metadata.
 
 ## Entity identity
 
-The California CDS code is the primary school and district identifier. The entity model must preserve:
+The California CDS code is the primary source identifier, but it is not assumed to be collision-free across every downloadable file. A stable entity identity key and resolution state preserve:
 
 - active, pending, closed, merged, and renamed records;
 - parent district and county relationships;
 - NCES identifiers where available;
 - effective dates for identity changes;
 - school type, grade span, charter status, and DASS status.
+
+When one source snapshot associates a CDS code with multiple school identities, records remain separate and are marked ambiguous. They are not silently merged or published as resolved until an authoritative crosswalk supports the decision.
 
 Historical facts remain attached to the entity that reported them. Mergers and renames are not silently rewritten into a current-school-only history.
 
@@ -75,6 +79,7 @@ Every source release must pass:
 
 - schema and type checks;
 - primary-key uniqueness;
+- explicit detection of identity collisions;
 - valid CDS formats and parent relationships;
 - join multiplicity checks;
 - value range checks;

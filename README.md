@@ -32,7 +32,9 @@ The repository now includes a first interactive product slice and a real-data fo
 - visible denominators, reliability labels, district context, and source notes;
 - an initial catalog of official data sources;
 - a PostgreSQL canonical store with deterministic migrations and least-privilege roles;
-- a pinned, checksum-verified adapter for the complete CDE 2024–25 chronic absenteeism file;
+- pinned, checksum-verified adapters for five CDE 2024–25 outcome datasets and one 2025–26 school geography snapshot;
+- 1,261,258 canonical facts covering chronic absenteeism, ELA, mathematics, suspension, four-year graduation, A–G completion, and dropout;
+- 9,946 public-school profiles with quality-controlled coordinates, classifications, enrollment, and staffing context;
 - source validation, audited bulk ingestion, suppression handling, and idempotent re-imports;
 - a Python CLI for catalog, source snapshot, and database operations;
 - data governance and methodology documents;
@@ -90,12 +92,23 @@ export DATABASE_URL=postgresql://cse_admin:local-development-only@127.0.0.1:5432
 
 ca-school-explorer db-migrate
 ca-school-explorer db-install-roles
-ca-school-explorer fetch-dataset
-ca-school-explorer inspect-chronic-absenteeism
-ca-school-explorer ingest-chronic-absenteeism
+ca-school-explorer fetch-dataset --manifest config/datasets/cde_suspension_2024_25.toml
+ca-school-explorer inspect-dataset --manifest config/datasets/cde_suspension_2024_25.toml
+ca-school-explorer ingest-dataset --manifest config/datasets/cde_suspension_2024_25.toml
 ```
 
-The pinned source is the official CDE 2024–25 chronic absenteeism release: 341,490 observations across state, county, district, and school aggregation levels. Raw files are downloaded into ignored local storage and are never committed by default. See [Database and real-data ingestion](docs/database.md) for the schema, verification gates, queries, backup and restore procedures, and deployment guidance.
+Raw files are downloaded into ignored local storage and are never committed by default. The canonical PostgreSQL database currently contains six official snapshots, seven outcome metrics, and a geographic school-profile layer. A–G completion is included, but it must not be labeled as the broader California Dashboard College/Career Indicator, which remains the next priority adapter. See [Database and real-data ingestion](docs/database.md) for the schema, verification gates, queries, backup and restore procedures, and deployment guidance.
+
+### Cloudflare Worker preview
+
+The Vite application is ready to run as Cloudflare Worker Static Assets without publishing the canonical database:
+
+```bash
+npm run worker:dev
+npm run worker:dry-run
+```
+
+`npm run worker:deploy` is intentionally manual. The public site still uses synthetic fixture values until a reviewed publishing layer exports small, source-attributed real-data bundles. See [Cloudflare Workers deployment](docs/cloudflare-workers.md).
 
 ## Documentation
 
@@ -104,6 +117,7 @@ The pinned source is the official CDE 2024–25 chronic absenteeism release: 341
 - [Roadmap](ROADMAP.md)
 - [Architecture](docs/architecture.md)
 - [Database and real-data ingestion](docs/database.md)
+- [Cloudflare Workers deployment](docs/cloudflare-workers.md)
 - [Static-first architecture decision](docs/adr/0001-static-first-delivery.md)
 - [Canonical PostgreSQL architecture decision](docs/adr/0002-postgresql-canonical-store.md)
 - [Contributing](CONTRIBUTING.md)

@@ -22,12 +22,17 @@ from ca_school_explorer.database import (
     apply_migrations,
     apply_security_roles,
     ingest_chronic_absenteeism,
+    ingest_dataset,
+    ingest_school_geography,
+    inspect_dataset,
 )
 from ca_school_explorer.dataset_manifest import (
     ManifestError,
     fetch_dataset,
     load_dataset_manifest,
 )
+from ca_school_explorer.indicators import IndicatorDataError
+from ca_school_explorer.school_directory import SchoolDirectoryError
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -81,6 +86,35 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("data/raw"),
         help="Ignored root directory for immutable source files.",
+    )
+
+    inspect_parser = subparsers.add_parser(
+        "inspect-dataset",
+        help="Run source-level quality checks for any supported dataset.",
+    )
+    _add_manifest(inspect_parser)
+    inspect_parser.add_argument(
+        "--file", type=Path, help="Source file path; defaults to the manifest's raw path."
+    )
+
+    ingest_dataset_parser = subparsers.add_parser(
+        "ingest-dataset",
+        help="Validate and load any supported CDE snapshot into PostgreSQL.",
+    )
+    _add_database_url(ingest_dataset_parser)
+    _add_manifest(ingest_dataset_parser)
+    ingest_dataset_parser.add_argument(
+        "--file", type=Path, help="Source file path; defaults to the manifest's raw path."
+    )
+
+    geography_parser = subparsers.add_parser(
+        "ingest-school-geography",
+        help="Validate and load a CDE school geography snapshot into PostgreSQL.",
+    )
+    _add_database_url(geography_parser)
+    _add_manifest(geography_parser)
+    geography_parser.add_argument(
+        "--file", type=Path, help="Source file path; defaults to the manifest's raw path."
     )
 
     inspect_parser = subparsers.add_parser(
@@ -181,8 +215,26 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(json.dumps(asdict(inspection), indent=2))
             return 0
 
+        if args.command == "inspect-dataset":
+            dataset_inspection = inspect_dataset(manifest, source_path)
+            payload = asdict(dataset_inspection)
+            if "ambiguous_entity_keys" in payload:
+                payload["ambiguous_entity_keys"] = sorted(payload["ambiguous_entity_keys"])
+            print(json.dumps(payload, indent=2))
+            return 0
+
         if args.command == "ingest-chronic-absenteeism":
             ingest_result = ingest_chronic_absenteeism(args.database_url, manifest, source_path)
+            print(json.dumps(asdict(ingest_result), indent=2))
+            return 0
+
+        if args.command == "ingest-dataset":
+            ingest_result = ingest_dataset(args.database_url, manifest, source_path)
+            print(json.dumps(asdict(ingest_result), indent=2))
+            return 0
+
+        if args.command == "ingest-school-geography":
+            ingest_result = ingest_school_geography(args.database_url, manifest, source_path)
             print(json.dumps(asdict(ingest_result), indent=2))
             return 0
 
@@ -192,7 +244,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (
         ChronicAbsenteeismError,
         DatabaseError,
+        IndicatorDataError,
         ManifestError,
+        SchoolDirectoryError,
         OSError,
         psycopg.Error,
     ) as error:

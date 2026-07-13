@@ -25,7 +25,7 @@ pytestmark = pytest.mark.skipif(
 def test_migrate_ingest_and_reuse_snapshot(tmp_path: Path) -> None:
     assert DATABASE_URL is not None
     migration_result = apply_migrations(DATABASE_URL, ROOT / "db" / "migrations")
-    assert len(migration_result.applied) + len(migration_result.skipped) == 3
+    assert len(migration_result.applied) + len(migration_result.skipped) == 5
 
     with psycopg.connect(DATABASE_URL) as connection:
         connection.execute(

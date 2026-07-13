@@ -1,4 +1,4 @@
-.PHONY: install lint typecheck test check web-install web-check full-check db-up db-down db-migrate db-roles data-fetch data-inspect data-ingest
+.PHONY: install lint typecheck test check web-install web-check worker-check full-check db-up db-down db-migrate db-roles data-fetch data-inspect data-ingest
 
 install:
 	python -m pip install -e ".[dev]"
@@ -24,6 +24,9 @@ web-check:
 	npm run web:test
 	npm run web:build
 
+worker-check:
+	npm run worker:dry-run
+
 full-check: check web-check
 
 db-up:
@@ -42,7 +45,7 @@ data-fetch:
 	python -m ca_school_explorer fetch-dataset
 
 data-inspect:
-	python -m ca_school_explorer inspect-chronic-absenteeism
+	python -m ca_school_explorer inspect-dataset
 
 data-ingest:
-	python -m ca_school_explorer ingest-chronic-absenteeism
+	python -m ca_school_explorer ingest-dataset
