@@ -2,7 +2,7 @@
 
 ## Decision
 
-The v0.1.0 application deploys to Cloudflare Workers using Worker Static Assets. The repository includes a pinned Wrangler configuration that builds and serves `apps/web/dist` with single-page-application fallback. The first release needs no D1 database, R2 bucket, Worker secret, or runtime API.
+The application deploys to Cloudflare Workers using Worker Static Assets. The repository includes a pinned Wrangler configuration that builds and serves `apps/web/dist` with single-page-application fallback. The current release needs no D1 database, R2 bucket, Worker secret, or runtime API.
 
 ## Architecture boundary
 
@@ -16,7 +16,7 @@ CDE snapshots -> PostgreSQL -> versioned publisher -> compact JSON bundles
                                                -> browser
 ```
 
-The committed public read model contains 9,946 school profiles, 1,017 district baselines, and 920,813 observations. It is approximately 38 MB across about 500 cacheable files. The statewide search index is split into four manifest-declared files and every release asset remains below 5 MiB. The local canonical database remains approximately 1,009 MB because it retains complete provenance, all aggregation levels, and ingestion indexes.
+The committed public read model contains 9,946 school profiles, 1,019 district baselines, and 1,839,368 observations. It is approximately 64 MB across about 500 cacheable files. The statewide search index is split into four manifest-declared files, and the largest release asset is approximately 1.52 MB. The local canonical database is approximately 1.98 GB because it retains complete provenance, all aggregation levels, and ingestion indexes.
 
 ## One-command release
 
@@ -56,9 +56,9 @@ Build and validate the upload without deploying:
 npm run worker:dry-run
 ```
 
-## Operations and custom domain
+## Operations and optional custom domain
 
-The first authenticated deployment creates the Worker named `ca-school-explorer`. Attach a custom domain in the Cloudflare dashboard after the deployment is stable. Do not add credentials, account IDs, API tokens, database URLs, or temporary claim URLs to `wrangler.jsonc` or Git.
+The first authenticated deployment creates the Worker named `ca-school-explorer`. The default `workers.dev` URL is sufficient; a custom domain is optional. Do not add credentials, account IDs, API tokens, database URLs, or temporary claim URLs to `wrangler.jsonc` or Git.
 
 Static asset requests are the lowest-cost path. If `/api/*` is introduced, add a Worker entry point and limit `assets.run_worker_first` to API routes so ordinary application files continue to bypass Worker compute.
 

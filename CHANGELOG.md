@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-13
+
+### Added
+
+- Checksum-pinned CDE 2023–24 snapshots for chronic absenteeism, suspension, ELA, mathematics, and adjusted cohort graduation outcomes.
+- Two-year trends for all seven public indicators, including subgroup and district context.
+- Canonical `Missing gender` subgroup support for historical CDE reporting code `GZ`.
+- A reproducible data-quality report covering import reconciliation, suppression, validity, statewide checks, and school-level year overlap.
+
+### Changed
+
+- Expanded the canonical store to 2,524,988 metric facts across 11 official snapshots.
+- Expanded the public Worker bundle to 1,839,368 school and district observations for 2023–24 and 2024–25.
+- Updated the public data catalog to 32 subgroup lenses and 1,019 district baselines.
+
+### Known limitations
+
+- Adjacent-year values use consistent adapters and fields, but CDE cautions that processing and reporting changes can affect comparisons.
+- A–G completion is included, but the broader California Dashboard College/Career Indicator is not yet implemented.
+
 ## [0.1.1] - 2026-07-13
 
 ### Fixed
@@ -35,6 +55,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Known limitations
 
-- Outcome data currently covers only the 2024–25 school year, so historical trends are not yet available.
+- Outcome data in this release covers only the 2024–25 school year; v0.2.0 adds the preceding year.
 - A–G completion is included, but the broader California Dashboard College/Career Indicator is not yet implemented.
 - Nearby-school, similar-context, private-school, safety, budget, staffing, and postsecondary-outcome views remain roadmap items.

@@ -76,7 +76,7 @@ export function ComparisonTable({
                 <th scope="col">
                   Change
                   <small>
-                    {formatSchoolYear(startYear)}–{formatSchoolYear(endYear)}
+                    {formatSchoolYear(startYear)} to {formatSchoolYear(endYear)}
                   </small>
                 </th>
               ) : null}

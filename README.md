@@ -22,20 +22,21 @@ The project does not produce a single school score or a "best schools" ranking. 
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.1.0 release
+## v0.2.0 release
 
 The first public release connects the comparison experience to a compact, source-attributed export from the canonical database:
 
 - a responsive React comparison experience for desktop and mobile;
-- searchable profiles for 9,946 California public schools and 1,017 district baselines;
-- 920,813 current school and district observations from six official CDE snapshots;
+- searchable profiles for 9,946 California public schools and 1,019 district baselines;
+- 1,839,368 school and district observations from 11 official CDE snapshots;
 - seven indicators: ELA and mathematics distance from standard, chronic absenteeism, suspension, four-year graduation, A–G completion, and four-year dropout;
-- 31 student-group lenses, including English learners, students with disabilities, racial and ethnic groups, and socioeconomically disadvantaged students;
+- two adjacent outcome years, 2023–24 and 2024–25, on a shared trend timeline;
+- 32 student-group lenses, including English learners, students with disabilities, racial and ethnic groups, and socioeconomically disadvantaged students;
 - side-by-side comparison for up to five schools, exact-value tables, and same-district context;
 - visible denominators, reliability labels, district context, and source notes;
 - a PostgreSQL canonical store with deterministic migrations and least-privilege roles;
-- pinned, checksum-verified adapters for five CDE 2024–25 outcome datasets and one 2025–26 school geography snapshot;
-- 1,261,258 canonical facts covering chronic absenteeism, ELA, mathematics, suspension, four-year graduation, A–G completion, and dropout;
+- pinned, checksum-verified adapters for five CDE outcome datasets in each of 2023–24 and 2024–25, plus one 2025–26 school geography snapshot;
+- 2,524,988 canonical facts covering chronic absenteeism, ELA, mathematics, suspension, four-year graduation, A–G completion, and dropout;
 - 9,946 public-school profiles with quality-controlled coordinates, classifications, enrollment, and staffing context;
 - source validation, audited bulk ingestion, suppression handling, and idempotent re-imports;
 - a Python CLI for catalog, source snapshot, and database operations;
@@ -43,7 +44,7 @@ The first public release connects the comparison experience to a compact, source
 - continuous integration, issue templates, and contribution guidance;
 - a validated, self-contained HTML project plan.
 
-The current public bundle contains one outcome year, 2024–25, so the trend view has only one point per series. Historical imports, nearby and similar-school comparisons, the complete College/Career Indicator, and private-school directory context remain roadmap items. The website is an independent informational project, not a CDE product or endorsement.
+The current public bundle contains two adjacent outcome years. CDE advises caution when comparing years because processing and reporting changes may affect results; missing and suppressed values remain unconnected and are never inferred. Additional history, nearby and similar-school comparisons, the complete College/Career Indicator, and private-school directory context remain roadmap items. The website is an independent informational project, not a CDE product or endorsement.
 
 Raw CDE files are not committed or redistributed. The repository publishes selected factual derived records with source metadata, suppression preserved, and no claim that source data is covered by the Apache-2.0 code license. Formal source-specific permission review remains an open governance item; see [Data Sources and Licensing Policy](DATA_SOURCES.md).
 
@@ -108,7 +109,7 @@ ca-school-explorer inspect-dataset --manifest config/datasets/cde_suspension_202
 ca-school-explorer ingest-dataset --manifest config/datasets/cde_suspension_2024_25.toml
 ```
 
-Raw files are downloaded into ignored local storage and are never committed by default. The canonical PostgreSQL database currently contains six official snapshots, seven outcome metrics, and a geographic school-profile layer. A–G completion is included, but it must not be labeled as the broader California Dashboard College/Career Indicator, which remains the next priority adapter. See [Database and real-data ingestion](docs/database.md) for the schema, verification gates, queries, backup and restore procedures, and deployment guidance.
+Raw files are downloaded into ignored local storage and are never committed by default. The canonical PostgreSQL database currently contains 11 official snapshots, seven outcome metrics across two years, and a geographic school-profile layer. A–G completion is included, but it must not be labeled as the broader California Dashboard College/Career Indicator, which remains the next priority adapter. See [Database and real-data ingestion](docs/database.md) for the schema, verification gates, queries, backup and restore procedures, and deployment guidance.
 
 ### Cloudflare Worker release
 
@@ -137,6 +138,7 @@ See [Cloudflare Workers deployment](docs/cloudflare-workers.md) for the deployme
 - [Roadmap](ROADMAP.md)
 - [Architecture](docs/architecture.md)
 - [Database and real-data ingestion](docs/database.md)
+- [2023–24 historical data quality report](docs/data-quality/2023-24-history.md)
 - [Public data contract v1](data/contracts/public-data-v1.md)
 - [Cloudflare Workers deployment](docs/cloudflare-workers.md)
 - [Static-first architecture decision](docs/adr/0001-static-first-delivery.md)
