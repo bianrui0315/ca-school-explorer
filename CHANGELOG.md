@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-13
+
+### Fixed
+
+- Add the release identifier to school-index, school-shard, and district-shard request URLs so returning browsers cannot combine a new manifest with stale observations from an older release.
+
 ## [0.2.0] - 2026-07-13
 
 ### Added
