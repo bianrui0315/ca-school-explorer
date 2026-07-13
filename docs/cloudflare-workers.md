@@ -16,7 +16,7 @@ CDE snapshots -> PostgreSQL -> versioned publisher -> compact JSON bundles
                                                -> browser
 ```
 
-The committed v0.1.0 public read model contains 9,946 school profiles, 1,017 district baselines, and 920,813 observations. It is approximately 38 MB across about 500 cacheable files; the largest school shard is under 1 MB. The local canonical database remains approximately 1,009 MB because it retains complete provenance, all aggregation levels, and ingestion indexes.
+The committed public read model contains 9,946 school profiles, 1,017 district baselines, and 920,813 observations. It is approximately 38 MB across about 500 cacheable files. The statewide search index is split into four manifest-declared files and every release asset remains below 5 MiB. The local canonical database remains approximately 1,009 MB because it retains complete provenance, all aggregation levels, and ingestion indexes.
 
 ## One-command release
 

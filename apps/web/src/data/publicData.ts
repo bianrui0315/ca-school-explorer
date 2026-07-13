@@ -59,17 +59,25 @@ async function fetchJson<T>(path: string, cache: RequestCache = "force-cache") {
 let catalogPromise: Promise<PublicCatalog> | undefined;
 
 function loadCatalog() {
-  catalogPromise ??= Promise.all([
-    fetchJson<PublicManifest>(`${basePath}/manifest.json`, "no-cache"),
-    fetchJson<SchoolIndexResponse>(
-      `${basePath}/schools-index.json`,
-      "no-cache",
-    ),
-  ]).then(([manifest, index]) => {
-    if (manifest.schemaVersion !== 1 || index.schemaVersion !== 1) {
+  catalogPromise ??= fetchJson<PublicManifest>(
+    `${basePath}/manifest.json`,
+    "no-cache",
+  ).then(async (manifest) => {
+    if (manifest.schemaVersion !== 1) {
       throw new Error("Unsupported public data schema version.");
     }
-    return { manifest, schools: index.schools };
+    const indexes = await Promise.all(
+      manifest.schoolIndexFiles.map((file) =>
+        fetchJson<SchoolIndexResponse>(`${basePath}/${file}`, "no-cache"),
+      ),
+    );
+    if (indexes.some((index) => index.schemaVersion !== 1)) {
+      throw new Error("Unsupported public data schema version.");
+    }
+    return {
+      manifest,
+      schools: indexes.flatMap((index) => index.schools),
+    };
   });
   return catalogPromise;
 }

@@ -5,7 +5,7 @@
     "apps/web"
   ],
   "scripts": {
-    "data:publish": "./.venv/bin/python -m ca_school_explorer publish-public-data --release 0.1.0",
+    "data:publish": "./.venv/bin/python -m ca_school_explorer publish-public-data --release 0.1.1",
     "web:dev": "npm --workspace @ca-school-explorer/web run dev",
     "web:build": "npm --workspace @ca-school-explorer/web run build",
     "web:lint": "npm --workspace @ca-school-explorer/web run lint",

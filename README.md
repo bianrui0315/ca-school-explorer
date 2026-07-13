@@ -84,7 +84,7 @@ Run the complete Python check:
 make check
 ```
 
-After the database has been populated, rebuild the browser-safe v0.1.0 data bundles with:
+After the database has been populated, rebuild the browser-safe public data bundles with:
 
 ```bash
 export DATABASE_URL=postgresql://cse_admin:local-development-only@127.0.0.1:54329/ca_school_explorer
