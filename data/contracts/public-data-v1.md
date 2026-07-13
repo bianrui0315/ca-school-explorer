@@ -6,7 +6,7 @@ It contains derived factual records and source metadata; it does not contain the
 ## Files
 
 - `manifest.json` defines metrics, subgroups, source snapshots, release metadata, and the compact observation encoding.
-- `schools-index.json` contains searchable public-school profiles and the shard identifier for each school.
+- `schools-index/*.json` contains searchable public-school profiles and the shard identifier for each school. The manifest lists every file so clients can load them in parallel without depending on a fixed shard count.
 - `schools/{county}-{bucket}.json` contains school demographics and outcome observations for a bounded shard.
 - `districts/{county}.json` contains district baseline observations.
 

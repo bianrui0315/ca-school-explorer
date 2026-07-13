@@ -114,6 +114,8 @@ export interface PublicManifest {
   profileSchoolYears: string[];
   outcomeSchoolYears: string[];
   schoolCount: number;
+  schoolIndexFileCount: number;
+  schoolIndexFiles: string[];
   districtCount: number;
   observationCount: number;
   schoolShardCount: number;

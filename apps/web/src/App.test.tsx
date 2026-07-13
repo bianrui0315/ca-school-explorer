@@ -144,6 +144,8 @@ const catalog: PublicCatalog = {
     profileSchoolYears: ["2025-26"],
     outcomeSchoolYears: ["2024-25"],
     schoolCount: summaries.length,
+    schoolIndexFileCount: 1,
+    schoolIndexFiles: ["schools-index/00.json"],
     districtCount: 1,
     observationCount: 24,
     schoolShardCount: 1,

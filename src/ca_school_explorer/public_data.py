@@ -18,6 +18,7 @@ import psycopg
 from ca_school_explorer.database import require_database_url
 
 DEFAULT_OUTPUT_ROOT = Path("apps/web/public/data")
+SCHOOL_INDEX_CHUNK_SIZE = 2_500
 
 
 class PublicDataError(RuntimeError):
@@ -457,10 +458,17 @@ def publish_public_data(
                     {"schemaVersion": 1, "shard": shard_id, "schools": records},
                 )
 
-        _write_json(
-            temporary_root / "schools-index.json",
-            {"schemaVersion": 1, "schools": schools},
-        )
+        school_index_files: list[str] = []
+        for offset in range(0, len(schools), SCHOOL_INDEX_CHUNK_SIZE):
+            file_name = f"schools-index/{offset // SCHOOL_INDEX_CHUNK_SIZE:02d}.json"
+            school_index_files.append(file_name)
+            _write_json(
+                temporary_root / file_name,
+                {
+                    "schemaVersion": 1,
+                    "schools": schools[offset : offset + SCHOOL_INDEX_CHUNK_SIZE],
+                },
+            )
         manifest = {
             "schemaVersion": 1,
             "release": release,
@@ -468,6 +476,8 @@ def publish_public_data(
             "profileSchoolYears": sorted(profile_years),
             "outcomeSchoolYears": [str(row[0]) for row in outcome_year_rows],
             "schoolCount": len(schools),
+            "schoolIndexFileCount": len(school_index_files),
+            "schoolIndexFiles": school_index_files,
             "districtCount": district_count,
             "observationCount": observation_count,
             "schoolShardCount": len(school_records),
