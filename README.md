@@ -24,17 +24,38 @@ Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the resea
 
 ## Repository status
 
-This repository is in the foundation phase. It currently includes:
+The repository now includes a first interactive product slice:
 
+- a responsive React comparison experience for desktop and mobile;
+- synthetic fixture data for five fictional schools;
+- four metrics, three student-group lenses, multi-year trends, and exact-value tables;
+- visible denominators, reliability labels, district context, and source notes;
 - an initial catalog of official data sources;
 - a dependency-free Python CLI for catalog inspection and validation;
 - data governance and methodology documents;
 - continuous integration, issue templates, and contribution guidance;
 - a validated, self-contained HTML project plan.
 
-No production school data is committed to this repository. Source licensing and redistribution terms must be reviewed before raw or derived datasets are published.
+The web experience intentionally uses synthetic values. No displayed value describes a real school, and the current version must not be used for school or housing decisions. Source licensing and redistribution terms must be reviewed before raw or derived datasets are published.
 
 ## Quick start
+
+### Web experience
+
+Requirements: Node.js 22 or newer.
+
+```bash
+npm install
+npm run web:dev
+```
+
+Open `http://127.0.0.1:5173`. Run the complete web check with:
+
+```bash
+make web-check
+```
+
+### Data tooling
 
 Requirements: Python 3.12 or newer.
 
@@ -48,11 +69,13 @@ ca-school-explorer validate-sources
 ca-school-explorer list-sources
 ```
 
-Run the complete local check:
+Run the complete Python check:
 
 ```bash
 make check
 ```
+
+Run both stacks with `make full-check` after installing the Python and Node.js dependencies.
 
 ## Documentation
 

@@ -1,0 +1,13 @@
+{
+  "name": "ca-school-explorer-workspace",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "web:dev": "npm --workspace @ca-school-explorer/web run dev",
+    "web:build": "npm --workspace @ca-school-explorer/web run build",
+    "web:lint": "npm --workspace @ca-school-explorer/web run lint",
+    "web:test": "npm --workspace @ca-school-explorer/web run test"
+  }
+}
