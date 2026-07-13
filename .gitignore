@@ -8,6 +8,9 @@
 .ruff_cache/
 .venv/
 .vscode/
+node_modules/
+apps/web/dist/
+apps/web/.vite/
 __pycache__/
 *.egg-info/
 *.py[cod]

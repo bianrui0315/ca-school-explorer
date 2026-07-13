@@ -11,9 +11,10 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 
 ## Phase 1: Build the data foundation
 
-- Implement the CDE Directory adapter and entity lineage.
-- Add immutable source manifests and checksums.
-- Implement Census Day Enrollment and one academic indicator.
+- Extend the implemented public-school geography profiles with the continuously updated CDE Directory and authoritative identity history.
+- Maintain immutable source manifests and checksums. Five 2024–25 snapshots are implemented.
+- Maintain normalized canonical records and ingestion audit history in PostgreSQL.
+- Implement Census Day Enrollment and the canonical school directory. ELA and mathematics indicators are implemented.
 - Add fixtures and reconciliation tests.
 
 ## Phase 2: Deliver the comparison task
@@ -26,14 +27,15 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 
 ## Phase 3: Expand outcome coverage
 
-- Add chronic absenteeism and suspension.
-- Add graduation and college-going for high schools.
+- Publish reviewed chronic absenteeism, academic, suspension, and graduation bundles from the canonical store.
+- Add the distinct Dashboard College/Career Indicator and college-going outcomes for high schools.
 - Add staff ratios and selected SARC measures.
 - Add a public data freshness and correction page.
 
 ## Phase 4: Broaden context carefully
 
 - Evaluate CRDC program, discipline, and safety data.
+- Add private-school directory and affidavit profiles in a visibly separate comparison mode without synthetic public-school performance equivalence.
 - Add ACS community context with margins of error.
 - Evaluate SEDA and Cradle-to-Career integrations.
 - Begin Spanish terminology and localization work.

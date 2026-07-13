@@ -20,6 +20,14 @@ python -m pip install -e ".[dev]"
 make check
 ```
 
+Database adapter work also requires Docker Desktop:
+
+```bash
+docker compose up -d database
+export DATABASE_URL=postgresql://cse_admin:local-development-only@127.0.0.1:54329/ca_school_explorer
+ca-school-explorer db-migrate
+```
+
 ## Pull request expectations
 
 - Use a focused title and explain the user or maintainer impact.

@@ -1,0 +1,41 @@
+manifest_version = 1
+dataset_id = "cde_suspension_2024_25"
+adapter = "suspension_v1"
+schema_version = "cde-suspension-2024-25-v2"
+source_id = "cde_suspension"
+source_name = "CDE Suspension Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filessd.asp"
+download_url = "https://www3.cde.ca.gov/demo-downloads/discipline/suspension25-v2.txt"
+academic_year = "2024-25"
+release_date = "2026-03-13"
+filename = "suspension25-v2.txt"
+media_type = "text/tab-separated-values"
+encoding = "cp1252"
+sha256 = "e7da192571e538f9893c04c575ed64a9035c4b6f6fe30cee9ec832065f06f153"
+byte_size = 25387355
+record_count = 226461
+terms_status = "review-required"
+columns = [
+  "AcademicYear",
+  "AggregateLevel",
+  "CountyCode",
+  "DistrictCode",
+  "SchoolCode",
+  "CountyName",
+  "DistrictName",
+  "SchoolName",
+  "CharterYN",
+  "ReportingCategory",
+  "CumulativeEnrollment",
+  "Total Suspensions",
+  "Unduplicated Count of Students Suspended (Total)",
+  "Unduplicated Count of Students Suspended (Defiance-Only)",
+  "Suspension Rate (Total)",
+  "Suspension Count Violent Incident (Injury)",
+  "Suspension Count Violent Incident (No Injury)",
+  "Suspension Count Weapons Possession",
+  "Suspension Count Illicit Drug-Related",
+  "Suspension Count Defiance-Only",
+  "Suspension Count Other Reasons",
+]

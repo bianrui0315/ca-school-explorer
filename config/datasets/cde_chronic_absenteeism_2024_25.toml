@@ -1,0 +1,35 @@
+manifest_version = 1
+dataset_id = "cde_chronic_absenteeism_2024_25"
+adapter = "chronic_absenteeism_v1"
+schema_version = "cde_chronic_absenteeism_2024_25"
+source_id = "cde_chronic_absenteeism"
+source_name = "CDE Chronic Absenteeism Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filesabd.asp"
+download_url = "https://www3.cde.ca.gov/demo-downloads/attendance/chronicabsenteeism25-v2.txt"
+academic_year = "2024-25"
+release_date = "2026-03-13"
+filename = "chronicabsenteeism25-v2.txt"
+media_type = "text/tab-separated-values"
+encoding = "cp1252"
+sha256 = "c978fe1d0e2e73f60c3ad6d0297dfff86f1cf629dca747b5ac785a2fb00ecf9e"
+byte_size = 33781100
+record_count = 341490
+terms_status = "review-required"
+
+columns = [
+  "Academic Year",
+  "Aggregate Level",
+  "County Code",
+  "District Code",
+  "School Code",
+  "County Name",
+  "District Name",
+  "School Name",
+  "Charter School",
+  "DASS",
+  "Reporting Category",
+  "ChronicAbsenteeismEligibleCumulativeEnrollment",
+  "ChronicAbsenteeismCount",
+  "ChronicAbsenteeismRate",
+]
