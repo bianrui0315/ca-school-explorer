@@ -9,9 +9,9 @@ The product is designed around questions such as:
 - How does a school compare with schools in the same district, nearby schools, and schools serving similar student populations?
 - Which findings are reliable, and which are limited by small samples, suppression, missing years, or methodology changes?
 
-## Product direction
+## Product principles and roadmap
 
-The project will not produce a single school score or a "best schools" ranking. The first release will focus on:
+The project does not produce a single school score or a "best schools" ranking. The product roadmap focuses on:
 
 - side-by-side comparison of two to five schools;
 - multi-year trends on a shared timeline;
@@ -22,15 +22,17 @@ The project will not produce a single school score or a "best schools" ranking. 
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## Repository status
+## v0.1.0 release
 
-The repository now includes a first interactive product slice and a real-data foundation:
+The first public release connects the comparison experience to a compact, source-attributed export from the canonical database:
 
 - a responsive React comparison experience for desktop and mobile;
-- synthetic fixture data for five fictional schools;
-- four metrics, three student-group lenses, multi-year trends, and exact-value tables;
+- searchable profiles for 9,946 California public schools and 1,017 district baselines;
+- 920,813 current school and district observations from six official CDE snapshots;
+- seven indicators: ELA and mathematics distance from standard, chronic absenteeism, suspension, four-year graduation, A–G completion, and four-year dropout;
+- 31 student-group lenses, including English learners, students with disabilities, racial and ethnic groups, and socioeconomically disadvantaged students;
+- side-by-side comparison for up to five schools, exact-value tables, and same-district context;
 - visible denominators, reliability labels, district context, and source notes;
-- an initial catalog of official data sources;
 - a PostgreSQL canonical store with deterministic migrations and least-privilege roles;
 - pinned, checksum-verified adapters for five CDE 2024–25 outcome datasets and one 2025–26 school geography snapshot;
 - 1,261,258 canonical facts covering chronic absenteeism, ELA, mathematics, suspension, four-year graduation, A–G completion, and dropout;
@@ -41,7 +43,9 @@ The repository now includes a first interactive product slice and a real-data fo
 - continuous integration, issue templates, and contribution guidance;
 - a validated, self-contained HTML project plan.
 
-The database pipeline uses real official records. The web experience still intentionally uses synthetic values until a reviewed publishing layer connects the canonical store to frontend bundles. No currently displayed value describes a real school, and the web experience must not yet be used for school or housing decisions. Source licensing and redistribution terms must be reviewed before raw or derived datasets are published.
+The current public bundle contains one outcome year, 2024–25, so the trend view has only one point per series. Historical imports, nearby and similar-school comparisons, the complete College/Career Indicator, and private-school directory context remain roadmap items. The website is an independent informational project, not a CDE product or endorsement.
+
+Raw CDE files are not committed or redistributed. The repository publishes selected factual derived records with source metadata, suppression preserved, and no claim that source data is covered by the Apache-2.0 code license. Formal source-specific permission review remains an open governance item; see [Data Sources and Licensing Policy](DATA_SOURCES.md).
 
 ## Quick start
 
@@ -80,6 +84,13 @@ Run the complete Python check:
 make check
 ```
 
+After the database has been populated, rebuild the browser-safe v0.1.0 data bundles with:
+
+```bash
+export DATABASE_URL=postgresql://cse_admin:local-development-only@127.0.0.1:54329/ca_school_explorer
+make data-publish
+```
+
 Run both stacks with `make full-check` after installing the Python and Node.js dependencies.
 
 ### Real-data database
@@ -99,16 +110,25 @@ ca-school-explorer ingest-dataset --manifest config/datasets/cde_suspension_2024
 
 Raw files are downloaded into ignored local storage and are never committed by default. The canonical PostgreSQL database currently contains six official snapshots, seven outcome metrics, and a geographic school-profile layer. A–G completion is included, but it must not be labeled as the broader California Dashboard College/Career Indicator, which remains the next priority adapter. See [Database and real-data ingestion](docs/database.md) for the schema, verification gates, queries, backup and restore procedures, and deployment guidance.
 
-### Cloudflare Worker preview
+### Cloudflare Worker release
 
-The Vite application is ready to run as Cloudflare Worker Static Assets without publishing the canonical database:
+The release is deployed as Cloudflare Worker Static Assets. PostgreSQL is only needed when regenerating data and is never exposed to visitors.
 
 ```bash
-npm run worker:dev
-npm run worker:dry-run
+npm install
+npm run release:check
+npx wrangler login
+npm run release:deploy
 ```
 
-`npm run worker:deploy` is intentionally manual. The public site still uses synthetic fixture values until a reviewed publishing layer exports small, source-attributed real-data bundles. See [Cloudflare Workers deployment](docs/cloudflare-workers.md).
+For an unclaimed temporary preview without logging in:
+
+```bash
+npm run web:build
+npx wrangler deploy --temporary
+```
+
+See [Cloudflare Workers deployment](docs/cloudflare-workers.md) for the deployment boundary, release size, and custom-domain steps.
 
 ## Documentation
 
@@ -117,6 +137,7 @@ npm run worker:dry-run
 - [Roadmap](ROADMAP.md)
 - [Architecture](docs/architecture.md)
 - [Database and real-data ingestion](docs/database.md)
+- [Public data contract v1](data/contracts/public-data-v1.md)
 - [Cloudflare Workers deployment](docs/cloudflare-workers.md)
 - [Static-first architecture decision](docs/adr/0001-static-first-delivery.md)
 - [Canonical PostgreSQL architecture decision](docs/adr/0002-postgresql-canonical-store.md)

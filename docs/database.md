@@ -59,6 +59,14 @@ ca-school-explorer ingest-school-geography --manifest "$MANIFEST"
 
 The ingestion command validates the complete file before changing database state. A successful repeat with the same source digest reuses the imported snapshot and does not duplicate facts.
 
+Publish the browser-safe read model after all expected snapshots have imported successfully:
+
+```bash
+make data-publish
+```
+
+The publisher opens a read-only database transaction, selects resolved public schools and current school and district observations, preserves suppression and provenance, then atomically replaces `apps/web/public/data`. It never copies raw source files. The output contract is documented in [`data/contracts/public-data-v1.md`](../data/contracts/public-data-v1.md).
+
 `docker compose down` stops the service but preserves the named database volume. Do not use `docker compose down -v` unless deleting all local imported data is intentional.
 
 ## Data quality gates

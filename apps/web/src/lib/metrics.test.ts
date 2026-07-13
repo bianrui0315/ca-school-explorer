@@ -15,14 +15,37 @@ const lowerIsBetterMetric: MetricDefinition = {
   description: "Test metric",
   unit: "percent",
   direction: "lower",
+  methodologyVersion: "test-v1",
+  sourceKey: "test_source",
   sourceLabel: "Test source",
   sourceUrl: "https://example.com",
 };
 
 const observations: Observation[] = [
-  { year: 2022, value: 20, denominator: 100, reliability: "reliable" },
-  { year: 2023, value: 15.2, denominator: 98, reliability: "small-sample" },
-  { year: 2024, value: null, denominator: null, reliability: "suppressed" },
+  {
+    year: 2022,
+    value: 20,
+    numerator: 20,
+    denominator: 100,
+    reliability: "reliable",
+    sourceSnapshotId: 1,
+  },
+  {
+    year: 2023,
+    value: 15.2,
+    numerator: 15,
+    denominator: 98,
+    reliability: "small-sample",
+    sourceSnapshotId: 1,
+  },
+  {
+    year: 2024,
+    value: null,
+    numerator: null,
+    denominator: null,
+    reliability: "suppressed",
+    sourceSnapshotId: 1,
+  },
 ];
 
 describe("metric helpers", () => {

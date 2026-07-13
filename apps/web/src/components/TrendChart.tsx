@@ -5,7 +5,11 @@ import type {
   School,
   SubgroupId,
 } from "../types";
-import { formatMetricValue, observationsInRange } from "../lib/metrics";
+import {
+  formatMetricValue,
+  formatSchoolYear,
+  observationsInRange,
+} from "../lib/metrics";
 import { Icon } from "./Icon";
 
 interface TrendChartProps {
@@ -13,6 +17,7 @@ interface TrendChartProps {
   metric: MetricDefinition;
   subgroup: SubgroupId;
   baseline: Observation[];
+  baselineLabel?: string;
   startYear: number;
   endYear: number;
 }
@@ -85,6 +90,7 @@ export function TrendChart({
   metric,
   subgroup,
   baseline,
+  baselineLabel,
   startYear,
   endYear,
 }: TrendChartProps) {
@@ -101,7 +107,7 @@ export function TrendChart({
   const schoolSeries = schools.map((school) => ({
     school,
     observations: observationsInRange(
-      school.metrics[metric.id][subgroup],
+      school.metrics[metric.id]?.[subgroup] ?? [],
       startYear,
       endYear,
     ),
@@ -129,13 +135,18 @@ export function TrendChart({
   const rawMax = Math.max(...values);
   const padding = metric.unit === "percent" ? 3 : 15;
   const step = niceStep(rawMax - rawMin + padding * 2);
-  const yMin = Math.floor((rawMin - padding) / step) * step;
-  const yMax = Math.ceil((rawMax + padding) / step) * step;
+  const calculatedMin = Math.floor((rawMin - padding) / step) * step;
+  const calculatedMax = Math.ceil((rawMax + padding) / step) * step;
+  const yMin =
+    metric.unit === "percent" ? Math.max(0, calculatedMin) : calculatedMin;
+  const yMax =
+    metric.unit === "percent" ? Math.min(100, calculatedMax) : calculatedMax;
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   const xForYear = (year: number) =>
-    margin.left +
-    ((year - startYear) / Math.max(endYear - startYear, 1)) * plotWidth;
+    startYear === endYear
+      ? margin.left + plotWidth / 2
+      : margin.left + ((year - startYear) / (endYear - startYear)) * plotWidth;
   const yForValue = (value: number) =>
     margin.top + ((yMax - value) / Math.max(yMax - yMin, 1)) * plotHeight;
   const ticks = Array.from(
@@ -174,10 +185,12 @@ export function TrendChart({
             {school.name}
           </span>
         ))}
-        <span>
-          <i className="baseline-key" />
-          Alameda Unified baseline
-        </span>
+        {baselineLabel && baseline.length > 0 ? (
+          <span>
+            <i className="baseline-key" />
+            {baselineLabel} baseline
+          </span>
+        ) : null}
       </div>
 
       <div className="chart-frame">
@@ -188,11 +201,13 @@ export function TrendChart({
           viewBox={`0 0 ${width} ${height}`}
         >
           <title id="trend-chart-title">
-            {metric.label} from {startYear} to {endYear}
+            {metric.label} from {formatSchoolYear(startYear)} to{" "}
+            {formatSchoolYear(endYear)}
           </title>
           <desc id="trend-chart-description">
-            A comparison of {schools.length} selected schools and the Alameda
-            Unified baseline for the selected student group.
+            A comparison of {schools.length} selected schools
+            {baselineLabel ? ` and the ${baselineLabel} baseline` : ""} for the
+            selected student group.
           </desc>
 
           {ticks.map((tick) => {
@@ -226,7 +241,7 @@ export function TrendChart({
               y={height - 14}
               textAnchor="middle"
             >
-              {year}
+              {formatSchoolYear(year)}
             </text>
           ))}
 

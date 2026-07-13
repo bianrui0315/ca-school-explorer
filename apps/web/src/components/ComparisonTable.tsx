@@ -1,24 +1,26 @@
 import type { CSSProperties } from "react";
+import {
+  changeStatus,
+  firstObservation,
+  formatMetricValue,
+  formatSchoolYear,
+  latestObservation,
+  metricChange,
+  reliabilityLabel,
+} from "../lib/metrics";
 import type {
   MetricDefinition,
   Observation,
   School,
   SubgroupId,
 } from "../types";
-import {
-  changeStatus,
-  firstObservation,
-  formatMetricValue,
-  latestObservation,
-  metricChange,
-  reliabilityLabel,
-} from "../lib/metrics";
 
 interface ComparisonTableProps {
   schools: School[];
   metric: MetricDefinition;
   subgroup: SubgroupId;
   baseline: Observation[];
+  baselineLabel?: string;
   startYear: number;
   endYear: number;
 }
@@ -32,6 +34,7 @@ export function ComparisonTable({
   metric,
   subgroup,
   baseline,
+  baselineLabel,
   startYear,
   endYear,
 }: ComparisonTableProps) {
@@ -39,6 +42,7 @@ export function ComparisonTable({
     { length: endYear - startYear + 1 },
     (_, index) => startYear + index,
   );
+  const hasTrend = startYear < endYear;
 
   if (schools.length === 0) {
     return null;
@@ -65,24 +69,26 @@ export function ComparisonTable({
                   key={year}
                   scope="col"
                 >
-                  {year}
+                  {formatSchoolYear(year)}
                 </th>
               ))}
-              <th scope="col">
-                Change
-                <small>
-                  {startYear}–{endYear.toString().slice(-2)}
-                </small>
-              </th>
+              {hasTrend ? (
+                <th scope="col">
+                  Change
+                  <small>
+                    {formatSchoolYear(startYear)}–{formatSchoolYear(endYear)}
+                  </small>
+                </th>
+              ) : null}
               <th scope="col">
                 Students
-                <small>{endYear} denominator</small>
+                <small>{formatSchoolYear(endYear)} denominator</small>
               </th>
             </tr>
           </thead>
           <tbody>
             {schools.map((school) => {
-              const observations = school.metrics[metric.id][subgroup];
+              const observations = school.metrics[metric.id]?.[subgroup] ?? [];
               const change = metricChange(observations, startYear, endYear);
               const latest = latestObservation(observations, endYear);
               return (
@@ -116,62 +122,68 @@ export function ComparisonTable({
                       </td>
                     );
                   })}
-                  <td>
-                    <span
-                      className={`delta delta--${changeStatus(change, metric)}`}
-                    >
-                      {formatMetricValue(change, metric, true)}
-                    </span>
-                  </td>
+                  {hasTrend ? (
+                    <td>
+                      <span
+                        className={`delta delta--${changeStatus(change, metric)}`}
+                      >
+                        {formatMetricValue(change, metric, true)}
+                      </span>
+                    </td>
+                  ) : null}
                   <td>{latest?.denominator?.toLocaleString() ?? "—"}</td>
                 </tr>
               );
             })}
-            <tr className="baseline-row">
-              <th scope="row">
-                <span className="baseline-dot" />
-                <span>
-                  Alameda Unified baseline
-                  <small>Same-district context</small>
-                </span>
-              </th>
-              {years.map((year) => {
-                const observation = baseline.find(
-                  (candidate) => candidate.year === year,
-                );
-                return (
-                  <td
-                    className={
-                      year === endYear ? "current-column" : "history-column"
-                    }
-                    key={year}
-                  >
-                    {formatMetricValue(observation?.value, metric)}
-                    <small>{reliabilityLabel(observation)}</small>
+            {baselineLabel && baseline.length > 0 ? (
+              <tr className="baseline-row">
+                <th scope="row">
+                  <span className="baseline-dot" />
+                  <span>
+                    {baselineLabel} baseline
+                    <small>Same-district context</small>
+                  </span>
+                </th>
+                {years.map((year) => {
+                  const observation = baseline.find(
+                    (candidate) => candidate.year === year,
+                  );
+                  return (
+                    <td
+                      className={
+                        year === endYear ? "current-column" : "history-column"
+                      }
+                      key={year}
+                    >
+                      {formatMetricValue(observation?.value, metric)}
+                      <small>{reliabilityLabel(observation)}</small>
+                    </td>
+                  );
+                })}
+                {hasTrend ? (
+                  <td>
+                    {formatMetricValue(
+                      (latestObservation(baseline, endYear)?.value ?? 0) -
+                        (firstObservation(baseline, startYear)?.value ?? 0),
+                      metric,
+                      true,
+                    )}
                   </td>
-                );
-              })}
-              <td>
-                {formatMetricValue(
-                  (latestObservation(baseline, endYear)?.value ?? 0) -
-                    (firstObservation(baseline, startYear)?.value ?? 0),
-                  metric,
-                  true,
-                )}
-              </td>
-              <td>
-                {latestObservation(
-                  baseline,
-                  endYear,
-                )?.denominator?.toLocaleString() ?? "—"}
-              </td>
-            </tr>
+                ) : null}
+                <td>
+                  {latestObservation(
+                    baseline,
+                    endYear,
+                  )?.denominator?.toLocaleString() ?? "—"}
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>
       <p className="table-note">
-        Fixture values are synthetic. A small-sample label indicates that
-        comparisons should be treated as directional, not conclusive.
+        Suppressed values remain hidden. Small-sample results should be treated
+        as directional, not conclusive.
       </p>
     </section>
   );

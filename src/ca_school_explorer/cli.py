@@ -32,6 +32,7 @@ from ca_school_explorer.dataset_manifest import (
     load_dataset_manifest,
 )
 from ca_school_explorer.indicators import IndicatorDataError
+from ca_school_explorer.public_data import PublicDataError, publish_public_data
 from ca_school_explorer.school_directory import SchoolDirectoryError
 
 
@@ -135,6 +136,21 @@ def _build_parser() -> argparse.ArgumentParser:
     ingest_parser.add_argument(
         "--file", type=Path, help="Source file path; defaults to the manifest's raw path."
     )
+
+    publish_parser = subparsers.add_parser(
+        "publish-public-data",
+        help="Export browser-safe public data from the canonical PostgreSQL store.",
+    )
+    _add_database_url(publish_parser)
+    publish_parser.add_argument(
+        "--output-root",
+        type=Path,
+        default=Path("apps/web/public/data"),
+        help="Directory for the generated manifest, index, and county shards.",
+    )
+    publish_parser.add_argument(
+        "--release", default="0.1.0", help="Application/data release identifier."
+    )
     return parser
 
 
@@ -203,6 +219,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             print("Database roles installed.")
             return 0
 
+        if args.command == "publish-public-data":
+            publish_result = publish_public_data(
+                args.database_url,
+                args.output_root,
+                release=args.release,
+            )
+            print(json.dumps(asdict(publish_result), indent=2))
+            return 0
+
         manifest = load_dataset_manifest(args.manifest)
         if args.command == "fetch-dataset":
             path = fetch_dataset(manifest, args.output_root)
@@ -246,6 +271,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         DatabaseError,
         IndicatorDataError,
         ManifestError,
+        PublicDataError,
         SchoolDirectoryError,
         OSError,
         psycopg.Error,

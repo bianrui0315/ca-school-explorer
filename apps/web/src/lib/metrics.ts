@@ -57,6 +57,10 @@ export function formatMetricValue(
   return `${sign}${value.toFixed(digits)}${suffix}`;
 }
 
+export function formatSchoolYear(year: number) {
+  return `${year}\u2013${String(year + 1).slice(-2)}`;
+}
+
 export function reliabilityLabel(observation: Observation | undefined) {
   switch (observation?.reliability) {
     case "reliable":
@@ -65,6 +69,8 @@ export function reliabilityLabel(observation: Observation | undefined) {
       return "Small sample";
     case "suppressed":
       return "Suppressed";
+    case "method-break":
+      return "Method change";
     default:
       return "Not available";
   }

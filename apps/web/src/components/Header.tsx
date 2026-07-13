@@ -1,7 +1,7 @@
 import { Icon } from "./Icon";
 
 interface HeaderProps {
-  onDataFreshness: () => void;
+  onDataFreshness?: () => void;
 }
 
 export function Header({ onDataFreshness }: HeaderProps) {
@@ -22,7 +22,11 @@ export function Header({ onDataFreshness }: HeaderProps) {
         >
           Methodology
         </a>
-        <button type="button" onClick={onDataFreshness}>
+        <button
+          type="button"
+          onClick={onDataFreshness}
+          disabled={!onDataFreshness}
+        >
           Data freshness
         </button>
       </nav>
@@ -38,7 +42,11 @@ export function Header({ onDataFreshness }: HeaderProps) {
           >
             Methodology
           </a>
-          <button type="button" onClick={onDataFreshness}>
+          <button
+            type="button"
+            onClick={onDataFreshness}
+            disabled={!onDataFreshness}
+          >
             Data freshness
           </button>
         </nav>

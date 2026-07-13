@@ -1,14 +1,14 @@
-import type { CSSProperties } from "react";
-import type { School } from "../types";
+import { useState, type CSSProperties } from "react";
+import type { School, SchoolSummary } from "../types";
 import { Icon } from "./Icon";
 
 interface SchoolPickerProps {
-  allSchools: School[];
+  allSchools: SchoolSummary[];
   selectedSchools: School[];
   query: string;
   filterQuery: string;
   onQueryChange: (query: string) => void;
-  onAdd: (schoolId: string) => void;
+  onAdd: (schoolId: string) => Promise<void> | void;
   onRemove: (schoolId: string) => void;
   onClear: () => void;
 }
@@ -27,17 +27,21 @@ export function SchoolPicker({
   onRemove,
   onClear,
 }: SchoolPickerProps) {
+  const [pendingSchoolId, setPendingSchoolId] = useState<string>();
   const selectedIds = new Set(selectedSchools.map(({ id }) => id));
   const normalizedQuery = filterQuery.trim().toLowerCase();
-  const suggestions = normalizedQuery
-    ? allSchools.filter(
-        (school) =>
-          !selectedIds.has(school.id) &&
-          [school.name, school.district, school.city].some((value) =>
-            value.toLowerCase().includes(normalizedQuery),
-          ),
-      )
-    : [];
+  const suggestions =
+    normalizedQuery.length >= 2
+      ? allSchools
+          .filter(
+            (school) =>
+              !selectedIds.has(school.id) &&
+              [school.name, school.district, school.city, school.county].some(
+                (value) => value.toLowerCase().includes(normalizedQuery),
+              ),
+          )
+          .slice(0, 8)
+      : [];
 
   return (
     <section
@@ -66,14 +70,17 @@ export function SchoolPicker({
               <li key={school.id} role="option" aria-selected="false">
                 <button
                   type="button"
-                  onClick={() => {
-                    onAdd(school.id);
+                  disabled={pendingSchoolId === school.id}
+                  onClick={async () => {
+                    setPendingSchoolId(school.id);
+                    await onAdd(school.id);
+                    setPendingSchoolId(undefined);
                     onQueryChange("");
                   }}
                 >
                   <span>{school.name}</span>
                   <small>
-                    {school.district} · {school.gradeSpan}
+                    {school.district} · {school.city} · {school.gradeSpan}
                   </small>
                 </button>
               </li>

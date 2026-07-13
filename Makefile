@@ -1,4 +1,4 @@
-.PHONY: install lint typecheck test check web-install web-check worker-check full-check db-up db-down db-migrate db-roles data-fetch data-inspect data-ingest
+.PHONY: install lint typecheck test check web-install web-check worker-check full-check db-up db-down db-migrate db-roles data-fetch data-inspect data-ingest data-publish
 
 install:
 	python -m pip install -e ".[dev]"
@@ -49,3 +49,6 @@ data-inspect:
 
 data-ingest:
 	python -m ca_school_explorer ingest-dataset
+
+data-publish:
+	.venv/bin/python -m ca_school_explorer publish-public-data --release 0.1.0

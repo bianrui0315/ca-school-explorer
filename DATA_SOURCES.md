@@ -32,6 +32,8 @@ CDE's website copyright statement says that permission may be required to reprod
 
 See the versioned source catalog at [`config/sources.toml`](config/sources.toml). A source with `license_review = "required"` is not approved for redistribution.
 
+The v0.1.0 website publishes selected factual derived records rather than copies of CDE source files. Each public release carries source names, landing pages, release years, and immutable snapshot digests; suppression remains null and cannot be reconstructed by the client. The website does not relicense source data, reproduce CDE branding, or claim CDE endorsement. This technical boundary reduces redistribution risk but is not a substitute for formal source-specific permission review.
+
 ## Implemented official sources
 
 The canonical database has pinned 2024–25 adapters for:
