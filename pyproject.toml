@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ca-school-explorer"
-version = "0.2.1"
+version = "0.3.0"
 description = "Open data tools for trustworthy California school comparison and trend analysis."
 readme = "README.md"
 requires-python = ">=3.12"

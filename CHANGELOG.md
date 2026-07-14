@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-13
+
+### Added
+
+- Checksum-pinned CDE 2022–23 snapshots for chronic absenteeism, suspension, ELA, mathematics, and adjusted cohort graduation outcomes.
+- Three-year trends for all seven indicators, with chart endpoints inset from the plot boundaries.
+- A seven-axis normalized indicator profile that preserves missing values instead of plotting them as zero.
+- An editable, coverage-aware experimental composite with visible default weights and a clear non-rating disclaimer.
+- A lazily loaded selected-school map using published coordinates and visible OpenStreetMap attribution.
+- A reproducible 2022–23 historical data-quality report and grade-span source-code aliases for the older chronic-absence file.
+
+### Changed
+
+- Expanded the canonical store to 3,775,696 metric facts across 15 outcome snapshots and one school-profile snapshot.
+- Expanded the public Worker bundle to 2,739,483 observations across 2022–23, 2023–24, and 2024–25.
+- Expanded district context to 1,023 baselines while retaining 9,946 current public-school profiles and 32 subgroup lenses.
+
+### Known limitations
+
+- The experimental composite is not an official CDE rating, percentile, or ranking; coverage and grade span must be considered.
+- OpenStreetMap's community tile service is best-effort and may require a dedicated provider if traffic grows materially.
+- A–G completion is included, but the broader California Dashboard College/Career Indicator is not yet implemented.
+
 ## [0.2.1] - 2026-07-13
 
 ### Fixed

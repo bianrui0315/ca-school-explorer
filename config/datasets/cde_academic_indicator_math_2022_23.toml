@@ -1,0 +1,58 @@
+manifest_version = 1
+dataset_id = "cde_academic_indicator_math_2022_23"
+adapter = "academic_indicator_v1"
+schema_version = "cde-math-2022-2023"
+source_id = "cde_academic_indicator"
+source_name = "CDE Academic Indicator Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/cm/acaddatafiles.asp"
+download_url = "https://www3.cde.ca.gov/researchfiles/cadashboard/mathdownload2023.txt"
+academic_year = "2022-23"
+release_date = "2023-12-15"
+filename = "mathdownload2023.txt"
+media_type = "text/tab-separated-values"
+encoding = "utf-8"
+sha256 = "4d781abeaaa8464d87467663075838876279d66680ff872428a37bc086ae6183"
+byte_size = 25947723
+record_count = 169597
+terms_status = "review-required"
+
+columns = [
+  "cds",
+  "rtype",
+  "schoolname",
+  "districtname",
+  "countyname",
+  "charter_flag",
+  "coe_flag",
+  "dass_flag",
+  "studentgroup",
+  "currdenom",
+  "currstatus",
+  "priordenom",
+  "priorstatus",
+  "change",
+  "statuslevel",
+  "changelevel",
+  "color",
+  "box",
+  "currnsizemet",
+  "priornsizemet",
+  "accountabilitymet",
+  "hscutpoints",
+  "pairshare_method",
+  "currprate_enrolled",
+  "currprate_tested",
+  "currprate",
+  "currnumPRLOSS",
+  "currdenom_withoutPRLOSS",
+  "currstatus_withoutPRLOSS",
+  "priorprate_enrolled",
+  "priorprate_tested",
+  "priorprate",
+  "priornumPRLOSS",
+  "priordenom_withoutPRLOSS",
+  "priorstatus_withoutPRLOSS",
+  "indicator",
+  "reportingyear",
+]
