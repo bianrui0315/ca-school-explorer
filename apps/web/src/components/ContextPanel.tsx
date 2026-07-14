@@ -15,8 +15,8 @@ const baselineSections = [
   },
   {
     icon: "attendance" as const,
-    title: "Nearby (planned)",
-    body: "Published coordinates support future distance comparisons. Proximity never determines enrollment eligibility.",
+    title: "Location context",
+    body: "The selected-school map uses published coordinates for orientation. Proximity never determines enrollment eligibility.",
   },
   {
     icon: "users" as const,
@@ -42,8 +42,8 @@ export function ContextPanel({
       <div className="desktop-context">
         <h2 id="context-heading">How to read this</h2>
         <p>
-          Use separate evidence and context instead of collapsing a school into
-          one score.
+          Use separate evidence and context. Treat the experimental composite as
+          an optional lens, not a school rating.
         </p>
         {baselineSections.map((section) => (
           <section className="context-section" key={section.title}>
@@ -67,7 +67,7 @@ export function ContextPanel({
             <Icon name="book" size={22} />
             <span>
               <strong>How to read this</strong>
-              <small>District context, profiles, and planned comparisons</small>
+              <small>District context, profiles, map, and caveats</small>
             </span>
             <Icon className="disclosure-chevron" name="chevronDown" size={20} />
           </summary>

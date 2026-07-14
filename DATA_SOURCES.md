@@ -36,13 +36,13 @@ The website publishes selected factual derived records rather than copies of CDE
 
 ## Implemented official sources
 
-The canonical database has pinned adapters for 2023–24 and 2024–25:
+The canonical database has pinned adapters for 2022–23, 2023–24, and 2024–25:
 
-- Chronic Absenteeism: 685,092 source rows;
-- Academic Indicator ELA: 352,652 source rows;
-- Academic Indicator Mathematics: 353,066 source rows;
-- Suspension: 451,618 source rows;
-- Adjusted Cohort Graduation Rate and Outcomes: 227,520 source rows expanded into graduation, A–G completion, and dropout facts.
+- Chronic Absenteeism: 1,028,744 source rows;
+- Academic Indicator ELA: 522,019 source rows;
+- Academic Indicator Mathematics: 522,663 source rows;
+- Suspension: 677,797 source rows;
+- Adjusted Cohort Graduation Rate and Outcomes: 341,491 source rows expanded into graduation, A–G completion, and dropout facts.
 - Public School Geography 2025–26: 9,946 quality-controlled school coordinates and classification profiles.
 
 Each manifest records the official URL, release date, encoding, byte size, record count, header contract, and SHA-256 digest. Adapters preserve CDE suppression markers, flag reported samples below 30, and reconcile published rates to source counts where counts are available.
@@ -58,7 +58,7 @@ The next implementation priority is:
 3. CDE College/Career Indicator;
 4. Dashboard Graduation status and change;
 5. English Learner Progress and Science;
-6. additional historical years for implemented metrics.
+6. additional historical depth for implemented metrics.
 
 The public directory is continuously updated and organization-reported, so its addresses and classifications may contain omissions or stale values. The implemented public-school geographic layer is an annual, public-domain CDE Geo Hub snapshot with quality-controlled coordinates. It covers open TK–12 sites and is therefore a subset of the complete directory.
 

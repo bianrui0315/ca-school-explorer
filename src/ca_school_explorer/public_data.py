@@ -127,7 +127,7 @@ def publish_public_data(
     database_url: str,
     output_root: str | Path = DEFAULT_OUTPUT_ROOT,
     *,
-    release: str = "0.2.1",
+    release: str = "0.3.0",
     generated_at: datetime | None = None,
 ) -> PublishResult:
     """Export a compact statewide index and county-sharded indicator bundles."""

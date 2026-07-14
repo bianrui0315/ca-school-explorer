@@ -102,17 +102,35 @@ function observation(value: number, year = 2024): Observation {
 function metricSeries(ela: number, attendance: number): MetricSeries {
   return {
     ela_distance_from_standard: {
-      all: [observation(ela - 5, 2023), observation(ela)],
-      english_learners: [observation(ela - 25, 2023), observation(ela - 20)],
+      all: [
+        observation(ela - 10, 2022),
+        observation(ela - 5, 2023),
+        observation(ela),
+      ],
+      english_learners: [
+        observation(ela - 30, 2022),
+        observation(ela - 25, 2023),
+        observation(ela - 20),
+      ],
       students_with_disabilities: [
+        observation(ela - 40, 2022),
         observation(ela - 35, 2023),
         observation(ela - 30),
       ],
     },
     chronic_absenteeism_rate: {
-      all: [observation(attendance + 2, 2023), observation(attendance)],
-      english_learners: [observation(32.1, 2023), observation(30.1)],
+      all: [
+        observation(attendance + 4, 2022),
+        observation(attendance + 2, 2023),
+        observation(attendance),
+      ],
+      english_learners: [
+        observation(34.1, 2022),
+        observation(32.1, 2023),
+        observation(30.1),
+      ],
       students_with_disabilities: [
+        observation(attendance + 14, 2022),
         observation(attendance + 12, 2023),
         observation(attendance + 10),
       ],
@@ -145,15 +163,15 @@ const catalog: PublicCatalog = {
   schools: summaries,
   manifest: {
     schemaVersion: 1,
-    release: "0.2.0",
+    release: "0.3.0",
     generatedAt: "2026-07-13T12:00:00Z",
     profileSchoolYears: ["2025-26"],
-    outcomeSchoolYears: ["2023-24", "2024-25"],
+    outcomeSchoolYears: ["2022-23", "2023-24", "2024-25"],
     schoolCount: summaries.length,
     schoolIndexFileCount: 1,
     schoolIndexFiles: ["schools-index/00.json"],
     districtCount: 1,
-    observationCount: 48,
+    observationCount: 72,
     schoolShardCount: 1,
     districtFileCount: 1,
     metrics,
@@ -218,15 +236,35 @@ describe("school comparison experience", () => {
     expect(screen.getAllByText("30.1%").length).toBeGreaterThan(0);
   });
 
-  it("renders the prior year and trend change by default", async () => {
+  it("renders three years with inset trend endpoints by default", async () => {
     render(<App dataClient={createDataClient()} />);
 
     const yearRange = await screen.findByLabelText("Year range");
     expect(yearRange).toBeEnabled();
-    expect(yearRange).toHaveValue("2023");
+    expect(yearRange).toHaveValue("2022");
+    expect(screen.getAllByText("2022–23").length).toBeGreaterThan(0);
     expect(screen.getAllByText("2023–24").length).toBeGreaterThan(0);
     expect(screen.getAllByText("2024–25").length).toBeGreaterThan(0);
     expect(screen.getByText("Change")).toBeInTheDocument();
+
+    const points = document.querySelectorAll<SVGCircleElement>(".chart-point");
+    expect(Number(points[0]?.getAttribute("cx"))).toBeGreaterThan(58);
+    expect(Number(points[2]?.getAttribute("cx"))).toBeLessThan(752);
+  });
+
+  it("shows the experimental composite and map context", async () => {
+    render(<App dataClient={createDataClient()} />);
+
+    expect(
+      await screen.findByRole("heading", { name: "All indicators comparison" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Experimental composite" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Selected schools on map" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Not an official rating").length).toBe(1);
   });
 
   it("adds and removes schools from the comparison", async () => {

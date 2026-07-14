@@ -16,7 +16,9 @@ CDE snapshots -> PostgreSQL -> versioned publisher -> compact JSON bundles
                                                -> browser
 ```
 
-The committed public read model contains 9,946 school profiles, 1,019 district baselines, and 1,839,368 observations. It is approximately 64 MB across about 500 cacheable files. The statewide search index is split into four manifest-declared files, and the largest release asset is approximately 1.52 MB. The local canonical database is approximately 1.98 GB because it retains complete provenance, all aggregation levels, and ingestion indexes.
+The committed public read model contains 9,946 school profiles, 1,023 district baselines, and 2,739,483 observations. It is approximately 89 MB across about 500 cacheable files. The statewide search index is split into four manifest-declared files, and the largest release asset is approximately 2.17 MB. The local canonical database is approximately 2.9 GB because it retains complete provenance, all aggregation levels, and ingestion indexes.
+
+The interactive map loads Leaflet only when the map section approaches the viewport. Map tiles are requested directly by the visitor's browser from the official OpenStreetMap tile endpoint, with visible contributor attribution and normal browser caching. The Worker does not proxy, prefetch, or bulk-download tiles. OpenStreetMap provides this community service on a best-effort basis; sustained high traffic should move to a dedicated OSM-derived tile provider without changing the application data model.
 
 ## One-command release
 

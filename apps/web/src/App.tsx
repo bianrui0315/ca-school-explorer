@@ -4,6 +4,7 @@ import { ContextPanel } from "./components/ContextPanel";
 import { ControlBar } from "./components/ControlBar";
 import { Header } from "./components/Header";
 import { Icon } from "./components/Icon";
+import { IndicatorOverview } from "./components/IndicatorOverview";
 import { MetricNav } from "./components/MetricNav";
 import { SchoolPicker } from "./components/SchoolPicker";
 import { TrendChart } from "./components/TrendChart";
@@ -96,12 +97,16 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     () => new Map(catalog?.schools.map((school) => [school.id, school]) ?? []),
     [catalog],
   );
-  const selectedSchools: School[] = selectedSchoolIds.flatMap((id, index) => {
-    const school = schoolDetails.get(id);
-    return school
-      ? [{ ...school, color: SCHOOL_COLORS[index] ?? "#ff625e" }]
-      : [];
-  });
+  const selectedSchools: School[] = useMemo(
+    () =>
+      selectedSchoolIds.flatMap((id, index) => {
+        const school = schoolDetails.get(id);
+        return school
+          ? [{ ...school, color: SCHOOL_COLORS[index] ?? "#ff625e" }]
+          : [];
+      }),
+    [schoolDetails, selectedSchoolIds],
+  );
   const commonDistrict = selectedSchools[0]?.districtId;
   const commonCounty = selectedSchools[0]?.countyCode;
   const hasCommonDistrict = selectedSchools.every(
@@ -257,6 +262,13 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             metric={metric}
             schools={selectedSchools}
             startYear={startYear}
+            subgroup={subgroup}
+          />
+
+          <IndicatorOverview
+            endYear={endYear}
+            metrics={catalog.manifest.metrics}
+            schools={selectedSchools}
             subgroup={subgroup}
           />
 

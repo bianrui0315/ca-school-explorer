@@ -12,7 +12,7 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 ## Phase 1: Build the data foundation
 
 - Extend the implemented public-school geography profiles with the continuously updated CDE Directory and authoritative identity history.
-- Maintain immutable source manifests and checksums. Five 2024–25 snapshots are implemented.
+- Maintain immutable source manifests and checksums. Five outcome snapshots are implemented for each year from 2022–23 through 2024–25.
 - Maintain normalized canonical records and ingestion audit history in PostgreSQL.
 - Implement Census Day Enrollment and the canonical school directory. ELA and mathematics indicators are implemented.
 - Add fixtures and reconciliation tests.
@@ -23,6 +23,8 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 - Compare two to five schools on one multi-year view.
 - Add subgroup lenses and reliability notes.
 - Add same-district, nearby, and similar-context baselines.
+- Show selected schools on a coordinate-based comparison map with clear basemap attribution.
+- Provide an experimental seven-indicator profile and user-adjustable weighted composite with explicit coverage warnings.
 - Generate reproducible share links.
 
 ## Phase 3: Expand outcome coverage

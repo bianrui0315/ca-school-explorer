@@ -1,0 +1,55 @@
+manifest_version = 1
+dataset_id = "cde_acgr_2022_23"
+adapter = "acgr_v1"
+schema_version = "cde-acgr-2022-23-v1"
+source_id = "cde_acgr"
+source_name = "CDE Adjusted Cohort Graduation Rate and Outcome Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filesacgr.asp"
+download_url = "https://www3.cde.ca.gov/demo-downloads/acgr/acgr23-v2.txt"
+academic_year = "2022-23"
+release_date = "2024-03-01"
+filename = "acgr23-v2.txt"
+media_type = "text/tab-separated-values"
+encoding = "utf-8"
+sha256 = "c082173ab102db604ca0c044002588c11b6af9207b6538a06900bb471b1bd63b"
+byte_size = 16000890
+record_count = 113971
+terms_status = "review-required"
+
+columns = [
+  "AcademicYear",
+  "AggregateLevel",
+  "CountyCode",
+  "DistrictCode",
+  "SchoolCode",
+  "CountyName",
+  "DistrictName",
+  "SchoolName",
+  "CharterSchool",
+  "DASS",
+  "ReportingCategory",
+  "CohortStudents",
+  "Regular HS Diploma Graduates (Count)",
+  "Regular HS Diploma Graduates (Rate)",
+  "Met UC/CSU Grad Req's (Count)",
+  "Met UC/CSU Grad Req's (Rate)",
+  "Seal of Biliteracy (Count)",
+  "Seal of Biliteracy (Rate)",
+  "Golden State Seal Merit Diploma (Count)",
+  "Golden State Seal Merit Diploma (Rate",
+  "CHSPE Completer (Count)",
+  "CHSPE Completer (Rate)",
+  "Adult Ed. HS Diploma (Count)",
+  "Adult Ed. HS Diploma (Rate)",
+  "SPED Certificate (Count)",
+  "SPED Certificate (Rate)",
+  "GED Completer (Count)",
+  "GED Completer (Rate)",
+  "Other Transfer (Count)",
+  "Other Transfer (Rate)",
+  "Dropout (Count)",
+  "Dropout (Rate)",
+  "Still Enrolled (Count)",
+  "Still Enrolled (Rate)",
+]

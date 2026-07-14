@@ -143,10 +143,14 @@ export function TrendChart({
     metric.unit === "percent" ? Math.min(100, calculatedMax) : calculatedMax;
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
+  const horizontalInset = compact ? 24 : 44;
+  const usablePlotWidth = Math.max(plotWidth - horizontalInset * 2, 1);
   const xForYear = (year: number) =>
     startYear === endYear
       ? margin.left + plotWidth / 2
-      : margin.left + ((year - startYear) / (endYear - startYear)) * plotWidth;
+      : margin.left +
+        horizontalInset +
+        ((year - startYear) / (endYear - startYear)) * usablePlotWidth;
   const yForValue = (value: number) =>
     margin.top + ((yMax - value) / Math.max(yMax - yMin, 1)) * plotHeight;
   const ticks = Array.from(

@@ -51,4 +51,4 @@ data-ingest:
 	python -m ca_school_explorer ingest-dataset
 
 data-publish:
-	.venv/bin/python -m ca_school_explorer publish-public-data --release 0.2.1
+	.venv/bin/python -m ca_school_explorer publish-public-data --release 0.3.0

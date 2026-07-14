@@ -4,7 +4,7 @@ This document defines the minimum analytical rules for California School Explore
 
 ## Product principles
 
-1. Show evidence, not a single overall score.
+1. Lead with separate evidence. Any composite must remain optional, experimental, coverage-aware, and visibly weighted; it is never an official rating or ranking.
 2. Preserve source definitions, numerators, denominators, eligibility, and suppression.
 3. Separate observed change from methodology change.
 4. Use transparent comparison groups.
@@ -58,6 +58,27 @@ Every comparison may expose three independent baselines:
 - **Similar context:** schools matched using public institutional context such as grade span, school type, urbanicity, enrollment size, and shares of socioeconomically disadvantaged students, English learners, and students with disabilities.
 
 Protected characteristics may be used to view an officially published subgroup outcome. They are not used to recommend housing locations or describe a neighborhood as suitable for a demographic group.
+
+## Normalized indicator view and experimental composite
+
+The seven-axis comparison and experimental composite use the latest selected school year and student subgroup. They transform unlike source units into a transparent 0–100 comparison index:
+
+- higher-is-better percentages retain their source value;
+- lower-is-better percentages use `100 - source value`;
+- ELA and mathematics distance from standard use `clamp(50 + distance / 3, 0, 100)`, so −150 maps to 0, the grade-level standard maps to 50, and +150 maps to 100;
+- missing, suppressed, and not-applicable observations remain missing and are never converted to zero.
+
+The default experimental weights are ELA 20%, mathematics 20%, chronic absenteeism 15%, graduation 15%, suspension 10%, dropout 10%, and A–G completion 10%. Users may edit them. If weights do not total 100%, the interface can normalize them proportionally.
+
+For a school with available indicator set `A`, the composite is:
+
+```text
+sum(normalized_value_i * weight_i for i in A)
+------------------------------------------------
+          sum(weight_i for i in A)
+```
+
+The interface always displays both available-indicator count and available-weight coverage. Missing indicators are excluded and the remaining weights are rebalanced, so two schools with different coverage or grade spans require caution and may not be directly comparable. Scores preserve selection order and do not create rank positions, winners, or school-quality labels.
 
 ## Suppression and small samples
 

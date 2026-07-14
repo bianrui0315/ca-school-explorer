@@ -2,16 +2,16 @@
 
 ## Current real datasets
 
-The production pipeline ingests five official California Department of Education outcome snapshots for each of 2023–24 and 2024–25:
+The production pipeline ingests five official California Department of Education outcome snapshots for each of 2022–23, 2023–24, and 2024–25:
 
-| Snapshot | 2023–24 rows | 2024–25 rows | Combined canonical facts | Metrics |
-| --- | ---: | ---: | ---: | --- |
-| Chronic Absenteeism | 343,602 | 341,490 | 685,092 | Chronic absenteeism rate |
-| Academic Indicator ELA | 176,564 | 176,088 | 352,652 | ELA distance from standard |
-| Academic Indicator Mathematics | 176,806 | 176,260 | 353,066 | Mathematics distance from standard |
-| Suspension | 225,157 | 226,461 | 451,618 | Suspension rate |
-| Adjusted Cohort Graduation Rate and Outcomes | 113,867 | 113,653 | 682,560 | Graduation, A–G completion, dropout |
-| **Total** | **1,035,996** | **1,033,952** | **2,524,988** | **7 metrics** |
+| Snapshot | 2022–23 rows | 2023–24 rows | 2024–25 rows | Combined canonical facts | Metrics |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Chronic Absenteeism | 343,652 | 343,602 | 341,490 | 1,028,744 | Chronic absenteeism rate |
+| Academic Indicator ELA | 169,367 | 176,564 | 176,088 | 522,019 | ELA distance from standard |
+| Academic Indicator Mathematics | 169,597 | 176,806 | 176,260 | 522,663 | Mathematics distance from standard |
+| Suspension | 226,179 | 225,157 | 226,461 | 677,797 | Suspension rate |
+| Adjusted Cohort Graduation Rate and Outcomes | 113,971 | 113,867 | 113,653 | 1,024,473 | Graduation, A–G completion, dropout |
+| **Total** | **1,022,766** | **1,035,996** | **1,033,952** | **3,775,696** | **7 metrics** |
 
 The database also contains 9,946 public-school profiles from CDE's public-domain 2025–26 geographic layer. Every profile has quality-controlled coordinates and includes school type, level, grade range, charter, virtual, magnet, Title I, DASS, enrollment, and selected staff context.
 
@@ -87,7 +87,7 @@ CDE `*` values are stored as null measures with `suppression_status = 'suppresse
 
 The 2024–25 Suspension snapshot contains one CDS code associated with three distinct school names. The pipeline retains all three with `identity_resolution = 'ambiguous'` and name-qualified identity keys. It does not silently merge them. Public publishing excludes unresolved identities until the school directory adapter provides an authoritative crosswalk.
 
-The 2023–24 chronic-absence file includes reporting code `GZ`, which the official CDE file structure defines as `Missing Gender`. The pipeline maps it to the explicit `gender_missing` subgroup. The initial unmapped-code failure and the successful retry remain in the import audit log.
+The 2023–24 chronic-absence file includes reporting code `GZ`, which the official CDE file structure defines as `Missing Gender`. The pipeline maps it to the explicit `gender_missing` subgroup. The 2022–23 file uses historical codes `GRKN` and `GRK8` for the same grade spans later labeled `GRTKKN` and `GRTK8`; migration `0007_historical_chronic_absence_grade_spans.sql` maps both aliases to the existing canonical grade-span subgroups. Both initial unmapped-code failures and the successful retries remain in the import audit log.
 
 ## Schema
 
@@ -129,7 +129,7 @@ where cds_code = $1
 order by metric_id, subgroup_id;
 ```
 
-The verified local import contains 12,038 entity identities, 11 imported snapshots, 2,524,988 metric facts, and 9,946 school profiles. Metric facts reference 11,971 of those identities. Eleven successful import runs reconcile to 2,079,894 source rows and 2,534,934 loaded facts/profiles. One earlier fail-closed run records the historical `GZ` mapping error before the explicit CDE-defined subgroup was added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
+The verified local import contains 12,177 entity identities, 16 imported snapshots, 3,775,696 metric facts, and 9,946 school profiles. Metric facts reference 12,112 of those identities. Sixteen successful import runs reconcile to 3,102,660 source rows and 3,785,642 loaded facts/profiles. Two earlier fail-closed runs record the `GZ` and historical grade-span alias mapping errors before explicit mappings were added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
 
 ## Roles and credentials
 
@@ -167,4 +167,4 @@ Treat backups as data artifacts, not source code. Store them encrypted with rete
 
 ## Cost and operations
 
-Local development uses one container and no paid service. The verified database is approximately 1.98 GB for 11 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.
+Local development uses one container and no paid service. The verified database is approximately 2.9 GB for 16 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.
