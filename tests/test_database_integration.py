@@ -24,8 +24,11 @@ pytestmark = pytest.mark.skipif(
 
 def test_migrate_ingest_and_reuse_snapshot(tmp_path: Path) -> None:
     assert DATABASE_URL is not None
-    migration_result = apply_migrations(DATABASE_URL, ROOT / "db" / "migrations")
-    assert len(migration_result.applied) + len(migration_result.skipped) == 6
+    migrations_path = ROOT / "db" / "migrations"
+    migration_result = apply_migrations(DATABASE_URL, migrations_path)
+    processed_migrations = sorted(migration_result.applied + migration_result.skipped)
+    expected_migrations = sorted(path.name for path in migrations_path.glob("*.sql"))
+    assert processed_migrations == expected_migrations
 
     with psycopg.connect(DATABASE_URL) as connection:
         connection.execute(
