@@ -1,10 +1,8 @@
-import type { MetricDefinition, School } from "../types";
+import type { MetricDefinition } from "../types";
 import { Icon } from "./Icon";
 
 interface ContextPanelProps {
   metric: MetricDefinition;
-  schools: School[];
-  profileSchoolYears: string[];
 }
 
 const baselineSections = [
@@ -25,18 +23,7 @@ const baselineSections = [
   },
 ];
 
-function demographicLabel(school: School, key: string, abbreviation: string) {
-  const percent = school.demographics[key]?.percent;
-  return percent === null || percent === undefined
-    ? undefined
-    : `${abbreviation} ${percent.toFixed(1)}%`;
-}
-
-export function ContextPanel({
-  metric,
-  schools,
-  profileSchoolYears,
-}: ContextPanelProps) {
+export function ContextPanel({ metric }: ContextPanelProps) {
   return (
     <aside className="context-panel" aria-labelledby="context-heading">
       <div className="desktop-context">
@@ -54,10 +41,6 @@ export function ContextPanel({
             </div>
           </section>
         ))}
-        <SchoolProfiles
-          schools={schools}
-          profileSchoolYears={profileSchoolYears}
-        />
         <SourceDetails metric={metric} />
       </div>
 
@@ -67,7 +50,7 @@ export function ContextPanel({
             <Icon name="book" size={22} />
             <span>
               <strong>How to read this</strong>
-              <small>District context, profiles, map, and caveats</small>
+              <small>District context, map, and caveats</small>
             </span>
             <Icon className="disclosure-chevron" name="chevronDown" size={20} />
           </summary>
@@ -78,10 +61,6 @@ export function ContextPanel({
                 <p>{section.body}</p>
               </section>
             ))}
-            <SchoolProfiles
-              schools={schools}
-              profileSchoolYears={profileSchoolYears}
-            />
           </div>
         </details>
         <details>
@@ -99,40 +78,6 @@ export function ContextPanel({
         </details>
       </div>
     </aside>
-  );
-}
-
-function SchoolProfiles({
-  schools,
-  profileSchoolYears,
-}: Pick<ContextPanelProps, "schools" | "profileSchoolYears">) {
-  if (schools.length === 0) {
-    return null;
-  }
-  return (
-    <section className="school-profiles">
-      <h2>School profiles</h2>
-      <p>{profileSchoolYears.join(", ")} public directory context</p>
-      {schools.map((school) => {
-        const demographics = [
-          demographicLabel(school, "English Learner", "EL"),
-          demographicLabel(school, "Students with Disabilities", "SWD"),
-          demographicLabel(school, "Socioeconomically Disadvantaged", "SED"),
-        ].filter(Boolean);
-        return (
-          <div className="context-school" key={school.id}>
-            <strong>{school.name}</strong>
-            <span>
-              {school.city} · {school.gradeSpan} ·{" "}
-              {school.enrollment?.toLocaleString() ?? "Unknown"} students
-            </span>
-            {demographics.length > 0 ? (
-              <small>{demographics.join(" · ")}</small>
-            ) : null}
-          </div>
-        );
-      })}
-    </section>
   );
 }
 

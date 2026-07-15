@@ -22,6 +22,8 @@ A family should be able to move from a place or grade need to a small, explainab
 - Derive clearly labeled student-to-teacher context where both source values are available.
 - Show important directory flags without presenting them as quality judgments.
 
+Status: implemented using the existing versioned public-school directory bundle.
+
 ### 3. Geographic context
 
 - Add a map mode for filtered search results and selected schools.
