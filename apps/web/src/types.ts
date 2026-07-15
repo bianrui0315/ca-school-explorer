@@ -78,6 +78,11 @@ export interface SchoolSummary {
     teachers: number | null;
     administrators: number | null;
   };
+  peerContext?: {
+    englishLearnerPercent: number | null;
+    studentsWithDisabilitiesPercent: number | null;
+    socioeconomicallyDisadvantagedPercent: number | null;
+  };
   latestObservations?: LatestSchoolObservation[];
 }
 
@@ -104,10 +109,11 @@ export interface DistrictDetail {
   metrics: MetricSeries;
 }
 
-export type ReferenceMode = "district" | "county" | "california";
+export type ReferenceMode = "district" | "county" | "california" | "peers";
 export type ReferenceBasis =
   | "official-county"
   | "derived-district-weighted"
+  | "derived-peer-weighted"
   | "official-state";
 
 export interface ReferenceDetail {

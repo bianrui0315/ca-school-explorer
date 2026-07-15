@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-07-15
+
+### Added
+
+- Statewide similar-context matching based on school level, compatible grade span, enrollment, directory designations, and public EL, SWD, and SED profile percentages.
+- Plain-language match explanations and direct peer-to-comparison actions without a rank or quality score.
+- A selectable six-school peer reference for the trend chart and comparison table.
+- Reproducible peer-reference links that preserve the selected anchor school.
+
+### Changed
+
+- Public school summaries now include the three profile percentages required for browser-side matching; outcome records remain separate and are never used to find peers.
+- Similar-peer reference values are calculated after matching using published student-denominator weighting, with suppressed and unavailable values excluded rather than reconstructed.
+
+### Known limitations
+
+- Similarity describes public institutional context, not school quality, attendance assignment, admission eligibility, or causal comparability.
+- Peer sets use the latest published school profile. Profile changes between directory releases can change the matched set.
+
 ## [0.4.2] - 2026-07-15
 
 ### Added
