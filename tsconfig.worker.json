@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "module": "ESNext",
+    "lib": ["ES2024"],
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "strict": true,
+    "target": "ES2024"
+  },
+  "exclude": ["worker/**/*.test.ts"],
+  "include": ["worker/**/*.ts", "worker-configuration.d.ts"]
+}

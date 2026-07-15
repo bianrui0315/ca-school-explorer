@@ -32,7 +32,11 @@ from ca_school_explorer.dataset_manifest import (
     load_dataset_manifest,
 )
 from ca_school_explorer.indicators import IndicatorDataError
-from ca_school_explorer.public_data import PublicDataError, publish_public_data
+from ca_school_explorer.public_data import (
+    PublicDataError,
+    enrich_public_index_evidence,
+    publish_public_data,
+)
 from ca_school_explorer.school_directory import SchoolDirectoryError
 
 
@@ -149,7 +153,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directory for the generated manifest, index, and county shards.",
     )
     publish_parser.add_argument(
-        "--release", default="0.3.0", help="Application/data release identifier."
+        "--release", default="0.3.1", help="Application/data release identifier."
+    )
+
+    evidence_parser = subparsers.add_parser(
+        "enrich-public-index",
+        help="Add compact latest-year evidence to an existing public school index.",
+    )
+    evidence_parser.add_argument(
+        "--output-root",
+        type=Path,
+        default=Path("apps/web/public/data"),
+        help="Directory containing the generated manifest, index, and school shards.",
+    )
+    evidence_parser.add_argument(
+        "--release", default="0.3.1", help="Application/data release identifier."
     )
     return parser
 
@@ -226,6 +244,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 release=args.release,
             )
             print(json.dumps(asdict(publish_result), indent=2))
+            return 0
+
+        if args.command == "enrich-public-index":
+            enriched = enrich_public_index_evidence(args.output_root, release=args.release)
+            print(json.dumps({"enrichedSchools": enriched}, indent=2))
             return 0
 
         manifest = load_dataset_manifest(args.manifest)

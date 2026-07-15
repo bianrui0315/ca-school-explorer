@@ -5,6 +5,7 @@ import { ControlBar } from "./components/ControlBar";
 import { Header } from "./components/Header";
 import { Icon } from "./components/Icon";
 import { IndicatorOverview } from "./components/IndicatorOverview";
+import { LocationFinder } from "./components/LocationFinder";
 import { MetricNav } from "./components/MetricNav";
 import { SchoolPicker } from "./components/SchoolPicker";
 import { SchoolOverview } from "./components/SchoolOverview";
@@ -221,6 +222,13 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             number.
           </p>
         </section>
+
+        <LocationFinder
+          allSchools={catalog.schools}
+          manifest={catalog.manifest}
+          onAdd={addSchool}
+          selectedSchoolIds={selectedSchoolIds}
+        />
 
         <div className="workspace">
           <aside className="left-rail">

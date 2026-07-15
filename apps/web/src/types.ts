@@ -37,6 +37,15 @@ export interface SubgroupDefinition {
   category: "total" | "program" | "race_ethnicity" | "gender" | "grade_span";
 }
 
+export type LatestSchoolObservation = [
+  year: number,
+  metricIndex: number,
+  value: number | null,
+  denominator: number | null,
+  reliabilityCode: number,
+  sourceSnapshotId: number,
+];
+
 export interface SchoolSummary {
   id: string;
   name: string;
@@ -69,6 +78,7 @@ export interface SchoolSummary {
     teachers: number | null;
     administrators: number | null;
   };
+  latestObservations?: LatestSchoolObservation[];
 }
 
 export interface DemographicValue {
@@ -125,6 +135,7 @@ export interface PublicManifest {
   sourceSnapshots: SourceSnapshot[];
   reliabilityCodes: Record<string, Reliability>;
   dataNotice: string;
+  latestObservationEncoding?: string[];
 }
 
 export interface PublicCatalog {

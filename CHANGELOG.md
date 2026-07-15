@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-14
+
 ### Added
 
+- A work-address, city, or ZIP location finder with 5, 10, 15, 25, and 50 mile radii, grouped elementary, middle, and high school evidence matches, and a focused result map.
+- A same-origin Worker geocoding endpoint backed by the U.S. Census Geocoder, with bounded request and response bodies, California-only results, timeouts, no-store responses, and no project-side address storage.
+- A compact latest all-student observation summary in the statewide school index so local evidence matching does not download hundreds of school detail shards.
+- Transparent grade-band weights, evidence coverage guardrails, source values and years, distance tie-breaking, and direct addition of a local match to the comparison dashboard.
 - List and map views for school discovery, plus radius-based nearby-school results using published coordinates and straight-line distance.
 - School discovery by street address, ZIP code, county, city, and individual grade served, using the existing statewide public-school directory.
 - Ranked directory matches, filter-only browsing, result counts, and clear empty states.
