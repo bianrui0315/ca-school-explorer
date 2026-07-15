@@ -22,7 +22,7 @@ The project does not produce a "best schools" ranking. It leads with separate in
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.3.1 release
+## v0.3.2 release
 
 This release connects the comparison experience to a compact, source-attributed export from the canonical database:
 
@@ -32,7 +32,7 @@ This release connects the comparison experience to a compact, source-attributed 
 - seven indicators: ELA and mathematics distance from standard, chronic absenteeism, suspension, four-year graduation, A–G completion, and four-year dropout;
 - three adjacent outcome years, 2022–23 through 2024–25, on a shared trend timeline with inset endpoints;
 - 32 student-group lenses, including English learners, students with disabilities, racial and ethnic groups, and socioeconomically disadvantaged students;
-- location searches by California work address, city, or ZIP with 5–50 mile radii and explainable elementary, middle, and high school evidence matches;
+- location searches by California work address, city, or ZIP with 5–50 mile radii, exact-grade and public-school-type filters, evidence-coverage thresholds, adjustable evidence priorities, match explanations, and reproducible share links;
 - side-by-side comparison for up to five schools, exact-value tables, same-district context, a seven-axis normalized profile, an editable experimental composite, and a selected-school map;
 - visible denominators, reliability labels, district context, and source notes;
 - a PostgreSQL canonical store with deterministic migrations and least-privilege roles;
@@ -45,7 +45,7 @@ This release connects the comparison experience to a compact, source-attributed 
 - continuous integration, issue templates, and contribution guidance;
 - a validated, self-contained HTML project plan.
 
-The current public bundle contains three adjacent outcome years. CDE advises caution when comparing years because processing and reporting changes may affect results; missing and suppressed values remain unconnected and are never inferred. The location finder uses transparent, coverage-aware evidence ordering rather than a universal school ranking, and nearby never means assigned or eligible. Similar-school comparisons, the complete College/Career Indicator, and private-school directory context remain roadmap items. The website is an independent informational project, not a CDE product or endorsement.
+The current public bundle contains three adjacent outcome years. CDE advises caution when comparing years because processing and reporting changes may affect results; missing and suppressed values remain unconnected and are never inferred. The location finder uses transparent, coverage-aware evidence ordering rather than a universal school ranking. Its personalization settings use grade, public-school type, evidence coverage, and user-selected evidence priorities; protected characteristics do not steer housing-location results. Nearby never means assigned or eligible. Similar-school comparisons, the complete College/Career Indicator, and private-school directory context remain roadmap items. The website is an independent informational project, not a CDE product or endorsement.
 
 Raw CDE files are not committed or redistributed. The repository publishes selected factual derived records with source metadata, suppression preserved, and no claim that source data is covered by the Apache-2.0 code license. Formal source-specific permission review remains an open governance item; see [Data Sources and Licensing Policy](DATA_SOURCES.md).
 

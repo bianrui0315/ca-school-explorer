@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MetricDefinition, PublicManifest, SchoolSummary } from "../types";
 import {
+  defaultLocationRecommendationOptions,
   recommendSchoolsNearLocation,
   scoreSchoolForBand,
 } from "./locationRecommendations";
@@ -71,8 +72,9 @@ function school(
   latitude: number,
   ela: number,
   math: number,
+  overrides: Partial<SchoolSummary> = {},
 ): SchoolSummary {
-  return {
+  const base: SchoolSummary = {
     id,
     name,
     status: "active",
@@ -107,6 +109,7 @@ function school(
       [2024, 3, 2, 100, 0, 4],
     ],
   };
+  return { ...base, ...overrides };
 }
 
 describe("location recommendations", () => {
@@ -149,5 +152,96 @@ describe("location recommendations", () => {
     expect(
       scoreSchoolForBand(limited, "elementary", 1, manifest).comparable,
     ).toBe(false);
+  });
+
+  it("applies exact grade, school type, and evidence coverage as eligibility filters", () => {
+    const districtElementary = school(
+      "1",
+      "District Elementary",
+      34.29,
+      60,
+      60,
+    );
+    const charterMiddle = school("2", "Charter Middle", 34.29, 60, 60, {
+      charter: true,
+      gradeSpan: "6–8",
+      schoolLevel: "Middle",
+    });
+    const options = defaultLocationRecommendationOptions();
+    options.grade = "6";
+    options.schoolType = "charter";
+    options.minimumCoverage = 0.9;
+    charterMiddle.latestObservations = [
+      [2024, 1, 60, 100, 0, 1],
+      [2024, 2, 60, 100, 0, 2],
+    ];
+
+    const strict = recommendSchoolsNearLocation(
+      [districtElementary, charterMiddle],
+      { latitude: 34.29, longitude: -118.58 },
+      5,
+      manifest,
+      3,
+      options,
+    );
+
+    expect(strict).toHaveLength(1);
+    expect(strict[0]?.band).toBe("middle");
+    expect(strict[0]?.nearbyCount).toBe(1);
+    expect(strict[0]?.eligibleCount).toBe(0);
+
+    options.minimumCoverage = 0.7;
+    const inclusive = recommendSchoolsNearLocation(
+      [districtElementary, charterMiddle],
+      { latitude: 34.29, longitude: -118.58 },
+      5,
+      manifest,
+      3,
+      options,
+    );
+    expect(inclusive[0]?.results[0]?.school.name).toBe("Charter Middle");
+  });
+
+  it("reorders results when the user changes evidence priorities", () => {
+    const academicAce = school("1", "Academic Ace", 34.29, 120, 120);
+    academicAce.latestObservations = [
+      [2024, 0, 30, 100, 0, 1],
+      [2024, 1, 120, 100, 0, 2],
+      [2024, 2, 120, 100, 0, 3],
+      [2024, 3, 20, 100, 0, 4],
+    ];
+    const attendanceAce = school("2", "Attendance Ace", 34.29, 30, 30);
+    attendanceAce.latestObservations = [
+      [2024, 0, 0, 100, 0, 1],
+      [2024, 1, 30, 100, 0, 2],
+      [2024, 2, 30, 100, 0, 3],
+      [2024, 3, 0, 100, 0, 4],
+    ];
+    const center = { latitude: 34.29, longitude: -118.58 };
+
+    const defaults = recommendSchoolsNearLocation(
+      [attendanceAce, academicAce],
+      center,
+      5,
+      manifest,
+    );
+    expect(defaults[0]?.results[0]?.school.name).toBe("Academic Ace");
+
+    const options = defaultLocationRecommendationOptions();
+    options.priorityMultipliers.academics = 0.5;
+    options.priorityMultipliers.attendance = 2;
+    options.priorityMultipliers.climate = 2;
+    const personalized = recommendSchoolsNearLocation(
+      [attendanceAce, academicAce],
+      center,
+      5,
+      manifest,
+      3,
+      options,
+    );
+    expect(personalized[0]?.results[0]?.school.name).toBe("Attendance Ace");
+    expect(personalized[0]?.results[0]?.primaryDriver?.label).toBe(
+      "Attendance",
+    );
   });
 });

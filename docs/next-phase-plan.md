@@ -39,9 +39,11 @@ Status: search-result maps and radius-based nearby-school discovery are implemen
 - Group a short list by elementary, middle, and high school grades served.
 - Order only by documented, coverage-aware indicator evidence; use distance only as a tie-break.
 - Show distance, evidence coverage, latest values and years, and the non-assignment warning.
+- Filter by exact grade and public-school type, set a minimum evidence threshold, and adjust transparent evidence priorities without using protected traits.
+- Explain the strongest evidence driver and reproduce the same location search from an explicitly generated share link.
 - Let a family add a result to the existing comparison without duplicating the analytical workflow.
 
-Status: implemented with latest reliable all-student observations in the public school index and no AI model dependency.
+Status: implemented with latest reliable all-student observations in the public school index and no AI model dependency. Release `0.3.2` adds the personalized filters, priority multipliers, evidence threshold, explanation, and share-link flow.
 
 ### 5. Dashboard context
 
@@ -74,3 +76,5 @@ Status: implemented with latest reliable all-student observations in the public 
 - No search result claims attendance assignment or enrollment eligibility.
 - A real California street address resolves through the Worker and returns grouped, evidence-labeled results without storing the submitted address.
 - Changing the radius recomputes the shortlist and map without another geocoding request.
+- Exact grade, school type, minimum evidence, and priority settings reproduce through a validated share link.
+- Protected traits do not alter location-match eligibility or ordering.

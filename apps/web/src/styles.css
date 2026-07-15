@@ -360,6 +360,124 @@ summary:focus-visible,
   cursor: wait;
 }
 
+.location-personalization {
+  grid-column: 1 / -1;
+  padding-top: 12px;
+  border-top: 1px solid #dce6f1;
+}
+
+.location-personalization summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #2f3d53;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.location-personalization summary small {
+  color: #68778c;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.location-personalization-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding-top: 13px;
+}
+
+.location-filter-controls,
+.location-priority-controls {
+  display: grid;
+  gap: 8px;
+}
+
+.location-filter-controls {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.location-priority-controls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.location-priority-controls legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 0;
+  color: #66758a;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.location-filter-controls label,
+.location-priority-controls label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.location-filter-controls label > span,
+.location-priority-controls label > span {
+  overflow: hidden;
+  color: #5d6d83;
+  font-size: 8px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location-filter-controls select,
+.location-priority-controls select {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 7px;
+  border: 1px solid var(--line-dark);
+  border-radius: 7px;
+  outline: 0;
+  background: #ffffff;
+  color: #344158;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.location-priority-controls select:disabled {
+  background: #edf1f5;
+  color: #9099a6;
+}
+
+.location-reset-preferences {
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid #c6d5e5;
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.location-personalization > p {
+  max-width: none;
+  margin-top: 9px;
+  font-size: 9px;
+}
+
 .location-search-error {
   margin: 8px 0 0;
   padding: 10px 12px;
@@ -416,13 +534,68 @@ summary:focus-visible,
   font-size: 9px;
 }
 
-.location-results-summary > p {
+.location-results-actions {
+  justify-items: end;
+  max-width: 500px;
+}
+
+.location-results-actions > p {
   max-width: 420px;
   margin: 0;
   color: #667286;
   font-size: 10px;
   line-height: 1.45;
   text-align: right;
+}
+
+.location-results-actions > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 25px;
+  padding: 0 8px;
+  border: 1px solid #b9d1ef;
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 8px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.location-results-actions > button:hover {
+  background: var(--blue-soft);
+}
+
+.location-results-actions .location-share-status {
+  color: #16806a;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.location-share-fallback {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-bottom: 1px solid #e5ebf2;
+  color: #66758a;
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.location-share-fallback input {
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+  color: #46556b;
+  font-size: 9px;
 }
 
 .location-results-layout {
@@ -490,6 +663,16 @@ summary:focus-visible,
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   min-width: 0;
+}
+
+.location-grade-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.location-grade-results-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .location-grade-band {
@@ -591,6 +774,15 @@ summary:focus-visible,
   color: #8a5a00;
   font-size: 7px;
   font-style: normal;
+}
+
+.location-match-explanation {
+  margin: 7px 0 0;
+  padding-left: 7px;
+  border-left: 2px solid #9dbce2;
+  color: #52637a;
+  font-size: 8px;
+  line-height: 1.45;
 }
 
 .location-evidence-list {
@@ -2281,6 +2473,14 @@ tbody td small {
     grid-template-columns: 1fr;
   }
 
+  .location-personalization-body {
+    grid-template-columns: 1fr;
+  }
+
+  .location-reset-preferences {
+    justify-self: start;
+  }
+
   .location-recommendation-map {
     height: 320px;
   }
@@ -2398,7 +2598,12 @@ tbody td small {
     white-space: normal;
   }
 
-  .location-results-summary > p {
+  .location-results-actions {
+    justify-items: start;
+    max-width: none;
+  }
+
+  .location-results-actions > p {
     max-width: none;
     text-align: left;
   }
@@ -2413,6 +2618,15 @@ tbody td small {
 
   .location-grade-grid {
     grid-template-columns: 1fr;
+  }
+
+  .location-grade-results-row {
+    grid-template-columns: 1fr;
+  }
+
+  .location-filter-controls,
+  .location-priority-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .location-grade-band + .location-grade-band {
