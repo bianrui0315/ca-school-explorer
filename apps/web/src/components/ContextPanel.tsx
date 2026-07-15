@@ -1,16 +1,15 @@
-import type { MetricDefinition } from "../types";
+import type { MetricDefinition, ReferenceBasis, ReferenceMode } from "../types";
 import { Icon } from "./Icon";
 
 interface ContextPanelProps {
   metric: MetricDefinition;
+  referenceBasis?: ReferenceBasis;
+  referenceDescription: string;
+  referenceLabel?: string;
+  referenceMode: ReferenceMode;
 }
 
-const baselineSections = [
-  {
-    icon: "school" as const,
-    title: "Same district",
-    body: "A district baseline appears only when every selected school belongs to the same district. It is context, not a target.",
-  },
+const supportingSections = [
   {
     icon: "attendance" as const,
     title: "Location context",
@@ -23,7 +22,39 @@ const baselineSections = [
   },
 ];
 
-export function ContextPanel({ metric }: ContextPanelProps) {
+function basisLabel(basis: ReferenceBasis | undefined, mode: ReferenceMode) {
+  if (basis === "derived-district-weighted") {
+    return "Calculated from official district rows, weighted by the published student denominator.";
+  }
+  if (basis === "official-county") {
+    return "Official CDE county aggregate.";
+  }
+  if (basis === "official-state") {
+    return "Official CDE statewide aggregate.";
+  }
+  if (mode === "district") {
+    return "Official CDE district aggregate.";
+  }
+  return "A matching public reference may be unavailable for this metric or student group.";
+}
+
+export function ContextPanel({
+  metric,
+  referenceBasis,
+  referenceDescription,
+  referenceLabel,
+  referenceMode,
+}: ContextPanelProps) {
+  const baselineSections = [
+    {
+      icon: "school" as const,
+      title: referenceLabel
+        ? `${referenceLabel} reference`
+        : "Reference context",
+      body: `${referenceDescription} ${basisLabel(referenceBasis, referenceMode)} It is context, not a target.`,
+    },
+    ...supportingSections,
+  ];
   return (
     <aside className="context-panel" aria-labelledby="context-heading">
       <div className="desktop-context">

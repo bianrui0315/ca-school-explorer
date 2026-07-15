@@ -4,6 +4,7 @@ import { afterEach } from "vitest";
 import App from "./App";
 import type {
   DistrictDetail,
+  GeographicReferences,
   MetricDefinition,
   MetricSeries,
   Observation,
@@ -239,6 +240,29 @@ function createDataClient(): PublicDataClient {
       countyCode: "01",
       metrics: metricSeries(40, 14),
     }),
+    loadReferences: async (): Promise<GeographicReferences> => ({
+      county: {
+        id: "01000000000000",
+        name: "Alameda",
+        level: "county",
+        countyCode: "01",
+        metrics: metricSeries(30, 15),
+        basisByMetric: {
+          ela_distance_from_standard: "derived-district-weighted",
+          chronic_absenteeism_rate: "official-county",
+        },
+      },
+      state: {
+        id: "00000000000000",
+        name: "California",
+        level: "state",
+        metrics: metricSeries(20, 16),
+        basisByMetric: {
+          ela_distance_from_standard: "official-state",
+          chronic_absenteeism_rate: "official-state",
+        },
+      },
+    }),
   };
 }
 
@@ -275,6 +299,43 @@ describe("school comparison experience", () => {
       "english_learners",
     );
     expect(screen.getAllByText("30.1%").length).toBeGreaterThan(0);
+  });
+
+  it("switches among district, county, and California context", async () => {
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    const reference = await screen.findByLabelText("Reference context");
+    expect(reference).toHaveValue("district");
+    await user.selectOptions(reference, "county");
+    expect(
+      screen.getAllByText(/Alameda County baseline/).length,
+    ).toBeGreaterThan(0);
+    await user.selectOptions(reference, "california");
+    expect(screen.getAllByText(/California baseline/).length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it("restores a complete shared comparison", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?view=compare&schools=19647339999999&metric=ela_distance_from_standard&subgroup=english_learners&start=2023&reference=california&weights=ela_distance_from_standard%3A55#top",
+    );
+    render(<App dataClient={createDataClient()} />);
+
+    expect(
+      await screen.findByText("Selected schools (1 of 5)"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Student lens")).toHaveValue(
+      "english_learners",
+    );
+    expect(screen.getByLabelText("Year range")).toHaveValue("2023");
+    expect(screen.getByLabelText("Reference context")).toHaveValue(
+      "california",
+    );
+    expect(screen.getByLabelText("ELA weight")).toHaveValue(55);
   });
 
   it("renders three years with inset trend endpoints by default", async () => {

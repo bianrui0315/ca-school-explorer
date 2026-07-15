@@ -19,6 +19,7 @@ interface ComparisonTableProps {
   subgroup: SubgroupId;
   baseline: Observation[];
   baselineLabel?: string;
+  baselineDescription?: string;
   startYear: number;
   endYear: number;
 }
@@ -33,6 +34,7 @@ export function ComparisonTable({
   subgroup,
   baseline,
   baselineLabel,
+  baselineDescription = "Geographic context",
   startYear,
   endYear,
 }: ComparisonTableProps) {
@@ -141,7 +143,7 @@ export function ComparisonTable({
                   <span className="baseline-dot" />
                   <span>
                     {baselineLabel} baseline
-                    <small>Same-district context</small>
+                    <small>{baselineDescription}</small>
                   </span>
                 </th>
                 {years.map((year) => {

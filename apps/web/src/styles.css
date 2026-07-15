@@ -567,6 +567,16 @@ summary:focus-visible,
   background: var(--blue-soft);
 }
 
+.location-results-actions > .location-compare-action {
+  border-color: #0c62ce;
+  background: #0c62ce;
+  color: #ffffff;
+}
+
+.location-results-actions > .location-compare-action:hover {
+  background: #084faa;
+}
+
 .location-results-actions .location-share-status {
   color: #16806a;
   font-size: 8px;
@@ -960,6 +970,7 @@ summary:focus-visible,
     "left controls context"
     "left profiles context"
     "left chart context"
+    "left coverage context"
     "left overview context"
     "left table context";
   max-width: 1500px;
@@ -1695,6 +1706,48 @@ summary:focus-visible,
   gap: 8px;
 }
 
+.select-control--reference {
+  min-width: 178px;
+}
+
+.share-comparison {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 92px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #b9d1ef;
+  border-radius: 9px;
+  background: #eef6ff;
+  color: #0c62ce;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.share-comparison:hover {
+  border-color: #7eafe9;
+  background: #e2f0ff;
+}
+
+.share-comparison:disabled {
+  border-color: #d7e1ec;
+  background: #f4f7fa;
+  color: #91a0b2;
+  cursor: not-allowed;
+}
+
+.comparison-share-status {
+  position: absolute;
+  margin-top: 58px;
+  color: #16806a;
+  font-size: 9px;
+  font-weight: 700;
+}
+
 .select-control {
   position: relative;
   display: flex;
@@ -1863,6 +1916,92 @@ summary:focus-visible,
 .trend-panel--empty p {
   margin: 0;
   font-size: 13px;
+}
+
+.data-coverage {
+  grid-area: coverage;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.85fr) minmax(0, 2.15fr);
+  gap: 20px;
+  padding: 17px clamp(18px, 2.3vw, 34px);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(100deg, #f5f9ff, #f7fbfa);
+}
+
+.data-coverage-intro,
+.data-coverage-schools article {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-coverage-intro {
+  justify-content: center;
+}
+
+.data-coverage-intro > span {
+  color: #4d6a8d;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.data-coverage-intro > strong {
+  margin-top: 3px;
+  color: #26364d;
+  font-size: 12px;
+}
+
+.data-coverage-intro > small {
+  margin-top: 4px;
+  color: #758297;
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.data-coverage-schools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 7px;
+}
+
+.data-coverage-schools article {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #dce7f1;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.data-coverage-schools article > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  color: #55667c;
+  font-size: 8px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-coverage-schools i {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.data-coverage-schools strong {
+  margin-top: 5px;
+  color: #24354d;
+  font-size: 11px;
+}
+
+.data-coverage-schools small {
+  margin-top: 2px;
+  color: #7b8898;
+  font-size: 7px;
 }
 
 .indicator-overview {
@@ -2554,6 +2693,7 @@ tbody td small {
       "left controls"
       "left profiles"
       "left chart"
+      "left coverage"
       "left overview"
       "left table"
       "left context";
@@ -2711,6 +2851,7 @@ tbody td small {
       "metrics"
       "profiles"
       "chart"
+      "coverage"
       "overview"
       "table"
       "context";
@@ -2882,8 +3023,24 @@ tbody td small {
     width: 100%;
   }
 
+  .share-comparison {
+    width: 100%;
+  }
+
+  .comparison-share-status {
+    position: static;
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
   .trend-panel {
     padding: 23px 20px 9px;
+  }
+
+  .data-coverage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 16px 20px;
   }
 
   .trend-header h2 {
@@ -3112,7 +3269,7 @@ tbody td small {
   }
 }
 
-/* v0.4.1 visual system and page architecture */
+/* v0.4.2 visual system and page architecture */
 
 :root {
   background: #e8f0f9;

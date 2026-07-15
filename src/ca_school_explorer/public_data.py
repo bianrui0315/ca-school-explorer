@@ -264,7 +264,7 @@ def publish_public_data(
     database_url: str,
     output_root: str | Path = DEFAULT_OUTPUT_ROOT,
     *,
-    release: str = "0.4.1",
+    release: str = "0.4.2",
     generated_at: datetime | None = None,
 ) -> PublishResult:
     """Export a compact statewide index and county-sharded indicator bundles."""
@@ -540,6 +540,183 @@ def publish_public_data(
                 )
                 observation_count += 1
 
+            reference_records: dict[str, dict[str, Any]] = {}
+            reference_observation_count = 0
+            reference_cursor = connection.cursor(name="public_geographic_references")
+            reference_cursor.execute(
+                """
+                select
+                  entity.entity_type,
+                  entity.county_code,
+                  entity.cds_code,
+                  entity.name,
+                  observation.school_year_start,
+                  observation.metric_id,
+                  observation.subgroup_id,
+                  observation.value,
+                  observation.numerator,
+                  observation.denominator,
+                  observation.reliability_status,
+                  observation.source_snapshot_id
+                from cse.current_metric_observation observation
+                join cse.entity entity on entity.id = observation.entity_id
+                where
+                  entity.entity_type in ('county', 'state')
+                  and entity.identity_resolution = 'resolved'
+                  and observation.charter_scope = 'all'
+                  and observation.dass_scope = 'all'
+                order by entity.entity_type, entity.county_code, observation.metric_id,
+                  observation.subgroup_id, observation.school_year_start
+                """
+            )
+            for row in reference_cursor:
+                level = str(row[0])
+                county_code = str(row[1] or "")
+                reference_key = county_code if level == "county" else "state"
+                reference_record = reference_records.setdefault(
+                    reference_key,
+                    {
+                        "schemaVersion": 1,
+                        "id": str(row[2]),
+                        "name": str(row[3]),
+                        "level": level,
+                        "observations": [],
+                        "basisByMetric": {},
+                    },
+                )
+                if level == "county":
+                    reference_record["countyCode"] = county_code
+                metric_id = str(row[5])
+                reference_record["basisByMetric"][metric_id] = (
+                    "official-county" if level == "county" else "official-state"
+                )
+                reference_record["observations"].append(
+                    _observation(row[4:], metric_indexes, subgroup_indexes)
+                )
+                reference_observation_count += 1
+
+            derived_metric_ids = {
+                "college_career_prepared_rate",
+                "ela_distance_from_standard",
+                "math_distance_from_standard",
+            }
+            derived_totals: dict[tuple[str, int, int, int], dict[str, int | float | bool]] = {}
+            for county_code, county_districts in district_observations.items():
+                for observations in county_districts.values():
+                    for observation in observations:
+                        metric_index = int(observation[1] or 0)
+                        metric_id = str(metrics[metric_index]["id"])
+                        value = observation[3]
+                        denominator = observation[5]
+                        if (
+                            metric_id not in derived_metric_ids
+                            or value is None
+                            or denominator is None
+                            or denominator <= 0
+                        ):
+                            continue
+                        derived_key = (
+                            county_code,
+                            int(observation[0] or 0),
+                            metric_index,
+                            int(observation[2] or 0),
+                        )
+                        total = derived_totals.setdefault(
+                            derived_key,
+                            {
+                                "weighted": 0.0,
+                                "denominator": 0.0,
+                                "numerator": 0.0,
+                                "hasNumerator": True,
+                                "sourceSnapshotId": int(observation[7] or 0),
+                            },
+                        )
+                        total["weighted"] = float(total["weighted"]) + float(value) * float(
+                            denominator
+                        )
+                        total["denominator"] = float(total["denominator"]) + float(denominator)
+                        source_numerator = observation[4]
+                        if source_numerator is None:
+                            total["hasNumerator"] = False
+                        else:
+                            total["numerator"] = float(total["numerator"]) + float(source_numerator)
+                        total["sourceSnapshotId"] = max(
+                            int(total["sourceSnapshotId"]),
+                            int(observation[7] or 0),
+                        )
+
+            county_entities = connection.execute(
+                """
+                select county_code, cds_code, name
+                from cse.entity
+                where entity_type = 'county' and identity_resolution = 'resolved'
+                order by county_code
+                """
+            ).fetchall()
+            for county_code_value, county_id, county_name in county_entities:
+                county_code = str(county_code_value)
+                reference_records.setdefault(
+                    county_code,
+                    {
+                        "schemaVersion": 1,
+                        "id": str(county_id),
+                        "name": str(county_name),
+                        "level": "county",
+                        "countyCode": county_code,
+                        "observations": [],
+                        "basisByMetric": {},
+                    },
+                )
+
+            for (county_code, year, metric_index, subgroup_index), total in sorted(
+                derived_totals.items()
+            ):
+                county_reference_record = reference_records[county_code]
+                metric_id = str(metrics[metric_index]["id"])
+                existing = {
+                    (int(item[0]), int(item[1]), int(item[2]))
+                    for item in county_reference_record["observations"]
+                }
+                if (year, metric_index, subgroup_index) in existing:
+                    continue
+                denominator = float(total["denominator"])
+                value = round(float(total["weighted"]) / denominator, 1)
+                aggregated_numerator: int | float | None = None
+                if metric_id == "college_career_prepared_rate" and bool(total["hasNumerator"]):
+                    aggregated_numerator = _number(Decimal(str(total["numerator"])))
+                    value = round(float(total["numerator"]) * 100 / denominator, 1)
+                reliability_code = 1 if denominator < 30 else 0
+                county_reference_record["observations"].append(
+                    [
+                        year,
+                        metric_index,
+                        subgroup_index,
+                        value,
+                        aggregated_numerator,
+                        _number(Decimal(str(denominator))),
+                        reliability_code,
+                        int(total["sourceSnapshotId"]),
+                    ]
+                )
+                county_reference_record["basisByMetric"][metric_id] = "derived-district-weighted"
+                reference_observation_count += 1
+
+            for geographic_reference_record in reference_records.values():
+                geographic_reference_record["observations"].sort(
+                    key=lambda item: (int(item[1]), int(item[2]), int(item[0]))
+                )
+
+            state_reference = reference_records.get("state")
+            if state_reference is None:
+                raise PublicDataError("state reference observations are unavailable")
+            _write_json(temporary_root / "references" / "state.json", state_reference)
+            for county_code_value, _, _ in county_entities:
+                county_code = str(county_code_value)
+                _write_json(
+                    temporary_root / "references" / "counties" / f"{county_code}.json",
+                    reference_records[county_code],
+                )
+
             school_cursor = connection.cursor(name="public_school_observations")
             school_cursor.execute(
                 """
@@ -566,10 +743,10 @@ def publish_public_data(
             for row in school_cursor:
                 school_id = str(row[1])
                 selected_shard = school_shards.get(school_id)
-                record = school_records.get(selected_shard or "", {}).get(school_id)
-                if record is None:
+                school_record = school_records.get(selected_shard or "", {}).get(school_id)
+                if school_record is None:
                     continue
-                record["observations"].append(
+                school_record["observations"].append(
                     _observation(row[2:], metric_indexes, subgroup_indexes)
                 )
                 observation_count += 1
@@ -629,6 +806,9 @@ def publish_public_data(
             "observationCount": observation_count,
             "schoolShardCount": len(school_records),
             "districtFileCount": len(county_codes),
+            "referenceCount": len(reference_records),
+            "referenceFileCount": len(reference_records),
+            "referenceObservationCount": reference_observation_count,
             "metrics": metrics,
             "subgroups": subgroups,
             "sourceSnapshots": snapshots,

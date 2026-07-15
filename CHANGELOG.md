@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-07-15
+
+### Added
+
+- Selectable same-district, same-county, and California comparison references.
+- A versioned public bundle of 58 county references and one statewide reference with metric-level calculation-basis metadata.
+- Current-year, older-only, and unavailable data-completeness summaries for each selected school.
+- Reproducible comparison links that preserve schools, metric, subgroup, year range, reference selection, and composite weights.
+- A direct Area Explorer action for opening the selected schools in Compare.
+
+### Changed
+
+- County ELA, mathematics, and College/Career reference values are transparently calculated from official district rows using published denominators; other county values use official CDE county aggregates.
+- The comparison control bar and responsive layout now accommodate geographic context and sharing without crowding the chart.
+
+### Known limitations
+
+- County references require all selected schools to share a county; district references require all selected schools to share a district.
+- A public county aggregate is not available for every metric grain. Derived county rows preserve source suppression and do not reconstruct hidden district values.
+
 ## [0.4.1] - 2026-07-15
 
 ### Added

@@ -104,6 +104,26 @@ export interface DistrictDetail {
   metrics: MetricSeries;
 }
 
+export type ReferenceMode = "district" | "county" | "california";
+export type ReferenceBasis =
+  | "official-county"
+  | "derived-district-weighted"
+  | "official-state";
+
+export interface ReferenceDetail {
+  id: string;
+  name: string;
+  level: "county" | "state";
+  countyCode?: string;
+  metrics: MetricSeries;
+  basisByMetric: Record<MetricId, ReferenceBasis>;
+}
+
+export interface GeographicReferences {
+  county?: ReferenceDetail;
+  state: ReferenceDetail;
+}
+
 export interface SourceSnapshot {
   id: number;
   sourceKey: string;
@@ -130,6 +150,9 @@ export interface PublicManifest {
   observationCount: number;
   schoolShardCount: number;
   districtFileCount: number;
+  referenceCount?: number;
+  referenceFileCount?: number;
+  referenceObservationCount?: number;
   metrics: MetricDefinition[];
   subgroups: SubgroupDefinition[];
   sourceSnapshots: SourceSnapshot[];
@@ -154,4 +177,8 @@ export interface PublicDataClient {
     districtId: string,
     catalog: PublicCatalog,
   ) => Promise<DistrictDetail | undefined>;
+  loadReferences: (
+    countyCode: string,
+    catalog: PublicCatalog,
+  ) => Promise<GeographicReferences>;
 }

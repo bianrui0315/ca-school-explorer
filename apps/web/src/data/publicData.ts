@@ -1,12 +1,15 @@
 import type {
   DemographicValue,
   DistrictDetail,
+  GeographicReferences,
   MetricSeries,
   Observation,
   PublicCatalog,
   PublicDataClient,
   PublicManifest,
   Reliability,
+  ReferenceBasis,
+  ReferenceDetail,
   SchoolDetail,
   SchoolSummary,
 } from "../types";
@@ -44,9 +47,20 @@ interface DistrictShardResponse {
   districts: Record<string, { name: string; observations: RawObservation[] }>;
 }
 
+interface ReferenceResponse {
+  schemaVersion: 1;
+  id: string;
+  name: string;
+  level: "county" | "state";
+  countyCode?: string;
+  observations: RawObservation[];
+  basisByMetric: Record<string, ReferenceBasis>;
+}
+
 const basePath = `${import.meta.env.BASE_URL}data`;
 const schoolShardCache = new Map<string, Promise<SchoolShardResponse>>();
 const districtShardCache = new Map<string, Promise<DistrictShardResponse>>();
+const referenceCache = new Map<string, Promise<ReferenceResponse>>();
 
 async function fetchJson<T>(path: string, cache: RequestCache = "force-cache") {
   const response = await fetch(path, { cache });
@@ -154,6 +168,18 @@ function districtShard(countyCode: string, release: string) {
   return request;
 }
 
+function referenceFile(path: string, release: string) {
+  const cacheKey = `${release}:${path}`;
+  let request = referenceCache.get(cacheKey);
+  if (!request) {
+    request = fetchJson<ReferenceResponse>(
+      releasePath(`${basePath}/references/${path}.json`, release),
+    );
+    referenceCache.set(cacheKey, request);
+  }
+  return request;
+}
+
 async function loadSchool(summary: SchoolSummary, catalog: PublicCatalog) {
   const shard = await schoolShard(summary.shard, catalog.manifest.release);
   const record = shard.schools[summary.id];
@@ -185,8 +211,40 @@ async function loadDistrict(
   } satisfies DistrictDetail;
 }
 
+function decodeReference(
+  response: ReferenceResponse,
+  catalog: PublicCatalog,
+): ReferenceDetail {
+  if (response.schemaVersion !== 1) {
+    throw new Error("Unsupported geographic reference data version.");
+  }
+  return {
+    id: response.id,
+    name: response.name,
+    level: response.level,
+    countyCode: response.countyCode,
+    metrics: decodeObservations(response.observations, catalog),
+    basisByMetric: response.basisByMetric,
+  };
+}
+
+async function loadReferences(
+  countyCode: string,
+  catalog: PublicCatalog,
+): Promise<GeographicReferences> {
+  const [county, state] = await Promise.all([
+    referenceFile(`counties/${countyCode}`, catalog.manifest.release),
+    referenceFile("state", catalog.manifest.release),
+  ]);
+  return {
+    county: decodeReference(county, catalog),
+    state: decodeReference(state, catalog),
+  };
+}
+
 export const publicDataClient: PublicDataClient = {
   loadCatalog,
   loadSchool,
   loadDistrict,
+  loadReferences,
 };
