@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-07-15
+
+### Added
+
+- A dedicated Area Explorer page at `/area`, with persistent Compare and Area Explorer navigation.
+- Official CDE district polygon rendering for exact-address searches, including separate unified, elementary, and high-school district styling.
+- Nearby-school and full-district map focus controls, a district context panel, and responsive map layouts.
+
+### Changed
+
+- Reworked the application visual system with a layered pearl background, stronger surface boundaries, refined cobalt, teal, and violet accents, and more deliberate spacing.
+- Moved location grade-band results below the map so the geographic view remains the primary Area Explorer surface.
+- Simplified upstream district geometry for display while retaining the exact point-in-polygon result returned by the official service.
+
+### Known limitations
+
+- District polygons show district jurisdiction, not individual school attendance boundaries or assigned schools.
+- Boundary geometry is display-oriented and must not be used for surveying, parcel, or legal decisions.
+
 ## [0.4.0] - 2026-07-15
 
 ### Added

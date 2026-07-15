@@ -27,6 +27,7 @@ import {
 import { formatMetricValue } from "../lib/metrics";
 import type { PublicManifest, SchoolSummary } from "../types";
 import { Icon } from "./Icon";
+import type { LocationMapFocus } from "./LocationRecommendationMap";
 
 const LazyLocationRecommendationMap = lazy(() =>
   import("./LocationRecommendationMap").then((module) => ({
@@ -48,6 +49,7 @@ const PRIORITY_OPTIONS = [
   { label: "More", value: 1.5 },
   { label: "Highest", value: 2 },
 ];
+const EMPTY_DISTRICT_BOUNDARIES: DistrictBoundaryResult["districts"] = [];
 
 interface LocationFinderProps {
   allSchools: SchoolSummary[];
@@ -67,7 +69,15 @@ function districtGradeSpan(gradeLow: string | null, gradeHigh: string | null) {
     : `${gradeLow ?? "?"}–${gradeHigh ?? "?"}`;
 }
 
-function DistrictBoundaryCard({ result }: { result: DistrictBoundaryResult }) {
+function DistrictBoundaryCard({
+  focus,
+  onFocusChange,
+  result,
+}: {
+  focus: LocationMapFocus;
+  onFocusChange: (focus: LocationMapFocus) => void;
+  result: DistrictBoundaryResult;
+}) {
   return (
     <section
       className="district-boundary-card"
@@ -87,14 +97,37 @@ function DistrictBoundaryCard({ result }: { result: DistrictBoundaryResult }) {
         <ul>
           {result.districts.map((district) => (
             <li key={district.cdsCode}>
-              <strong>{district.name}</strong>
+              <i
+                className={`district-type-swatch district-type-swatch--${district.type.toLowerCase()}`}
+              />
               <span>
-                {district.type} ·{" "}
-                {districtGradeSpan(district.gradeLow, district.gradeHigh)}
+                <strong>{district.name}</strong>
+                <small>
+                  {district.type} ·{" "}
+                  {districtGradeSpan(district.gradeLow, district.gradeHigh)}
+                </small>
               </span>
             </li>
           ))}
         </ul>
+      ) : null}
+      {result.districts.some((district) => district.geometry) ? (
+        <div className="district-view-controls" aria-label="Map view">
+          <button
+            aria-pressed={focus === "nearby"}
+            onClick={() => onFocusChange("nearby")}
+            type="button"
+          >
+            Nearby view
+          </button>
+          <button
+            aria-pressed={focus === "district"}
+            onClick={() => onFocusChange("district")}
+            type="button"
+          >
+            Full district
+          </button>
+        </div>
       ) : null}
       <p>
         This confirms district jurisdiction at the matched point. It does not
@@ -421,6 +454,7 @@ export function LocationFinder({
   const [districtResult, setDistrictResult] =
     useState<DistrictBoundaryResult>();
   const [districtError, setDistrictError] = useState<string>();
+  const [mapFocus, setMapFocus] = useState<LocationMapFocus>("nearby");
   const [shareMessage, setShareMessage] = useState<string>();
   const [shareUrl, setShareUrl] = useState<string>();
   const selectedIds = useMemo(
@@ -445,6 +479,8 @@ export function LocationFinder({
     () => new Set(groups.map((group) => group.band)),
     [groups],
   );
+  const districtBoundaries =
+    districtResult?.districts ?? EMPTY_DISTRICT_BOUNDARIES;
 
   function clearShareState() {
     setShareMessage(undefined);
@@ -490,7 +526,7 @@ export function LocationFinder({
     >
       <div className="location-finder-intro">
         <div>
-          <h2 id="location-finder-title">Find schools near a new place</h2>
+          <h1 id="location-finder-title">Find schools near a new place</h1>
           <p>
             Enter a California work address, city, or ZIP to see transparent
             evidence matches by school level.
@@ -508,6 +544,7 @@ export function LocationFinder({
             setError(undefined);
             setDistrictResult(undefined);
             setDistrictError(undefined);
+            setMapFocus("nearby");
             clearShareState();
             try {
               const resolved = await resolveLocation(query, allSchools);
@@ -621,20 +658,16 @@ export function LocationFinder({
               />
             </label>
           ) : null}
-          {districtResult ? (
-            <DistrictBoundaryCard result={districtResult} />
-          ) : null}
-          {districtError ? (
-            <p className="district-boundary-error" role="status">
-              District boundary unavailable: {districtError}
-            </p>
-          ) : null}
-          <div className="location-results-layout">
+          <div
+            className={`location-boundary-layout${districtResult || districtError ? "" : " location-boundary-layout--map-only"}`}
+          >
             <div className="location-map-panel">
               <Suspense
                 fallback={<div className="map-fallback">Loading map…</div>}
               >
                 <LazyLocationRecommendationMap
+                  boundaries={districtBoundaries}
+                  focus={mapFocus}
                   groups={groups}
                   location={location}
                 />
@@ -662,25 +695,65 @@ export function LocationFinder({
                     High
                   </span>
                 ) : null}
+                {districtBoundaries.some(
+                  (district) => district.type.toLowerCase() === "unified",
+                ) ? (
+                  <span>
+                    <i className="district-outline district-outline--unified" />
+                    Unified district
+                  </span>
+                ) : null}
+                {districtBoundaries.some(
+                  (district) => district.type.toLowerCase() === "elementary",
+                ) ? (
+                  <span>
+                    <i className="district-outline district-outline--elementary" />
+                    Elementary district
+                  </span>
+                ) : null}
+                {districtBoundaries.some(
+                  (district) => district.type.toLowerCase() === "high",
+                ) ? (
+                  <span>
+                    <i className="district-outline district-outline--high" />
+                    High school district
+                  </span>
+                ) : null}
               </div>
             </div>
-            <div
-              className={`location-grade-grid${groups.length === 1 ? " location-grade-grid-single" : ""}`}
-            >
-              {groups.map((group) => (
-                <GradeBandColumn
-                  band={group.band}
-                  comparisonFull={selectedSchoolIds.length >= 5}
-                  eligibleCount={group.eligibleCount}
-                  grade={options.grade}
-                  key={group.band}
-                  matches={group.results}
-                  nearbyCount={group.nearbyCount}
-                  onAdd={onAdd}
-                  selectedIds={selectedIds}
-                />
-              ))}
-            </div>
+            {districtResult || districtError ? (
+              <aside className="location-district-panel">
+                {districtResult ? (
+                  <DistrictBoundaryCard
+                    focus={mapFocus}
+                    onFocusChange={setMapFocus}
+                    result={districtResult}
+                  />
+                ) : null}
+                {districtError ? (
+                  <p className="district-boundary-error" role="status">
+                    District boundary unavailable: {districtError}
+                  </p>
+                ) : null}
+              </aside>
+            ) : null}
+          </div>
+          <div
+            className={`location-grade-grid${groups.length === 1 ? " location-grade-grid-single" : ""}`}
+          >
+            {groups.map((group) => (
+              <GradeBandColumn
+                band={group.band}
+                comparisonFull={selectedSchoolIds.length >= 5}
+                eligibleCount={group.eligibleCount}
+                grade={options.grade}
+                key={group.band}
+                matches={group.results}
+                nearbyCount={group.nearbyCount}
+                onAdd={onAdd}
+                selectedIds={selectedIds}
+              />
+            ))}
           </div>
           <details className="location-methodology">
             <summary>How these matches are ordered</summary>

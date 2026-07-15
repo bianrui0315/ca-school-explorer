@@ -1,19 +1,53 @@
+import type { MouseEvent } from "react";
 import { Icon } from "./Icon";
 
+export type AppPage = "area" | "compare";
+
 interface HeaderProps {
+  activePage?: AppPage;
+  onNavigate?: (page: AppPage) => void;
   onDataFreshness?: () => void;
 }
 
-export function Header({ onDataFreshness }: HeaderProps) {
+export function Header({
+  activePage = "compare",
+  onDataFreshness,
+  onNavigate,
+}: HeaderProps) {
+  function navigate(event: MouseEvent<HTMLAnchorElement>, page: AppPage) {
+    if (!onNavigate) {
+      return;
+    }
+    event.preventDefault();
+    onNavigate(page);
+  }
+
   return (
     <header className="site-header">
       <a
         className="brand"
-        href="#top"
+        href="/"
         aria-label="California School Explorer home"
+        onClick={(event) => navigate(event, "compare")}
       >
         California School Explorer
       </a>
+      <nav className="primary-navigation" aria-label="Primary navigation">
+        <a
+          aria-current={activePage === "compare" ? "page" : undefined}
+          href="/"
+          onClick={(event) => navigate(event, "compare")}
+        >
+          Compare
+        </a>
+        <a
+          aria-current={activePage === "area" ? "page" : undefined}
+          href="/area"
+          onClick={(event) => navigate(event, "area")}
+        >
+          Area Explorer
+        </a>
+      </nav>
       <nav className="header-links" aria-label="Project links">
         <a
           href="https://github.com/bianrui0315/ca-school-explorer/blob/main/METHODOLOGY.md"
@@ -22,13 +56,17 @@ export function Header({ onDataFreshness }: HeaderProps) {
         >
           Methodology
         </a>
-        <button
-          type="button"
-          onClick={onDataFreshness}
-          disabled={!onDataFreshness}
+        <a
+          href="/#source-details"
+          onClick={(event) => {
+            if (onDataFreshness) {
+              event.preventDefault();
+              onDataFreshness();
+            }
+          }}
         >
           Data freshness
-        </button>
+        </a>
       </nav>
       <details className="mobile-menu">
         <summary className="menu-button" aria-label="Open navigation">
@@ -36,19 +74,37 @@ export function Header({ onDataFreshness }: HeaderProps) {
         </summary>
         <nav className="mobile-menu-panel" aria-label="Mobile project links">
           <a
+            aria-current={activePage === "compare" ? "page" : undefined}
+            href="/"
+            onClick={(event) => navigate(event, "compare")}
+          >
+            Compare
+          </a>
+          <a
+            aria-current={activePage === "area" ? "page" : undefined}
+            href="/area"
+            onClick={(event) => navigate(event, "area")}
+          >
+            Area Explorer
+          </a>
+          <a
             href="https://github.com/bianrui0315/ca-school-explorer/blob/main/METHODOLOGY.md"
             target="_blank"
             rel="noreferrer"
           >
             Methodology
           </a>
-          <button
-            type="button"
-            onClick={onDataFreshness}
-            disabled={!onDataFreshness}
+          <a
+            href="/#source-details"
+            onClick={(event) => {
+              if (onDataFreshness) {
+                event.preventDefault();
+                onDataFreshness();
+              }
+            }}
           >
             Data freshness
-          </button>
+          </a>
         </nav>
       </details>
     </header>

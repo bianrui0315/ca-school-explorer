@@ -12,6 +12,17 @@ describe("district boundary lookup", () => {
             {
               cdsCode: "19647330000000",
               districtCode: "1964733",
+              geometry: {
+                coordinates: [
+                  [
+                    [-118.7, 34.2],
+                    [-118.5, 34.2],
+                    [-118.5, 34.4],
+                    [-118.7, 34.2],
+                  ],
+                ],
+                type: "Polygon",
+              },
               gradeHigh: "12",
               gradeLow: "PK",
               name: "Los Angeles Unified",
@@ -32,6 +43,7 @@ describe("district boundary lookup", () => {
     );
 
     expect(result.districts[0]?.name).toBe("Los Angeles Unified");
+    expect(result.districts[0]?.geometry?.type).toBe("Polygon");
     expect(fetcher).toHaveBeenCalledWith(
       "/api/district-boundaries",
       expect.objectContaining({ method: "POST" }),

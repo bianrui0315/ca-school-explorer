@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ca-school-explorer",
+  "account_id": "62989a4e55d63a7a86105da1acf31081",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-07-14",
   "compatibility_flags": ["nodejs_compat"],

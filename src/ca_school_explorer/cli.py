@@ -153,7 +153,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directory for the generated manifest, index, and county shards.",
     )
     publish_parser.add_argument(
-        "--release", default="0.3.2", help="Application/data release identifier."
+        "--release", default="0.4.1", help="Application/data release identifier."
     )
 
     evidence_parser = subparsers.add_parser(
@@ -167,7 +167,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directory containing the generated manifest, index, and school shards.",
     )
     evidence_parser.add_argument(
-        "--release", default="0.3.2", help="Application/data release identifier."
+        "--release", default="0.4.1", help="Application/data release identifier."
     )
     return parser
 
