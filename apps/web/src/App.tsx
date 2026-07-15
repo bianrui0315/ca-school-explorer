@@ -7,6 +7,7 @@ import { Icon } from "./components/Icon";
 import { IndicatorOverview } from "./components/IndicatorOverview";
 import { MetricNav } from "./components/MetricNav";
 import { SchoolPicker } from "./components/SchoolPicker";
+import { SchoolOverview } from "./components/SchoolOverview";
 import { TrendChart } from "./components/TrendChart";
 import { publicDataClient } from "./data/publicData";
 import type {
@@ -255,6 +256,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             years={years}
           />
 
+          <SchoolOverview
+            profileSchoolYears={catalog.manifest.profileSchoolYears}
+            schools={selectedSchools}
+          />
+
           <TrendChart
             baseline={baseline}
             baselineLabel={activeDistrict?.name}
@@ -283,11 +289,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
           />
 
           <div id="source-details">
-            <ContextPanel
-              metric={metric}
-              profileSchoolYears={catalog.manifest.profileSchoolYears}
-              schools={selectedSchools}
-            />
+            <ContextPanel metric={metric} />
           </div>
         </div>
       </main>
