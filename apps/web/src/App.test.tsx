@@ -151,8 +151,29 @@ const summaries = [
     shard: "19-0",
     city: "Porter Ranch",
     gradeSpan: "K–8",
+    latitude: 34.2937439,
+    longitude: -118.5820123,
     address: {
       street: "12450 Mason Ave",
+      city: "Porter Ranch",
+      state: "CA",
+      zip: "91326",
+    },
+  },
+  {
+    ...summary("19647339999998", "Castlebay Lane Charter"),
+    countyCode: "19",
+    county: "Los Angeles",
+    districtId: "19647330000000",
+    district: "Los Angeles Unified",
+    shard: "19-0",
+    city: "Porter Ranch",
+    gradeSpan: "K–5",
+    charter: true,
+    latitude: 34.2939789,
+    longitude: -118.5477003,
+    address: {
+      street: "19010 Castlebay Ln.",
       city: "Porter Ranch",
       state: "CA",
       zip: "91326",
@@ -327,6 +348,39 @@ describe("school comparison experience", () => {
     expect(screen.getByText("1 matching school")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Sierra Vista School/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("finds nearby schools by published coordinates", async () => {
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    await screen.findByText("Selected schools (3 of 5)");
+    await user.type(
+      screen.getByLabelText(
+        "Search schools by name, district, address, or ZIP",
+      ),
+      "91326",
+    );
+    await user.click(
+      await screen.findByRole("button", { name: /Sierra Vista School/ }),
+    );
+    await user.click(screen.getByRole("button", { name: "Nearby" }));
+    await user.selectOptions(
+      screen.getByLabelText("Nearby center school"),
+      "19647339999999",
+    );
+
+    expect(screen.getByText("1 school within 10 mi")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Castlebay Lane Charter/ }),
+    ).toHaveTextContent(/2\.0 mi from Sierra Vista School/);
+    expect(screen.getByRole("button", { name: "Map" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(
+      screen.getByText(/Nearby does not mean assigned or eligible/),
     ).toBeInTheDocument();
   });
 

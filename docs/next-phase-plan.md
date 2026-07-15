@@ -31,6 +31,8 @@ Status: implemented using the existing versioned public-school directory bundle.
 - Keep a persistent warning that nearby does not mean assigned or eligible.
 - Evaluate a geocoding provider before accepting arbitrary household addresses; do not infer attendance boundaries without authoritative boundary data.
 
+Status: search-result maps and radius-based nearby-school discovery are implemented using published school coordinates. Household-address geocoding and attendance boundaries remain deferred.
+
 ### 4. Dashboard context
 
 - Add county and statewide reference series where metric grain and subgroup definitions reconcile.

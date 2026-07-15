@@ -488,7 +488,14 @@ summary:focus-visible,
   margin-top: 5px;
 }
 
+.school-filter-actions > div {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
 .filter-toggle,
+.nearby-toggle,
 .filter-clear {
   display: inline-flex;
   align-items: center;
@@ -505,9 +512,17 @@ summary:focus-visible,
 }
 
 .filter-toggle:hover,
-.filter-toggle--active {
+.filter-toggle--active,
+.nearby-toggle:hover,
+.nearby-toggle--active {
   background: var(--blue-soft);
   color: var(--blue);
+}
+
+.nearby-toggle:disabled {
+  background: transparent;
+  color: #9aa4b2;
+  cursor: not-allowed;
 }
 
 .filter-toggle-chevron {
@@ -584,10 +599,84 @@ summary:focus-visible,
   overflow: hidden;
 }
 
-.school-results-status {
-  padding: 9px 11px 7px;
+.school-suggestions--map {
+  width: min(620px, calc(100vw - 40px));
+}
+
+.school-results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 8px 7px 11px;
   border-bottom: 1px solid #edf0f4;
+}
+
+.school-results-status {
   color: #697588;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.result-view-toggle {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid #dbe3ed;
+  border-radius: 7px;
+  background: #f5f8fb;
+}
+
+.result-view-toggle button {
+  min-width: 42px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #657286;
+  font-size: 9px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+}
+
+.result-view-toggle button[aria-pressed="true"] {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 3px rgba(25, 45, 72, 0.13);
+}
+
+.nearby-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 8px;
+  padding: 9px 11px;
+  border-bottom: 1px solid #edf0f4;
+  background: #f8fafc;
+}
+
+.nearby-controls label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nearby-controls label > span {
+  color: #7b8696;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.nearby-controls select {
+  min-width: 0;
+  height: 30px;
+  padding: 0 7px;
+  border: 1px solid #dbe3ed;
+  border-radius: 6px;
+  outline: 0;
+  background: #ffffff;
+  color: #344158;
   font-size: 10px;
   font-weight: 700;
 }
@@ -600,7 +689,7 @@ summary:focus-visible,
   list-style: none;
 }
 
-.school-suggestions button {
+.school-suggestions li > button {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -613,21 +702,21 @@ summary:focus-visible,
   cursor: pointer;
 }
 
-.school-suggestions button:hover {
+.school-suggestions li > button:hover {
   background: var(--blue-soft);
 }
 
-.school-suggestions button:disabled {
+.school-suggestions li > button:disabled {
   color: var(--muted);
   cursor: wait;
 }
 
-.school-suggestions span {
+.school-suggestions li span {
   font-size: 13px;
   font-weight: 700;
 }
 
-.school-suggestions small {
+.school-suggestions li small {
   color: var(--muted);
   font-size: 11px;
 }
@@ -636,13 +725,58 @@ summary:focus-visible,
   color: #45536a;
 }
 
-.school-suggestions p {
+.school-result-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--blue) !important;
+  font-weight: 700;
+}
+
+.school-results-note,
+.nearby-disclaimer {
   margin: 0;
   padding: 8px 11px;
   border-top: 1px solid #edf0f4;
   color: var(--muted);
   font-size: 9px;
   line-height: 1.4;
+}
+
+.nearby-disclaimer strong {
+  color: #4b586d;
+}
+
+.school-discovery-map-shell {
+  padding: 8px;
+  background: #f7f9fc;
+}
+
+.school-discovery-map {
+  z-index: 0;
+  width: 100%;
+  height: 330px;
+  overflow: hidden;
+  border: 1px solid #dfe6ee;
+  border-radius: 8px;
+  background: #e9eef4;
+}
+
+.map-popup-action {
+  margin-top: 4px;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--blue);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.map-popup-action:disabled {
+  background: #a3adba;
+  cursor: default;
 }
 
 .section-heading-row {
@@ -1829,6 +1963,16 @@ tbody td small {
 
   .school-suggestions {
     width: 100%;
+  }
+
+  .school-suggestions--map {
+    position: relative;
+    top: auto;
+    margin-top: 6px;
+  }
+
+  .school-discovery-map {
+    height: 300px;
   }
 
   .section-heading-row {
