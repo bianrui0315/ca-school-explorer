@@ -22,10 +22,16 @@ The project does not produce a "best schools" ranking. It leads with separate in
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.4.1 release
+## v0.4.2 release
 
-This release gives comparison and area exploration separate, calmer workspaces while retaining the same source-attributed public data foundation:
+This release makes comparison context reproducible and easier to interpret while retaining the dedicated Compare and Area Explorer workspaces:
 
+- district, county, and California reference series selectable from the comparison controls;
+- 59 new source-attributed geographic reference files with 26,765 observations across the published metrics and student groups;
+- official CDE county aggregates where available, with ELA, mathematics, and College/Career county values transparently calculated from official district rows using published student denominators;
+- a current-year data completeness band that distinguishes current, older-only, and unavailable or suppressed measures for every selected school;
+- share links that preserve selected schools, metric, subgroup, year range, geographic reference, and experimental composite weights;
+- a direct Compare selected action in Area Explorer;
 - clear Compare and Area Explorer navigation, including a dedicated `/area` route that remains directly shareable on the Worker;
 - a larger location map with official CDE district polygons for exact California street-address matches, district-type styling, and nearby or full-district focus controls;
 - a refined pearl, cobalt, teal, and violet visual system with stronger section boundaries, layered surfaces, responsive spacing, and less crowding;
@@ -37,7 +43,7 @@ This release gives comparison and area exploration separate, calmer workspaces w
 - 32 student-group lenses, including English learners, students with disabilities, racial and ethnic groups, and socioeconomically disadvantaged students;
 - location searches by California work address, city, or ZIP with 5–50 mile radii, exact-grade and public-school-type filters, evidence-coverage thresholds, adjustable evidence priorities, match explanations, reproducible share links, and official CDE district-area matching for exact addresses;
 - side-by-side comparison for up to five schools, exact-value tables, same-district context, an eight-axis normalized profile, an editable experimental composite, and a selected-school map;
-- visible denominators, reliability labels, district context, and source notes;
+- visible denominators, reliability labels, district, county, or statewide context, calculation basis, and source notes;
 - a PostgreSQL canonical store with deterministic migrations and least-privilege roles;
 - pinned, checksum-verified adapters for five CDE outcome datasets and CCI in each of 2022–23, 2023–24, and 2024–25, one 2022–23 college-going snapshot, and one 2025–26 school geography snapshot;
 - 3,962,208 canonical facts covering nine metrics with source-row provenance and suppression preserved;

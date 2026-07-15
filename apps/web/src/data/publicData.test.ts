@@ -67,16 +67,35 @@ describe("public data release caching", () => {
                   [school.id]: { demographics: {}, observations: [] },
                 },
               }
-            : {
-                schemaVersion: 1,
-                countyCode: "01",
-                districts: {
-                  [school.districtId]: {
-                    name: school.district,
+            : url.includes("/references/counties/")
+              ? {
+                  schemaVersion: 1,
+                  id: "01000000000000",
+                  name: "Alameda",
+                  level: "county",
+                  countyCode: "01",
+                  observations: [],
+                  basisByMetric: {},
+                }
+              : url.includes("/references/state")
+                ? {
+                    schemaVersion: 1,
+                    id: "00000000000000",
+                    name: "California",
+                    level: "state",
                     observations: [],
-                  },
-                },
-              };
+                    basisByMetric: {},
+                  }
+                : {
+                    schemaVersion: 1,
+                    countyCode: "01",
+                    districts: {
+                      [school.districtId]: {
+                        name: school.district,
+                        observations: [],
+                      },
+                    },
+                  };
       return new Response(JSON.stringify(payload), { status: 200 });
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -89,6 +108,7 @@ describe("public data release caching", () => {
       school.districtId,
       catalog,
     );
+    await publicDataClient.loadReferences(school.countyCode, catalog);
 
     expect(fetchMock).toHaveBeenCalledWith("/data/manifest.json", {
       cache: "no-cache",
@@ -103,6 +123,14 @@ describe("public data release caching", () => {
     );
     expect(fetchMock).toHaveBeenCalledWith(
       "/data/districts/01.json?release=0.2.1",
+      { cache: "force-cache" },
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/data/references/counties/01.json?release=0.2.1",
+      { cache: "force-cache" },
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/data/references/state.json?release=0.2.1",
       { cache: "force-cache" },
     );
   });

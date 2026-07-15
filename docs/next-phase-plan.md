@@ -52,6 +52,8 @@ Status: implemented with latest reliable all-student observations in the public 
 - Add reproducible comparison links with selected schools, metric, subgroup, and year range.
 - Improve small-screen navigation and comparison-table scanning.
 
+Status: county and statewide references, coverage summaries, full comparison share links, and the Area Explorer-to-Compare handoff are implemented in release `0.4.2`. County academic and CCI references explicitly disclose denominator-weighted district aggregation where CDE does not publish a matching county row.
+
 ### 6. Data expansion
 
 - Maintain the implemented California Dashboard College/Career Indicator as a distinct metric.

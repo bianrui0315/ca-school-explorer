@@ -18,6 +18,8 @@ interface IndicatorOverviewProps {
   metrics: MetricDefinition[];
   schools: School[];
   subgroup: SubgroupId;
+  weights: Record<string, number>;
+  onWeightsChange: (weights: Record<string, number>) => void;
 }
 
 interface RadarChartProps {
@@ -288,10 +290,9 @@ export function IndicatorOverview({
   metrics,
   schools,
   subgroup,
+  weights,
+  onWeightsChange,
 }: IndicatorOverviewProps) {
-  const [weights, setWeights] = useState<Record<string, number>>(
-    DEFAULT_INDICATOR_WEIGHTS,
-  );
   const metricById = new Map(metrics.map((metric) => [metric.id, metric]));
   const indicatorMetrics = INDICATOR_IDS.flatMap((metricId) => {
     const metric = metricById.get(metricId);
@@ -395,12 +396,12 @@ export function IndicatorOverview({
                     min="0"
                     onChange={(event) => {
                       const value = Number.parseFloat(event.target.value);
-                      setWeights((current) => ({
-                        ...current,
+                      onWeightsChange({
+                        ...weights,
                         [metric.id]: Number.isFinite(value)
                           ? Math.min(100, Math.max(0, value))
                           : 0,
-                      }));
+                      });
                     }}
                     step="1"
                     type="number"
@@ -414,14 +415,16 @@ export function IndicatorOverview({
               <button
                 disabled={totalWeight === 0}
                 onClick={() =>
-                  setWeights(normalizedWeights(weights, metricIds))
+                  onWeightsChange(normalizedWeights(weights, metricIds))
                 }
                 type="button"
               >
                 Normalize to 100%
               </button>
               <button
-                onClick={() => setWeights({ ...DEFAULT_INDICATOR_WEIGHTS })}
+                onClick={() =>
+                  onWeightsChange({ ...DEFAULT_INDICATOR_WEIGHTS })
+                }
                 type="button"
               >
                 Reset defaults

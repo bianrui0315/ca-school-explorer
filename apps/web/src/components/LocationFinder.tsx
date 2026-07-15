@@ -55,6 +55,7 @@ interface LocationFinderProps {
   allSchools: SchoolSummary[];
   manifest: PublicManifest;
   onAdd: (schoolId: string) => Promise<void> | void;
+  onCompare?: () => void;
   resolveLocation?: typeof resolveCaliforniaLocation;
   resolveDistricts?: typeof lookupDistrictBoundaries;
   selectedSchoolIds: string[];
@@ -432,6 +433,7 @@ export function LocationFinder({
   allSchools,
   manifest,
   onAdd,
+  onCompare,
   resolveLocation = resolveCaliforniaLocation,
   resolveDistricts = lookupDistrictBoundaries,
   selectedSchoolIds,
@@ -640,6 +642,15 @@ export function LocationFinder({
                 <Icon name="external" size={12} />
                 Copy share link
               </button>
+              {selectedSchoolIds.length > 0 && onCompare ? (
+                <button
+                  className="location-compare-action"
+                  onClick={onCompare}
+                  type="button"
+                >
+                  Compare selected ({selectedSchoolIds.length})
+                </button>
+              ) : null}
               {shareMessage ? (
                 <span className="location-share-status" role="status">
                   {shareMessage}

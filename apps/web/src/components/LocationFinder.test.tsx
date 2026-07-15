@@ -124,6 +124,33 @@ describe("LocationFinder", () => {
     expect(onAdd).toHaveBeenCalledWith("school-1");
   });
 
+  it("opens selected area results in the comparison", async () => {
+    const user = userEvent.setup();
+    const onCompare = vi.fn();
+    render(
+      <LocationFinder
+        allSchools={[nearbySchool]}
+        manifest={manifest}
+        onAdd={vi.fn()}
+        onCompare={onCompare}
+        selectedSchoolIds={[nearbySchool.id]}
+      />,
+    );
+
+    await user.type(
+      screen.getByRole("searchbox", {
+        name: "Work address or California place",
+      }),
+      "91326",
+    );
+    await user.click(screen.getByRole("button", { name: "Find schools" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Compare selected (1)" }),
+    );
+
+    expect(onCompare).toHaveBeenCalledOnce();
+  });
+
   it("filters the nearby results by a child's grade and school type", async () => {
     const user = userEvent.setup();
     render(
