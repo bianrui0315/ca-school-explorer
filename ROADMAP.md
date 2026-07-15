@@ -23,7 +23,7 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 - Add concise school profiles. Address, grade span, school type, enrollment, reported staffing, and neutral directory designations are implemented incrementally in `0.3.x`.
 - Compare two to five schools on one multi-year view.
 - Add subgroup lenses and reliability notes.
-- Add same-district, nearby, and similar-context baselines.
+- Add same-district, nearby, and similar-context baselines. Search-result maps and distance-based nearby-school discovery using published coordinates are implemented incrementally in `0.3.x`.
 - Show selected schools on a coordinate-based comparison map with clear basemap attribution.
 - Provide an experimental seven-indicator profile and user-adjustable weighted composite with explicit coverage warnings.
 - Generate reproducible share links.

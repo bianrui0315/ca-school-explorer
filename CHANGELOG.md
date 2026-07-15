@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- List and map views for school discovery, plus radius-based nearby-school results using published coordinates and straight-line distance.
 - School discovery by street address, ZIP code, county, city, and individual grade served, using the existing statewide public-school directory.
 - Ranked directory matches, filter-only browsing, result counts, and clear empty states.
 - A documented next-phase sequence for school profiles, geographic context, dashboard context, and reviewed data expansion.
