@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-15
+
+### Added
+
+- Three official College/Career Indicator snapshots for 2022–23 through 2024–25 and the official 2022–23 12-month College-Going Rate file.
+- Separate CCI Prepared and college-going metrics with subgroup, suppression, denominator, provenance, and source-specific caveat support.
+- An eight-indicator current-year profile and revised editable weights; the older college-going measure remains outside current-year scoring.
+- Official CDE 2025–26 district-area lookup for exact addresses, including overlapping district types and explicit non-assignment language.
+- Bounded no-store Worker routing, frontend district context, and regression tests for the new official boundary lookup.
+
+### Changed
+
+- Expanded the canonical store to 3,962,208 facts across nine metrics and 20 imported snapshots including the school-profile snapshot.
+- Expanded the public Worker bundle to 2,878,340 school and district observations.
+- Updated high-school location evidence to include CCI while preserving a 100% transparent base-weight total.
+
+### Known limitations
+
+- District jurisdiction is not school attendance assignment; assigned-school claims require current official local district sources.
+- College-going currently ends in 2022–23, uses a distinct completer population, and can be reduced by National Student Clearinghouse privacy blocks.
+- CCI measure definitions can change between Dashboard releases.
+
 ## [0.3.2] - 2026-07-14
 
 ### Added

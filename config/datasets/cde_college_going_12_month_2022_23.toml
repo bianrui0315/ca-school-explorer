@@ -1,0 +1,44 @@
+manifest_version = 1
+dataset_id = "cde_college_going_12_month_2022_23"
+adapter = "college_going_12_month_v1"
+schema_version = "cde-cgr12-2022-23-v1"
+source_id = "cde_college_going_12_month"
+source_name = "CDE College-Going Rate for High School Completers (12-Month)"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filescgr12.asp"
+download_url = "https://www3.cde.ca.gov/demo-downloads/cgr/cgr12mo23.txt"
+academic_year = "2022-23"
+release_date = "2025-09-17"
+filename = "cgr12mo23.txt"
+media_type = "text/tab-separated-values"
+encoding = "utf-8"
+sha256 = "d57379f76a2038af0e0bbc7aaa761fca27ef9a4c3b94ba904e6ce37c6a21b727"
+byte_size = 26662057
+record_count = 230217
+terms_status = "review-required"
+columns = [
+  "AcademicYear",
+  "AggregateLevel",
+  "CountyCode",
+  "DistrictCode",
+  "SchoolCode",
+  "CountyName",
+  "DistrictName",
+  "SchoolName",
+  "CharterSchool",
+  "AlternativeSchoolAccountabilityStatus",
+  "ReportingCategory",
+  "CompleterType",
+  "High School Completers",
+  "Enrolled In College - Total (12 Months)",
+  "College Going Rate - Total (12 Months)",
+  "Enrolled In-State (12 Months)",
+  "Enrolled Out-of-State (12 Months)",
+  "Not Enrolled In College (12 Months)",
+  "Enrolled UC (12 Months)",
+  "Enrolled CSU (12 Months)",
+  "Enrolled CCC (12 Months)",
+  "Enrolled In-State Private (2 and 4 Year) (12 Months)",
+  "Enrolled Out-of-State 4-Year College (Public/Private) (12 Months)",
+  "Enrolled Out-of-State 2-Year College (Public/Private) (12 Months)",
+]

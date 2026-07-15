@@ -35,9 +35,9 @@ export function metricChange(
   startYear: number,
   endYear: number,
 ) {
-  const first = firstObservation(observations, startYear);
-  const latest = latestObservation(observations, endYear);
-  if (first?.value === null || latest?.value === null || !first || !latest) {
+  const first = observations.find(({ year }) => year === startYear);
+  const latest = observations.find(({ year }) => year === endYear);
+  if (!first || !latest || first.value === null || latest.value === null) {
     return null;
   }
   return latest.value - first.value;

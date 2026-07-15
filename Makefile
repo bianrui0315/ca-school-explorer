@@ -1,20 +1,22 @@
 .PHONY: install lint typecheck test check web-install web-check worker-check full-check db-up db-down db-migrate db-roles data-fetch data-inspect data-ingest data-publish
 
+PYTHON ?= .venv/bin/python
+
 install:
-	python -m pip install -e ".[dev]"
+	$(PYTHON) -m pip install -e ".[dev]"
 
 lint:
-	python -m ruff check .
-	python -m ruff format --check .
+	$(PYTHON) -m ruff check .
+	$(PYTHON) -m ruff format --check .
 
 typecheck:
-	python -m mypy src
+	$(PYTHON) -m mypy src
 
 test:
-	python -m pytest
+	$(PYTHON) -m pytest
 
 check: lint typecheck test
-	python -m ca_school_explorer validate-sources
+	$(PYTHON) -m ca_school_explorer validate-sources
 
 web-install:
 	npm install
@@ -36,19 +38,19 @@ db-down:
 	docker compose down
 
 db-migrate:
-	python -m ca_school_explorer db-migrate
+	$(PYTHON) -m ca_school_explorer db-migrate
 
 db-roles:
-	python -m ca_school_explorer db-install-roles
+	$(PYTHON) -m ca_school_explorer db-install-roles
 
 data-fetch:
-	python -m ca_school_explorer fetch-dataset
+	$(PYTHON) -m ca_school_explorer fetch-dataset
 
 data-inspect:
-	python -m ca_school_explorer inspect-dataset
+	$(PYTHON) -m ca_school_explorer inspect-dataset
 
 data-ingest:
-	python -m ca_school_explorer ingest-dataset
+	$(PYTHON) -m ca_school_explorer ingest-dataset
 
 data-publish:
-	.venv/bin/python -m ca_school_explorer publish-public-data --release 0.3.2
+	$(PYTHON) -m ca_school_explorer publish-public-data --release 0.4.0

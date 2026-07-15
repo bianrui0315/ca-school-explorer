@@ -61,9 +61,9 @@ Protected characteristics may be used to view an officially published subgroup o
 
 ## Location evidence matches
 
-The location finder accepts a California street address, city, or ZIP code and returns up to three evidence matches for each compatible grade band within a user-selected straight-line radius. A user may instead select an exact child grade and district-operated, charter, or magnet status as institutional eligibility filters. Street addresses are resolved by the U.S. Census Geocoder through the Worker and are not stored by this project. City and ZIP searches use an approximate center calculated from published coordinates for matching schools. A mapped school may appear in more than one band when its published grade span crosses bands.
+The location finder accepts a California street address, city, or ZIP code and returns up to three evidence matches for each compatible grade band within a user-selected straight-line radius. A user may instead select an exact child grade and district-operated, charter, or magnet status as institutional eligibility filters. Street addresses are resolved by the U.S. Census Geocoder through the Worker and are not stored by this project. Exact matched coordinates are then sent through the Worker to CDE's authoritative 2025–26 district-area service. The returned elementary, high, or unified district areas establish district jurisdiction at that point; they do not establish an assigned school, transfer eligibility, or current enrollment rules. City and ZIP searches use an approximate center calculated from published coordinates and do not claim a district-area match. A mapped school may appear in more than one band when its published grade span crosses bands.
 
-This feature is an exploratory shortlist, not an attendance-boundary lookup or a universal quality ranking. It uses only the latest reliable all-student observation for each available indicator. Elementary and middle school weights are ELA 35%, mathematics 35%, chronic absence 20%, and suspension 10%. High school weights are ELA 20%, mathematics 20%, A–G completion 15%, four-year graduation 15%, chronic absence 10%, four-year dropout 10%, and suspension 10%.
+This feature is an exploratory shortlist, not an attendance-school-boundary lookup or a universal quality ranking. It uses only the latest reliable all-student observation for each included indicator. Elementary and middle school weights are ELA 35%, mathematics 35%, chronic absence 20%, and suspension 10%. High school weights are ELA 20%, mathematics 20%, College/Career Indicator Prepared 12%, four-year graduation 12%, chronic absence 10%, A–G completion 8%, four-year dropout 8%, and suspension 10%. The older 2022–23 college-going rate is visible in school comparison but is not mixed into this latest-year location score.
 
 Each source value uses the same 0–100 normalization defined below. A user may require at least 50%, 70%, 90%, or 100% of the selected grade-band evidence weight. At least one reliable academic indicator is always required. Academic, attendance, school-climate, and graduation or college-preparation priority multipliers of 0.5, 1, 1.5, or 2 may change the effective indicator weights; the interface exposes the choices and retains the documented base weights. Missing indicators remain missing and available weights are normalized proportionally.
 
@@ -71,14 +71,14 @@ Eligible results are ordered by normalized evidence score, then available eviden
 
 ## Normalized indicator view and experimental composite
 
-The seven-axis comparison and experimental composite use the latest selected school year and student subgroup. They transform unlike source units into a transparent 0–100 comparison index:
+The eight-axis comparison and experimental composite use the latest selected school year and student subgroup. They include CCI Prepared but exclude the older college-going measure from the composite. They transform unlike source units into a transparent 0–100 comparison index:
 
 - higher-is-better percentages retain their source value;
 - lower-is-better percentages use `100 - source value`;
 - ELA and mathematics distance from standard use `clamp(50 + distance / 3, 0, 100)`, so −150 maps to 0, the grade-level standard maps to 50, and +150 maps to 100;
 - missing, suppressed, and not-applicable observations remain missing and are never converted to zero.
 
-The default experimental weights are ELA 20%, mathematics 20%, chronic absenteeism 15%, graduation 15%, suspension 10%, dropout 10%, and A–G completion 10%. Users may edit them. If weights do not total 100%, the interface can normalize them proportionally.
+The default experimental weights are ELA 18%, mathematics 18%, CCI Prepared 14%, chronic absenteeism 12%, four-year graduation 12%, suspension 12%, four-year dropout 8%, and A–G completion 6%. Users may edit them. If weights do not total 100%, the interface can normalize them proportionally.
 
 For a school with available indicator set `A`, the composite is:
 
@@ -97,6 +97,12 @@ The interface always displays both available-indicator count and available-weigh
 - Treat source-published values for 11–29 students as small-N unless a stricter source rule applies.
 - Do not calculate peer percentiles, rankings, or confident trends for small-N results.
 - Display the numerator and denominator when the source permits it.
+
+## College/career and postsecondary outcomes
+
+The CCI metric is the official current-year percentage placed in the Prepared level. Its denominator can include students from two graduation cohort types, and its qualifying college and career measures can change between Dashboard releases. Component counts are retained in canonical metadata, but the first public view leads with the official Prepared rate and source methodology.
+
+The 12-month college-going rate is the share of California public high school completers found enrolled in a U.S. public or private, two- or four-year postsecondary institution within 12 months. Its denominator includes regular diploma, CHSPE, GED, and adult education high school completers and excludes special education certificates of completion. It is not the four-year graduation cohort. The measure combines CALPADS completion records with National Student Clearinghouse matches; FERPA directory-information blocks can reduce the observed enrollment count. The latest public file currently ends in 2022–23, so the UI labels its year and does not mix it into current-year composite or location scores.
 
 ## Time-series comparability
 

@@ -20,6 +20,10 @@ import {
   buildLocationShareUrl,
   parseLocationShareUrl,
 } from "../lib/locationShare";
+import {
+  lookupDistrictBoundaries,
+  type DistrictBoundaryResult,
+} from "../lib/districtBoundaries";
 import { formatMetricValue } from "../lib/metrics";
 import type { PublicManifest, SchoolSummary } from "../types";
 import { Icon } from "./Icon";
@@ -50,7 +54,59 @@ interface LocationFinderProps {
   manifest: PublicManifest;
   onAdd: (schoolId: string) => Promise<void> | void;
   resolveLocation?: typeof resolveCaliforniaLocation;
+  resolveDistricts?: typeof lookupDistrictBoundaries;
   selectedSchoolIds: string[];
+}
+
+function districtGradeSpan(gradeLow: string | null, gradeHigh: string | null) {
+  if (!gradeLow && !gradeHigh) {
+    return "Grades not reported";
+  }
+  return gradeLow === gradeHigh
+    ? `Grade ${gradeLow}`
+    : `${gradeLow ?? "?"}–${gradeHigh ?? "?"}`;
+}
+
+function DistrictBoundaryCard({ result }: { result: DistrictBoundaryResult }) {
+  return (
+    <section
+      className="district-boundary-card"
+      aria-labelledby="district-boundary-title"
+    >
+      <div>
+        <span>Official district area · {result.effectiveSchoolYear}</span>
+        <h3 id="district-boundary-title">
+          {result.districts.length === 0
+            ? "No geographic district returned"
+            : result.districts.length === 1
+              ? "District at this address"
+              : "Districts at this address"}
+        </h3>
+      </div>
+      {result.districts.length > 0 ? (
+        <ul>
+          {result.districts.map((district) => (
+            <li key={district.cdsCode}>
+              <strong>{district.name}</strong>
+              <span>
+                {district.type} ·{" "}
+                {districtGradeSpan(district.gradeLow, district.gradeHigh)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p>
+        This confirms district jurisdiction at the matched point. It does not
+        identify an assigned school; verify current attendance zones and
+        enrollment rules with the district.
+      </p>
+      <a href={result.sourceUrl} rel="noreferrer" target="_blank">
+        {result.sourceLabel}
+        <Icon name="external" size={12} />
+      </a>
+    </section>
+  );
 }
 
 function evidenceItems(match: LocationSchoolMatch) {
@@ -344,6 +400,7 @@ export function LocationFinder({
   manifest,
   onAdd,
   resolveLocation = resolveCaliforniaLocation,
+  resolveDistricts = lookupDistrictBoundaries,
   selectedSchoolIds,
 }: LocationFinderProps) {
   const [sharedState] = useState(() =>
@@ -361,6 +418,9 @@ export function LocationFinder({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
+  const [districtResult, setDistrictResult] =
+    useState<DistrictBoundaryResult>();
+  const [districtError, setDistrictError] = useState<string>();
   const [shareMessage, setShareMessage] = useState<string>();
   const [shareUrl, setShareUrl] = useState<string>();
   const selectedIds = useMemo(
@@ -446,9 +506,23 @@ export function LocationFinder({
             }
             setLoading(true);
             setError(undefined);
+            setDistrictResult(undefined);
+            setDistrictError(undefined);
             clearShareState();
             try {
-              setLocation(await resolveLocation(query, allSchools));
+              const resolved = await resolveLocation(query, allSchools);
+              setLocation(resolved);
+              if (!resolved.approximate) {
+                try {
+                  setDistrictResult(await resolveDistricts(resolved));
+                } catch (caught) {
+                  setDistrictError(
+                    caught instanceof Error
+                      ? caught.message
+                      : "The official district boundary could not be resolved.",
+                  );
+                }
+              }
             } catch (caught) {
               setLocation(undefined);
               setError(
@@ -547,6 +621,14 @@ export function LocationFinder({
               />
             </label>
           ) : null}
+          {districtResult ? (
+            <DistrictBoundaryCard result={districtResult} />
+          ) : null}
+          {districtError ? (
+            <p className="district-boundary-error" role="status">
+              District boundary unavailable: {districtError}
+            </p>
+          ) : null}
           <div className="location-results-layout">
             <div className="location-map-panel">
               <Suspense
@@ -604,9 +686,9 @@ export function LocationFinder({
             <summary>How these matches are ordered</summary>
             <p>
               Elementary and middle: ELA 35%, mathematics 35%, chronic absence
-              20%, suspension 10%. High school: ELA 20%, mathematics 20%, A–G
-              15%, graduation 15%, chronic absence 10%, dropout 10%, suspension
-              10%.
+              20%, suspension 10%. High school: ELA 20%, mathematics 20%, CCI
+              12%, graduation 12%, chronic absence 10%, A–G 8%, dropout 8%,
+              suspension 10%.
             </p>
             <p>
               Your priorities multiply these base weights. Only reliable
@@ -625,10 +707,12 @@ export function LocationFinder({
           </details>
           <p className="location-privacy-note">
             Street addresses are sent to the U.S. Census Geocoder through this
-            Worker and are not stored by this project. City and ZIP searches use
-            approximate centers derived from published school locations. A share
-            link contains the displayed search center and is created only when
-            you choose Copy share link.
+            Worker. Exact matched coordinates are then sent to the official CDE
+            district-area service. This project does not store either request.
+            City and ZIP searches use approximate centers derived from published
+            school locations and do not claim a district match. A share link
+            contains the displayed search center and is created only when you
+            choose Copy share link.
           </p>
         </div>
       ) : null}

@@ -177,4 +177,55 @@ describe("LocationFinder", () => {
     expect(window.location.search).toBe("");
     expect(window.location.hash).toBe("");
   });
+
+  it("shows an official district area for an exact street match", async () => {
+    const user = userEvent.setup();
+    render(
+      <LocationFinder
+        allSchools={[nearbySchool]}
+        manifest={manifest}
+        onAdd={vi.fn()}
+        resolveDistricts={vi.fn(async () => ({
+          districts: [
+            {
+              cdsCode: "19647330000000",
+              districtCode: "1964733",
+              gradeHigh: "12",
+              gradeLow: "PK",
+              name: "Los Angeles Unified",
+              schoolYear: "2025-26",
+              type: "Unified",
+            },
+          ],
+          effectiveSchoolYear: "2025-26",
+          sourceLabel: "CDE district areas",
+          sourceUrl: "https://example.com/source",
+        }))}
+        resolveLocation={vi.fn(async () => ({
+          approximate: false,
+          latitude: 34.2929,
+          longitude: -118.5828,
+          matchedAddress: "12450 MASON AVE, PORTER RANCH, CA, 91326",
+          provider: "U.S. Census Geocoder",
+        }))}
+        selectedSchoolIds={[]}
+      />,
+    );
+
+    await user.type(
+      screen.getByRole("searchbox", {
+        name: "Work address or California place",
+      }),
+      "12450 Mason Ave, Porter Ranch, CA 91326",
+    );
+    await user.click(screen.getByRole("button", { name: "Find schools" }));
+
+    expect(
+      await screen.findByText("District at this address"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Los Angeles Unified")).toBeInTheDocument();
+    expect(
+      screen.getByText(/does not identify an assigned school/i),
+    ).toBeInTheDocument();
+  });
 });

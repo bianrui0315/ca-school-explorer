@@ -13,7 +13,7 @@ interface CensusGeocoderResponse {
   };
 }
 
-type FetchFunction = (
+export type FetchFunction = (
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => Promise<Response>;
@@ -33,7 +33,7 @@ export function jsonResponse(
   });
 }
 
-async function readJsonWithLimit(
+export async function readJsonWithLimit(
   body: ReadableStream<Uint8Array> | null,
   maximumBytes: number,
 ) {

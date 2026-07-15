@@ -23,6 +23,17 @@ license_review = "approved"
 notes = "The pinned public-domain 2025-26 layer provides quality-controlled coordinates and current school classifications for 9,946 TK-12 public schools."
 
 [[sources]]
+id = "cde_school_district_areas"
+name = "California School District Areas"
+publisher = "California Department of Education"
+category = "geography"
+landing_page_url = "https://lab.data.ca.gov/dataset/california-school-district-areas-2025-26"
+refresh_cadence = "annual"
+status = "active"
+license_review = "approved"
+notes = "The Worker queries the public-domain 2025-26 CDE polygon service for district jurisdiction at an exact geocoded point. It does not claim school attendance assignment."
+
+[[sources]]
 id = "cde_private_school_directory"
 name = "California Private School Directory"
 publisher = "California Department of Education"
@@ -100,15 +111,15 @@ license_review = "required"
 notes = "The 2024-25 snapshot provides graduation, A-G completion, and dropout rates with pinned provenance and suppression handling."
 
 [[sources]]
-id = "cde_college_career_indicator"
+id = "cde_cci"
 name = "College/Career Indicator Data"
 publisher = "California Department of Education"
 category = "college_career_readiness"
 landing_page_url = "https://www.cde.ca.gov/ta/ac/cm/ccidatafiles.asp"
 refresh_cadence = "annual"
-status = "planned"
+status = "active"
 license_review = "required"
-notes = "Official Dashboard preparedness status includes combined four- and five-year graduates and multiple college and career measures; it is not equivalent to A-G completion."
+notes = "Pinned 2022-23 through 2024-25 files provide the distinct Dashboard Prepared rate and component counts; it is not equivalent to A-G completion."
 
 [[sources]]
 id = "cde_dashboard_graduation"
@@ -166,15 +177,15 @@ license_review = "required"
 notes = "Provides district, school, and student-group growth measures that complement status and trend comparisons."
 
 [[sources]]
-id = "cde_college_going"
-name = "College-Going Rate Data"
+id = "cde_college_going_12_month"
+name = "College-Going Rate Data (12-Month)"
 publisher = "California Department of Education"
 category = "postsecondary"
 landing_page_url = "https://www.cde.ca.gov/ds/ad/pse.asp"
 refresh_cadence = "annual"
-status = "planned"
+status = "active"
 license_review = "required"
-notes = "Combines CALPADS and National Student Clearinghouse records and has a publication lag."
+notes = "The pinned 2022-23 file combines CALPADS and National Student Clearinghouse records. It has a publication lag and can undercount blocked directory records."
 
 [[sources]]
 id = "cde_staff"

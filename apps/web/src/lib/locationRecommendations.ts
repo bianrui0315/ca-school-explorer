@@ -128,11 +128,12 @@ export const LOCATION_EVIDENCE_WEIGHTS: Record<
     suspension_rate: 10,
   },
   high: {
-    a_g_completion_rate: 15,
+    a_g_completion_rate: 8,
     chronic_absenteeism_rate: 10,
+    college_career_prepared_rate: 12,
     ela_distance_from_standard: 20,
-    four_year_dropout_rate: 10,
-    four_year_graduation_rate: 15,
+    four_year_dropout_rate: 8,
+    four_year_graduation_rate: 12,
     math_distance_from_standard: 20,
     suspension_rate: 10,
   },
@@ -152,6 +153,7 @@ const ACADEMIC_METRICS = new Set([
 const METRIC_PRIORITIES: Record<string, LocationPriority> = {
   a_g_completion_rate: "readiness",
   chronic_absenteeism_rate: "attendance",
+  college_career_prepared_rate: "readiness",
   ela_distance_from_standard: "academics",
   four_year_dropout_rate: "readiness",
   four_year_graduation_rate: "readiness",

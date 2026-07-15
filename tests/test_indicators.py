@@ -122,6 +122,92 @@ def test_acgr_source_row_expands_to_three_distinct_metrics(tmp_path: Path) -> No
     ]
 
 
+def test_cci_preserves_prepared_rate_and_small_cell_suppression(tmp_path: Path) -> None:
+    base = {
+        "rtype": "S",
+        "schoolname": "Example High",
+        "districtname": "Example Unified",
+        "countyname": "Alameda",
+        "charter_flag": "",
+        "coe_flag": "",
+        "dass_flag": "",
+        "studentgroup_pct": "100.0",
+        "indicator": "CCI",
+        "reportingyear": "2025",
+    }
+    manifest, source_path = _write_rows(
+        tmp_path,
+        "cde_cci_2024_25.toml",
+        [
+            {
+                **base,
+                "cds": "01611196000001",
+                "studentgroup": "ALL",
+                "currdenom": "100",
+                "currstatus": "62.0",
+                "curr_prep": "62",
+                "curr_aprep": "20",
+                "curr_nprep": "18",
+                "curr_prep_collegecredit": "12",
+            },
+            {
+                **base,
+                "cds": "01611196000001",
+                "studentgroup": "SWD",
+                "studentgroup_pct": "8.0",
+                "currdenom": "8",
+                "currstatus": "",
+                "curr_prep": "",
+            },
+        ],
+    )
+
+    observations = list(iter_metric_observations(manifest, source_path))
+
+    assert observations[0].metric_id == "college_career_prepared_rate"
+    assert observations[0].value == Decimal("62.0")
+    assert observations[0].numerator == 62
+    assert observations[0].metadata["prepared_measure_counts"]["college_credit"] == "12"
+    assert observations[1].denominator == 8
+    assert observations[1].value is None
+    assert observations[1].suppression_status == "suppressed"
+
+
+def test_college_going_adapter_keeps_only_all_completer_type(tmp_path: Path) -> None:
+    base = {
+        "AcademicYear": "2022-23",
+        "AggregateLevel": "S",
+        "CountyCode": "01",
+        "DistrictCode": "61119",
+        "SchoolCode": "6000001",
+        "CountyName": "Alameda",
+        "DistrictName": "Example Unified",
+        "SchoolName": "Example High",
+        "CharterSchool": "No",
+        "AlternativeSchoolAccountabilityStatus": "No",
+        "ReportingCategory": "TA",
+        "High School Completers": "100",
+        "Enrolled In College - Total (12 Months)": "72",
+        "College Going Rate - Total (12 Months)": "72.0",
+    }
+    manifest, source_path = _write_rows(
+        tmp_path,
+        "cde_college_going_12_month_2022_23.toml",
+        [
+            {**base, "CompleterType": "TA"},
+            {**base, "CompleterType": "AGY"},
+        ],
+    )
+
+    observations = list(iter_metric_observations(manifest, source_path))
+
+    assert len(observations) == 1
+    assert observations[0].metric_id == "college_going_rate_12_month"
+    assert observations[0].value == Decimal("72.0")
+    assert observations[0].numerator == 72
+    assert observations[0].denominator == 100
+
+
 def test_suspension_inspection_preserves_ambiguous_cds_entities(tmp_path: Path) -> None:
     base = {
         "AcademicYear": "2024-25",

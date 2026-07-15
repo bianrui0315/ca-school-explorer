@@ -606,6 +606,69 @@ summary:focus-visible,
   background: #f7f9fc;
 }
 
+.district-boundary-card {
+  align-items: start;
+  background: #f4f8ff;
+  border: 1px solid #c9d9f2;
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(220px, 1fr);
+  margin: 16px 0;
+  padding: 16px 18px;
+}
+
+.district-boundary-card span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.district-boundary-card h3 {
+  font-size: 1rem;
+  margin: 3px 0 0;
+}
+
+.district-boundary-card ul {
+  display: grid;
+  gap: 7px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.district-boundary-card li {
+  display: grid;
+  gap: 2px;
+}
+
+.district-boundary-card p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.district-boundary-card a {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.78rem;
+  gap: 5px;
+  grid-column: 1 / -1;
+  width: fit-content;
+}
+
+.district-boundary-error {
+  color: #8d3c31;
+  font-size: 0.8rem;
+  margin: 10px 0;
+}
+
+@media (max-width: 720px) {
+  .district-boundary-card {
+    grid-template-columns: 1fr;
+  }
+}
+
 .location-map-panel {
   min-width: 0;
   overflow: hidden;

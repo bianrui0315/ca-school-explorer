@@ -54,8 +54,9 @@ Status: implemented with latest reliable all-student observations in the public 
 
 ### 6. Data expansion
 
-- Implement the California Dashboard College/Career Indicator as a distinct metric.
-- Evaluate college-going and postsecondary outcome sources.
+- Maintain the implemented California Dashboard College/Career Indicator as a distinct metric.
+- Maintain the implemented 12-month college-going outcome and add later official years without mixing lagged values into current-year scores.
+- Extend exact-address district jurisdiction with current official local attendance-school locators only where the district provides a verifiable source and effective date.
 - Add reviewed staffing and selected SARC measures.
 - Add ACS community context with margins of error.
 - Publish private-school directory records in a separate mode without implying comparable public-school outcome coverage.

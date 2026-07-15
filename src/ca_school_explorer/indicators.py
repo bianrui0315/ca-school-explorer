@@ -101,6 +101,14 @@ def _optional(raw: dict[str, str], field: str) -> str:
     return (raw.get(field) or "").strip()
 
 
+def _first_optional(raw: dict[str, str], *fields: str) -> str:
+    for field in fields:
+        value = _optional(raw, field)
+        if value:
+            return value
+    return ""
+
+
 def _normalized_name(name: str) -> str:
     return " ".join(name.casefold().split())
 
@@ -496,11 +504,168 @@ def _acgr_observations(
     yield observation("four_year_dropout_rate", dropout_fields, {})
 
 
+def _cci_observations(
+    raw: dict[str, str],
+    row_number: int,
+    manifest: DatasetManifest,
+    ambiguous_entity_keys: frozenset[tuple[str, str]],
+) -> Iterator[MetricObservation]:
+    level = _required(raw, "rtype", row_number)
+    if level not in ACADEMIC_LEVELS:
+        raise IndicatorDataError(f"row {row_number}: invalid aggregate level {level!r}")
+    reporting_year = _required(raw, "reportingyear", row_number)
+    expected_reporting_year = f"20{manifest.academic_year[-2:]}"
+    if reporting_year != expected_reporting_year:
+        raise IndicatorDataError(f"row {row_number}: unexpected reporting year {reporting_year}")
+    if _required(raw, "indicator", row_number).upper() != "CCI":
+        raise IndicatorDataError(f"row {row_number}: expected CCI indicator")
+
+    denominator_raw = _required(raw, "currdenom", row_number)
+    denominator = _integer(denominator_raw, row_number, "currdenom")
+    value_raw = _optional(raw, "currstatus")
+    if not value_raw:
+        if denominator <= 10:
+            fields: RateFields = (
+                denominator,
+                None,
+                None,
+                "suppressed",
+                "suppressed",
+            )
+        else:
+            raise IndicatorDataError(
+                f"row {row_number}: missing CCI status with denominator {denominator}"
+            )
+    else:
+        fields = _rate_fields(
+            denominator_raw,
+            _required(raw, "curr_prep", row_number),
+            value_raw,
+            row_number,
+        )
+
+    prepared_measures = {
+        "summative_assessments": _optional(raw, "curr_prep_summative") or None,
+        "advanced_placement": _first_optional(raw, "curr_prep_ap", "curr_prep_apexam") or None,
+        "international_baccalaureate": _optional(raw, "curr_prep_ibexam") or None,
+        "college_credit": _optional(raw, "curr_prep_collegecredit") or None,
+        "a_g_plus": _optional(raw, "curr_prep_agplus") or None,
+        "cte_plus": _optional(raw, "curr_prep_cteplus") or None,
+        "seal_of_biliteracy": _optional(raw, "curr_prep_ssb") or None,
+        "military_science": _optional(raw, "curr_prep_milsci") or None,
+        "registered_pre_apprenticeship": _optional(raw, "curr_prep_reg_pre") or None,
+        "non_registered_pre_apprenticeship": _optional(raw, "curr_prep_non_reg_pre") or None,
+        "state_or_federal_job_program_dass": _first_optional(
+            raw, "curr_prep_statefedjobs_dass", "curr_prep_statefedjobs_DASS"
+        )
+        or None,
+        "transition_classroom_work": _optional(raw, "curr_prep_trans_classwk") or None,
+    }
+    yield _base_observation(
+        row_number=row_number,
+        school_year=manifest.academic_year,
+        aggregate_level=level,
+        entity=_academic_entity(raw, row_number),
+        ambiguous_entity_keys=ambiguous_entity_keys,
+        charter_scope=_scope(_optional(raw, "charter_flag")),
+        dass_scope=_scope(_optional(raw, "dass_flag")),
+        reporting_category=_required(raw, "studentgroup", row_number),
+        metric_id="college_career_prepared_rate",
+        fields=fields,
+        metadata={
+            "student_group_percent": _optional(raw, "studentgroup_pct") or None,
+            "approaching_prepared_count": _optional(raw, "curr_aprep") or None,
+            "not_prepared_count": _optional(raw, "curr_nprep") or None,
+            "prior_denominator": _optional(raw, "priordenom") or None,
+            "prior_status": _optional(raw, "priorstatus") or None,
+            "change": _optional(raw, "change") or None,
+            "status_level": _optional(raw, "statuslevel") or None,
+            "change_level": _optional(raw, "changelevel") or None,
+            "color": _optional(raw, "color") or None,
+            "current_n_size_met": _optional(raw, "currnsizemet") or None,
+            "prior_n_size_met": _optional(raw, "priornsizemet") or None,
+            "accountability_met": _optional(raw, "accountabilitymet") or None,
+            "prepared_measure_counts": prepared_measures,
+        },
+    )
+
+
+def _college_going_12_month_observations(
+    raw: dict[str, str],
+    row_number: int,
+    manifest: DatasetManifest,
+    ambiguous_entity_keys: frozenset[tuple[str, str]],
+) -> Iterator[MetricObservation]:
+    school_year = _required(raw, "AcademicYear", row_number)
+    if school_year != manifest.academic_year:
+        raise IndicatorDataError(f"row {row_number}: unexpected academic year {school_year}")
+    level = _required(raw, "AggregateLevel", row_number)
+    if level not in DATAQUEST_LEVELS:
+        raise IndicatorDataError(f"row {row_number}: invalid aggregate level {level!r}")
+    if _required(raw, "CompleterType", row_number) != "TA":
+        return
+
+    fields = _rate_fields(
+        _required(raw, "High School Completers", row_number),
+        _required(raw, "Enrolled In College - Total (12 Months)", row_number),
+        _required(raw, "College Going Rate - Total (12 Months)", row_number),
+        row_number,
+    )
+    yield _base_observation(
+        row_number=row_number,
+        school_year=school_year,
+        aggregate_level=level,
+        entity=_dataquest_entity(raw, level, row_number),
+        ambiguous_entity_keys=ambiguous_entity_keys,
+        charter_scope=_scope(_required(raw, "CharterSchool", row_number)),
+        dass_scope=_scope(_required(raw, "AlternativeSchoolAccountabilityStatus", row_number)),
+        reporting_category=_required(raw, "ReportingCategory", row_number),
+        metric_id="college_going_rate_12_month",
+        fields=fields,
+        metadata={
+            "completer_type": "all_high_school_completers",
+            "enrolled_in_state": _optional(raw, "Enrolled In-State (12 Months)") or None,
+            "enrolled_out_of_state": _optional(raw, "Enrolled Out-of-State (12 Months)") or None,
+            "not_enrolled": _optional(raw, "Not Enrolled In College (12 Months)") or None,
+            "enrolled_uc": _optional(raw, "Enrolled UC (12 Months)") or None,
+            "enrolled_csu": _optional(raw, "Enrolled CSU (12 Months)") or None,
+            "enrolled_ccc": _optional(raw, "Enrolled CCC (12 Months)") or None,
+            "enrolled_in_state_private": _optional(
+                raw, "Enrolled In-State Private (2 and 4 Year) (12 Months)"
+            )
+            or None,
+            "enrolled_out_of_state_four_year": _optional(
+                raw,
+                "Enrolled Out-of-State 4-Year College (Public/Private) (12 Months)",
+            )
+            or None,
+            "enrolled_out_of_state_two_year": _optional(
+                raw,
+                "Enrolled Out-of-State 2-Year College (Public/Private) (12 Months)",
+            )
+            or None,
+        },
+    )
+
+
 ADAPTERS = {
     "academic_indicator_v1": _academic_observations,
     "suspension_v1": _suspension_observations,
     "acgr_v1": _acgr_observations,
+    "cci_v1": _cci_observations,
+    "college_going_12_month_v1": _college_going_12_month_observations,
 }
+
+
+def _source_record_count(manifest: DatasetManifest, source_path: str | Path) -> int:
+    with Path(source_path).open("r", encoding=manifest.encoding, newline="") as source_file:
+        reader = csv.DictReader(source_file, delimiter="\t")
+        actual_columns = tuple(reader.fieldnames or ())
+        if actual_columns != manifest.columns:
+            raise IndicatorDataError(
+                f"header mismatch: expected {manifest.columns}, got {actual_columns}"
+            )
+        return sum(1 for _ in reader)
 
 
 def iter_metric_observations(
@@ -532,6 +697,11 @@ def inspect_metric_dataset(
     if manifest.adapter not in ADAPTERS:
         raise ManifestError(f"unsupported metric adapter: {manifest.adapter}")
     verify_dataset_file(manifest, source_path)
+    record_count = _source_record_count(manifest, source_path)
+    if record_count != manifest.record_count:
+        raise IndicatorDataError(
+            f"record count mismatch: expected {manifest.record_count}, got {record_count}"
+        )
     levels: Counter[str] = Counter()
     metrics: Counter[str] = Counter()
     categories: set[str] = set()
@@ -564,12 +734,10 @@ def inspect_metric_dataset(
             small_sample += 1
         if observation.suppression_status == "not-available":
             not_available += 1
-    if len(source_rows) != manifest.record_count:
-        raise IndicatorDataError(
-            f"record count mismatch: expected {manifest.record_count}, got {len(source_rows)}"
-        )
     expected_levels = (
-        ACADEMIC_LEVELS if manifest.adapter == "academic_indicator_v1" else DATAQUEST_LEVELS
+        ACADEMIC_LEVELS
+        if manifest.adapter in {"academic_indicator_v1", "cci_v1"}
+        else DATAQUEST_LEVELS
     )
     if set(levels) != expected_levels:
         raise IndicatorDataError(
@@ -578,7 +746,7 @@ def inspect_metric_dataset(
     ambiguous = frozenset(key for key, variants in entity_variants.items() if len(variants) > 1)
     entity_count = sum(len(variants) for variants in entity_variants.values())
     return MetricDatasetInspection(
-        record_count=len(source_rows),
+        record_count=record_count,
         observation_count=observation_count,
         suppressed_count=suppressed,
         small_sample_count=small_sample,

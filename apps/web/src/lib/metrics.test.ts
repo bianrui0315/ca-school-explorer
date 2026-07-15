@@ -57,6 +57,8 @@ describe("metric helpers", () => {
 
   it("calculates changes and interprets direction", () => {
     expect(metricChange(observations, 2022, 2023)).toBeCloseTo(-4.8);
+    expect(metricChange(observations, 2022, 2024)).toBeNull();
+    expect(metricChange(observations, 2021, 2023)).toBeNull();
     expect(changeStatus(-4.8, lowerIsBetterMetric)).toBe("improved");
     expect(changeStatus(2, lowerIsBetterMetric)).toBe("declined");
   });
