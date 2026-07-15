@@ -22,7 +22,8 @@ describe("comparison share links", () => {
         metricId: "ela_distance_from_standard",
         subgroup: "all",
         startYear: 2022,
-        referenceMode: "county",
+        referenceMode: "peers",
+        peerAnchorId: "1",
         weights: { ela_distance_from_standard: 18 },
       },
       "https://example.com/area?old=1",
@@ -33,10 +34,26 @@ describe("comparison share links", () => {
       metricId: "ela_distance_from_standard",
       subgroup: "all",
       startYear: 2022,
-      referenceMode: "county",
+      referenceMode: "peers",
+      peerAnchorId: "1",
       weights: { ela_distance_from_standard: 18 },
     });
     expect(new URL(url).pathname).toBe("/");
+  });
+
+  it("requires a selected, known anchor for a peer reference", () => {
+    expect(
+      parseComparisonShareUrl(
+        "https://example.com/?view=compare&schools=1&metric=ela_distance_from_standard&subgroup=all&start=2022&reference=peers",
+        catalog,
+      ),
+    ).toBeUndefined();
+    expect(
+      parseComparisonShareUrl(
+        "https://example.com/?view=compare&schools=1&metric=ela_distance_from_standard&subgroup=all&start=2022&reference=peers&peer=2",
+        catalog,
+      ),
+    ).toBeUndefined();
   });
 
   it("rejects unknown schools and unsafe weight values", () => {

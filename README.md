@@ -22,9 +22,14 @@ The project does not produce a "best schools" ranking. It leads with separate in
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.4.2 release
+## v0.4.3 release
 
-This release makes comparison context reproducible and easier to interpret while retaining the dedicated Compare and Area Explorer workspaces:
+This release adds transparent similar-context comparison while retaining the dedicated Compare and Area Explorer workspaces:
+
+- statewide context matching for active public schools using school level, compatible grade span, enrollment, directory designations, and published English learner, students with disabilities, and socioeconomically disadvantaged percentages;
+- plain-language reasons for every context match, with no academic, attendance, discipline, graduation, college, or career outcome used to select peers;
+- a selectable six-school peer reference calculated after matching with published student-denominator weighting and suppressed rows excluded;
+- direct Add to comparison actions and share links that preserve the selected anchor school and peer reference;
 
 - district, county, and California reference series selectable from the comparison controls;
 - 59 new source-attributed geographic reference files with 26,765 observations across the published metrics and student groups;
@@ -54,7 +59,7 @@ This release makes comparison context reproducible and easier to interpret while
 - continuous integration, issue templates, and contribution guidance;
 - a validated, self-contained HTML project plan.
 
-The current public bundle contains three adjacent outcome years for the implemented Dashboard and DataQuest measures. CDE advises caution when comparing years because processing and reporting changes may affect results; missing and suppressed values remain unconnected and are never inferred. College-going uses a different high-school-completer denominator, can be affected by National Student Clearinghouse privacy blocks, and currently lags the other indicators. The location finder uses transparent, coverage-aware evidence ordering rather than a universal school ranking. Its personalization settings use grade, public-school type, evidence coverage, and user-selected evidence priorities; protected characteristics do not steer housing-location results. The official district-area lookup confirms district jurisdiction at an exact geocoded point, not school attendance assignment. Nearby never means assigned or eligible. Similar-school comparisons and private-school directory context remain roadmap items. The website is an independent informational project, not a CDE product or endorsement.
+The current public bundle contains three adjacent outcome years for the implemented Dashboard and DataQuest measures. CDE advises caution when comparing years because processing and reporting changes may affect results; missing and suppressed values remain unconnected and are never inferred. College-going uses a different high-school-completer denominator, can be affected by National Student Clearinghouse privacy blocks, and currently lags the other indicators. The location finder uses transparent, coverage-aware evidence ordering rather than a universal school ranking. Its personalization settings use grade, public-school type, evidence coverage, and user-selected evidence priorities; protected characteristics do not steer housing-location results. The official district-area lookup confirms district jurisdiction at an exact geocoded point, not school attendance assignment. Nearby never means assigned or eligible. Similar-context matching describes institutional profile similarity, not quality, assignment, or eligibility. Private-school directory context remains a roadmap item. The website is an independent informational project, not a CDE product or endorsement.
 
 Raw CDE files are not committed or redistributed. The repository publishes selected factual derived records with source metadata, suppression preserved, and no claim that source data is covered by the Apache-2.0 code license. Formal source-specific permission review remains an open governance item; see [Data Sources and Licensing Policy](DATA_SOURCES.md).
 

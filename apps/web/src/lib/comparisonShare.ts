@@ -6,6 +6,7 @@ export interface SharedComparisonState {
   subgroup: SubgroupId;
   startYear: number;
   referenceMode: ReferenceMode;
+  peerAnchorId?: string;
   weights: Record<string, number>;
 }
 
@@ -13,6 +14,7 @@ const REFERENCE_MODES = new Set<ReferenceMode>([
   "district",
   "county",
   "california",
+  "peers",
 ]);
 
 export function buildComparisonShareUrl(
@@ -29,6 +31,9 @@ export function buildComparisonShareUrl(
   url.searchParams.set("subgroup", state.subgroup);
   url.searchParams.set("start", String(state.startYear));
   url.searchParams.set("reference", state.referenceMode);
+  if (state.peerAnchorId) {
+    url.searchParams.set("peer", state.peerAnchorId);
+  }
   url.searchParams.set(
     "weights",
     Object.entries(state.weights)
@@ -63,6 +68,7 @@ export function parseComparisonShareUrl(
   const subgroup = url.searchParams.get("subgroup") ?? "";
   const startYear = Number(url.searchParams.get("start"));
   const referenceMode = url.searchParams.get("reference") as ReferenceMode;
+  const peerAnchorId = url.searchParams.get("peer") || undefined;
   const validYears = new Set(
     catalog.manifest.outcomeSchoolYears.map((year) =>
       Number.parseInt(year.slice(0, 4), 10),
@@ -76,7 +82,10 @@ export function parseComparisonShareUrl(
       (definition) => definition.id === subgroup,
     ) ||
     !validYears.has(startYear) ||
-    !REFERENCE_MODES.has(referenceMode)
+    !REFERENCE_MODES.has(referenceMode) ||
+    (peerAnchorId !== undefined &&
+      (!knownSchools.has(peerAnchorId) || !schoolIds.includes(peerAnchorId))) ||
+    (referenceMode === "peers" && peerAnchorId === undefined)
   ) {
     return undefined;
   }
@@ -110,6 +119,7 @@ export function parseComparisonShareUrl(
     subgroup,
     startYear,
     referenceMode,
+    peerAnchorId,
     weights,
   };
 }

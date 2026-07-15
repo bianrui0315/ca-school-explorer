@@ -52,7 +52,7 @@ Status: implemented with latest reliable all-student observations in the public 
 - Add reproducible comparison links with selected schools, metric, subgroup, and year range.
 - Improve small-screen navigation and comparison-table scanning.
 
-Status: county and statewide references, coverage summaries, full comparison share links, and the Area Explorer-to-Compare handoff are implemented in release `0.4.2`. County academic and CCI references explicitly disclose denominator-weighted district aggregation where CDE does not publish a matching county row.
+Status: county and statewide references, coverage summaries, full comparison share links, and the Area Explorer-to-Compare handoff are implemented in release `0.4.2`. Release `0.4.3` adds transparent statewide similar-context peers, direct comparison handoff, and a denominator-weighted peer reference. Matching excludes all outcome indicators. County academic and CCI references explicitly disclose denominator-weighted district aggregation where CDE does not publish a matching county row.
 
 ### 6. Data expansion
 

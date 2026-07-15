@@ -17,14 +17,17 @@ const supportingSections = [
   },
   {
     icon: "users" as const,
-    title: "Similar context (planned)",
-    body: "Future peer sets will use public institutional context without producing a single school score.",
+    title: "Similar context",
+    body: "Peer sets use public institutional context only. They do not produce a quality score or determine enrollment eligibility.",
   },
 ];
 
 function basisLabel(basis: ReferenceBasis | undefined, mode: ReferenceMode) {
   if (basis === "derived-district-weighted") {
     return "Calculated from official district rows, weighted by the published student denominator.";
+  }
+  if (basis === "derived-peer-weighted") {
+    return "Calculated after matching from public school rows, weighted by each published student denominator. Suppressed values are excluded.";
   }
   if (basis === "official-county") {
     return "Official CDE county aggregate.";
@@ -81,7 +84,7 @@ export function ContextPanel({
             <Icon name="book" size={22} />
             <span>
               <strong>How to read this</strong>
-              <small>District context, map, and caveats</small>
+              <small>Reference context, map, and caveats</small>
             </span>
             <Icon className="disclosure-chevron" name="chevronDown" size={20} />
           </summary>

@@ -93,6 +93,22 @@ def _demographics(metadata: Mapping[str, Any]) -> dict[str, dict[str, int | floa
     return result
 
 
+def _peer_context(metadata: Mapping[str, Any]) -> dict[str, float | None]:
+    demographics = _demographics(metadata)
+
+    def percent(label: str) -> float | None:
+        value = demographics.get(label, {}).get("percent")
+        return float(value) if value is not None else None
+
+    return {
+        "englishLearnerPercent": percent("English Learner"),
+        "studentsWithDisabilitiesPercent": percent("Students with Disabilities"),
+        "socioeconomicallyDisadvantagedPercent": percent(
+            "Socioeconomically Disadvantaged"
+        ),
+    }
+
+
 def _observation(
     row: Sequence[Any],
     metric_indexes: Mapping[str, int],
@@ -264,7 +280,7 @@ def publish_public_data(
     database_url: str,
     output_root: str | Path = DEFAULT_OUTPUT_ROOT,
     *,
-    release: str = "0.4.2",
+    release: str = "0.4.3",
     generated_at: datetime | None = None,
 ) -> PublishResult:
     """Export a compact statewide index and county-sharded indicator bundles."""
@@ -370,6 +386,7 @@ def publish_public_data(
                         "teachers": _number(row[25]),
                         "administrators": _number(row[26]),
                     },
+                    "peerContext": _peer_context(metadata),
                 }
                 schools.append(summary)
                 school_records[shard_id][school_id] = {

@@ -7,6 +7,7 @@ from ca_school_explorer.public_data import (
     _grade_span,
     _latest_all_student_observations,
     _observation,
+    _peer_context,
     enrich_public_index_evidence,
 )
 
@@ -21,6 +22,25 @@ def test_public_profile_helpers_normalize_browser_values() -> None:
             }
         }
     ) == {"English Learner": {"count": 42, "percent": 8.4}}
+
+
+def test_peer_context_publishes_matching_fields_without_outcomes() -> None:
+    assert _peer_context(
+        {
+            "demographics": {
+                "English Learner": {"count": "42", "percent": "8.4"},
+                "Students with Disabilities": {"count": "63", "percent": "12.6"},
+                "Socioeconomically Disadvantaged": {
+                    "count": "201",
+                    "percent": "40.2",
+                },
+            }
+        }
+    ) == {
+        "englishLearnerPercent": 8.4,
+        "studentsWithDisabilitiesPercent": 12.6,
+        "socioeconomicallyDisadvantagedPercent": 40.2,
+    }
 
 
 def test_compact_observation_preserves_suppression_and_provenance() -> None:

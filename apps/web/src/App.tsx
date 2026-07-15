@@ -10,6 +10,7 @@ import { LocationFinder } from "./components/LocationFinder";
 import { MetricNav } from "./components/MetricNav";
 import { SchoolPicker } from "./components/SchoolPicker";
 import { SchoolOverview } from "./components/SchoolOverview";
+import { SimilarContext } from "./components/SimilarContext";
 import { TrendChart } from "./components/TrendChart";
 import { publicDataClient } from "./data/publicData";
 import {
@@ -17,6 +18,10 @@ import {
   parseComparisonShareUrl,
 } from "./lib/comparisonShare";
 import { DEFAULT_INDICATOR_WEIGHTS } from "./lib/indicatorScore";
+import {
+  buildPeerMetricSeries,
+  findSimilarSchools,
+} from "./lib/similarSchools";
 import type {
   DistrictDetail,
   GeographicReferences,
@@ -64,6 +69,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   const [subgroup, setSubgroup] = useState<SubgroupId>("all");
   const [startYear, setStartYear] = useState(2024);
   const [referenceMode, setReferenceMode] = useState<ReferenceMode>("district");
+  const [peerAnchorId, setPeerAnchorId] = useState<string>();
+  const [loadedPeerSet, setLoadedPeerSet] = useState<{
+    anchorId?: string;
+    details: Map<string, SchoolDetail>;
+  }>(() => ({ details: new Map() }));
   const [indicatorWeights, setIndicatorWeights] = useState<
     Record<string, number>
   >(() => ({ ...DEFAULT_INDICATOR_WEIGHTS }));
@@ -130,6 +140,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
         setCatalog(loadedCatalog);
         setSchoolDetails(new Map(details.map((school) => [school.id, school])));
         setSelectedSchoolIds(details.map((school) => school.id));
+        setPeerAnchorId(sharedComparison?.peerAnchorId ?? details[0]?.id);
         if (sharedComparison) {
           setMetricId(sharedComparison.metricId);
           setSubgroup(sharedComparison.subgroup);
@@ -176,6 +187,76 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       }),
     [schoolDetails, selectedSchoolIds],
   );
+  const effectivePeerAnchorId =
+    peerAnchorId && selectedSchoolIds.includes(peerAnchorId)
+      ? peerAnchorId
+      : selectedSchoolIds[0];
+  const peerAnchor = effectivePeerAnchorId
+    ? schoolIndex.get(effectivePeerAnchorId)
+    : undefined;
+  const similarMatches = useMemo(
+    () =>
+      catalog && peerAnchor
+        ? findSimilarSchools(peerAnchor, catalog.schools, 12)
+        : [],
+    [catalog, peerAnchor],
+  );
+  const peerBaselineSummaries = useMemo(
+    () => similarMatches.slice(0, 6).map(({ school }) => school),
+    [similarMatches],
+  );
+
+  useEffect(() => {
+    let active = true;
+    if (!catalog || !peerAnchor || peerBaselineSummaries.length === 0) {
+      return () => {
+        active = false;
+      };
+    }
+    void Promise.allSettled(
+      peerBaselineSummaries.map((summary) =>
+        dataClient.loadSchool(summary, catalog),
+      ),
+    ).then((results) => {
+      if (!active) {
+        return;
+      }
+      const loaded = results.flatMap((result) =>
+        result.status === "fulfilled" ? [result.value] : [],
+      );
+      setLoadedPeerSet({
+        anchorId: peerAnchor.id,
+        details: new Map(loaded.map((school) => [school.id, school])),
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, [catalog, dataClient, peerAnchor, peerBaselineSummaries]);
+
+  const peerDetails = useMemo(
+    () =>
+      loadedPeerSet.anchorId === effectivePeerAnchorId
+        ? loadedPeerSet.details
+        : new Map<string, SchoolDetail>(),
+    [effectivePeerAnchorId, loadedPeerSet],
+  );
+  const peerLoading = Boolean(
+    peerAnchor &&
+      peerBaselineSummaries.length > 0 &&
+      loadedPeerSet.anchorId !== effectivePeerAnchorId,
+  );
+  const peerMetricSeries = useMemo(
+    () =>
+      catalog && peerDetails.size > 0
+        ? buildPeerMetricSeries([...peerDetails.values()], catalog.manifest)
+        : undefined,
+    [catalog, peerDetails],
+  );
+  const peerBaselineReady =
+    !peerLoading &&
+    peerBaselineSummaries.length > 0 &&
+    peerDetails.size === peerBaselineSummaries.length;
   const commonDistrict = selectedSchools[0]?.districtId;
   const commonCounty = selectedSchools[0]?.countyCode;
   const hasCommonDistrict = Boolean(
@@ -297,24 +378,36 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
         : undefined;
   const baselineSource =
     effectiveReferenceMode === "district" ? activeDistrict : activeReference;
-  const baseline = baselineSource?.metrics[metric.id]?.[subgroup] ?? [];
+  const baseline =
+    effectiveReferenceMode === "peers"
+      ? (peerMetricSeries?.[metric.id]?.[subgroup] ?? [])
+      : (baselineSource?.metrics[metric.id]?.[subgroup] ?? []);
   const baselineLabel =
-    effectiveReferenceMode === "county" && activeReference
-      ? `${activeReference.name} County`
-      : baselineSource?.name;
+    effectiveReferenceMode === "peers"
+      ? `Similar peers · ${peerDetails.size} schools`
+      : effectiveReferenceMode === "county" && activeReference
+        ? `${activeReference.name} County`
+        : baselineSource?.name;
   const baselineDescription =
-    effectiveReferenceMode === "district"
-      ? "Same-district context"
-      : effectiveReferenceMode === "county"
-        ? "Countywide context"
-        : "Statewide context";
+    effectiveReferenceMode === "peers"
+      ? "Similar-context reference"
+      : effectiveReferenceMode === "district"
+        ? "Same-district context"
+        : effectiveReferenceMode === "county"
+          ? "Countywide context"
+          : "Statewide context";
   const referenceDescription =
-    effectiveReferenceMode === "district"
-      ? "Available when all selected schools belong to the same district."
-      : effectiveReferenceMode === "county"
-        ? "Available when all selected schools belong to the same county."
-        : "California provides a consistent statewide context across selections.";
-  const referenceBasis = activeReference?.basisByMetric[metric.id];
+    effectiveReferenceMode === "peers"
+      ? `Built from ${peerDetails.size} public schools matched to ${peerAnchor?.name ?? "the anchor school"} using institutional profile data. Outcomes are excluded from matching.`
+      : effectiveReferenceMode === "district"
+        ? "Available when all selected schools belong to the same district."
+        : effectiveReferenceMode === "county"
+          ? "Available when all selected schools belong to the same county."
+          : "California provides a consistent statewide context across selections.";
+  const referenceBasis =
+    effectiveReferenceMode === "peers"
+      ? ("derived-peer-weighted" as const)
+      : activeReference?.basisByMetric[metric.id];
   const referenceOptions = [
     {
       value: "district" as const,
@@ -330,6 +423,13 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
           ? `County · ${selectedSchools[0].county}`
           : "Same county",
       disabled: !hasCommonCounty,
+    },
+    {
+      value: "peers" as const,
+      label: peerBaselineReady
+        ? `Similar peers · ${peerDetails.size} schools`
+        : "Similar peers",
+      disabled: !peerBaselineReady,
     },
     { value: "california" as const, label: "California" },
   ];
@@ -374,6 +474,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
         subgroup,
         startYear,
         referenceMode: effectiveReferenceMode,
+        peerAnchorId: effectivePeerAnchorId,
         weights: indicatorWeights,
       },
       window.location.href,
@@ -483,6 +584,25 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             <SchoolOverview
               profileSchoolYears={catalog.manifest.profileSchoolYears}
               schools={selectedSchools}
+            />
+
+            <SimilarContext
+              anchorId={effectivePeerAnchorId}
+              baselineCount={peerBaselineSummaries.length}
+              baselineReady={peerBaselineReady}
+              isBaselineActive={effectiveReferenceMode === "peers"}
+              isLoading={peerLoading}
+              matches={similarMatches.slice(0, 6)}
+              onAdd={(schoolId) => void addSchool(schoolId)}
+              onAnchorChange={(schoolId) => {
+                setPeerAnchorId(schoolId);
+                setShareMessage(undefined);
+              }}
+              onUseBaseline={() => {
+                setReferenceMode("peers");
+                setShareMessage(undefined);
+              }}
+              selectedSchools={selectedSchools}
             />
 
             <TrendChart
