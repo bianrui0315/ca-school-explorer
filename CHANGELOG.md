@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-07-14
+
+### Added
+
+- Exact grade and district-operated, charter, or magnet filters for location evidence matches.
+- Adjustable academic, attendance, school-climate, and graduation or college-preparation priorities that transparently multiply the published grade-band weights.
+- User-selectable 50%, 70%, 90%, or 100% minimum evidence coverage, with academic evidence still required for eligibility.
+- A primary evidence-driver explanation for every matched school and an explicit Copy share link action that preserves the search center and personalization settings.
+- Validation for personalized recommendation ordering, eligibility filters, shared URL parsing, and the rendered interaction flow.
+
+### Changed
+
+- Exact-grade searches now show one focused result group while retaining the grouped elementary, middle, and high school view for an all-grade search.
+- Location matches now exclude schools that fail the selected evidence-coverage threshold instead of displaying them as limited recommendations.
+
 ## [0.3.1] - 2026-07-14
 
 ### Added

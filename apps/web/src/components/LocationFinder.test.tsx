@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
+import { afterEach, vi } from "vitest";
 import type { MetricDefinition, PublicManifest, SchoolSummary } from "../types";
 import { LocationFinder } from "./LocationFinder";
 
@@ -76,6 +76,10 @@ const nearbySchool = {
   ],
 } satisfies SchoolSummary;
 
+afterEach(() => {
+  window.history.replaceState({}, "", "/");
+});
+
 describe("LocationFinder", () => {
   it("resolves a ZIP, shows evidence, and adds a match to comparison", async () => {
     const user = userEvent.setup();
@@ -98,10 +102,79 @@ describe("LocationFinder", () => {
     await user.click(screen.getByRole("button", { name: "Find schools" }));
 
     expect(await screen.findByText("Nearby Elementary")).toBeInTheDocument();
-    expect(screen.getByText("Evidence 2/4")).toBeInTheDocument();
+    expect(screen.getByText("Evidence 2/4 · 70%")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Primary driver: Academic performance/),
+    ).toBeInTheDocument();
     expect(await screen.findByText("Recommendation map")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Add to comparison" }));
     expect(onAdd).toHaveBeenCalledWith("school-1");
+  });
+
+  it("filters the nearby results by a child's grade and school type", async () => {
+    const user = userEvent.setup();
+    render(
+      <LocationFinder
+        allSchools={[nearbySchool]}
+        manifest={manifest}
+        onAdd={vi.fn()}
+        selectedSchoolIds={[]}
+      />,
+    );
+
+    await user.type(
+      screen.getByRole("searchbox", {
+        name: "Work address or California place",
+      }),
+      "91326",
+    );
+    await user.click(screen.getByRole("button", { name: "Find schools" }));
+    await screen.findByText("Nearby Elementary");
+
+    await user.click(screen.getByText("Personalize results"));
+    await user.selectOptions(screen.getByLabelText("Child's grade"), "K");
+    expect(screen.getByText("Kindergarten options")).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByLabelText("Location school type"),
+      "charter",
+    );
+    expect(screen.queryByText("Nearby Elementary")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "No schools meet the selected grade, type, and evidence coverage in this radius.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("restores a shared search and removes stale URL settings after an edit", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?view=nearby&q=91326&lat=34.29&lng=-118.58&place=Shared+test&approx=1&r=10&grade=K&type=all&coverage=70&pa=1&pt=1&pc=1&pr=1#location-finder-title",
+    );
+    const user = userEvent.setup();
+    render(
+      <LocationFinder
+        allSchools={[nearbySchool]}
+        manifest={manifest}
+        onAdd={vi.fn()}
+        selectedSchoolIds={[]}
+      />,
+    );
+
+    expect(await screen.findByText("Kindergarten options")).toBeInTheDocument();
+    expect(
+      screen.getByText("Shared search center", { exact: false }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByText("Personalize results"));
+    await user.selectOptions(
+      screen.getByLabelText("Location school type"),
+      "charter",
+    );
+    expect(window.location.search).toBe("");
+    expect(window.location.hash).toBe("");
   });
 });
