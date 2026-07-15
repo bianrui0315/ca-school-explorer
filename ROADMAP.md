@@ -19,13 +19,15 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 
 ## Phase 2: Deliver the comparison task
 
-- Add school and district search.
+- Add school and district search. School name, district, address, ZIP, county, city, and grade discovery are implemented incrementally in `0.3.x`.
 - Compare two to five schools on one multi-year view.
 - Add subgroup lenses and reliability notes.
 - Add same-district, nearby, and similar-context baselines.
 - Show selected schools on a coordinate-based comparison map with clear basemap attribution.
 - Provide an experimental seven-indicator profile and user-adjustable weighted composite with explicit coverage warnings.
 - Generate reproducible share links.
+
+The ordered implementation plan for discovery, school profiles, geographic context, dashboard context, and new data is documented in [Next Phase Plan](docs/next-phase-plan.md).
 
 ## Phase 3: Expand outcome coverage
 

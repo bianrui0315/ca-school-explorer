@@ -142,7 +142,22 @@ const summaries = [
   summary("01611190130229", "Alameda High"),
   summary("01611190132142", "Encinal Junior/Senior High"),
   summary("01611190106401", "Alameda Science and Technology Institute"),
-  summary("01611199999999", "Sierra Vista School"),
+  {
+    ...summary("19647339999999", "Sierra Vista School"),
+    countyCode: "19",
+    county: "Los Angeles",
+    districtId: "19647330000000",
+    district: "Los Angeles Unified",
+    shard: "19-0",
+    city: "Porter Ranch",
+    gradeSpan: "K–8",
+    address: {
+      street: "12450 Mason Ave",
+      city: "Porter Ranch",
+      state: "CA",
+      zip: "91326",
+    },
+  },
 ];
 
 const details = new Map<string, SchoolDetail>(
@@ -273,8 +288,10 @@ describe("school comparison experience", () => {
 
     await screen.findByText("Selected schools (3 of 5)");
     await user.type(
-      screen.getByLabelText("Find a school or district"),
-      "Sierra",
+      screen.getByLabelText(
+        "Search schools by name, district, address, or ZIP",
+      ),
+      "91326",
     );
     await user.click(
       await screen.findByRole("button", { name: /Sierra Vista School/ }),
@@ -289,6 +306,28 @@ describe("school comparison experience", () => {
       screen.getByRole("button", { name: "Remove Alameda High" }),
     );
     expect(screen.getByText("Selected schools (3 of 5)")).toBeInTheDocument();
+  });
+
+  it("filters the statewide directory by county, city, and grade", async () => {
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    await screen.findByText("Selected schools (3 of 5)");
+    await user.click(screen.getByRole("button", { name: "Filters" }));
+    await user.selectOptions(
+      screen.getByLabelText("County filter"),
+      "Los Angeles",
+    );
+    await user.selectOptions(
+      screen.getByLabelText("City filter"),
+      "Porter Ranch",
+    );
+    await user.selectOptions(screen.getByLabelText("Grade filter"), "6");
+
+    expect(screen.getByText("1 matching school")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Sierra Vista School/ }),
+    ).toBeInTheDocument();
   });
 
   it("provides project links in the compact navigation", async () => {
