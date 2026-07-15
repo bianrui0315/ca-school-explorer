@@ -2,7 +2,7 @@
 
 ## Current real datasets
 
-The production pipeline ingests five official California Department of Education outcome snapshots for each of 2022–23, 2023–24, and 2024–25:
+The production pipeline ingests five core California Department of Education outcome snapshots plus CCI for each of 2022–23, 2023–24, and 2024–25, and the latest 12-month college-going file:
 
 | Snapshot | 2022–23 rows | 2023–24 rows | 2024–25 rows | Combined canonical facts | Metrics |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -11,13 +11,15 @@ The production pipeline ingests five official California Department of Education
 | Academic Indicator Mathematics | 169,597 | 176,806 | 176,260 | 522,663 | Mathematics distance from standard |
 | Suspension | 226,179 | 225,157 | 226,461 | 677,797 | Suspension rate |
 | Adjusted Cohort Graduation Rate and Outcomes | 113,971 | 113,867 | 113,653 | 1,024,473 | Graduation, A–G completion, dropout |
-| **Total** | **1,022,766** | **1,035,996** | **1,033,952** | **3,775,696** | **7 metrics** |
+| College/Career Indicator | 32,438 | 34,983 | 34,949 | 102,370 | CCI Prepared rate |
+| College-Going Rate (12-month) | 230,217 | — | — | 84,142 | College-going within 12 months |
+| **Total** | **1,285,421** | **1,070,979** | **1,068,901** | **3,962,208** | **9 metrics** |
 
 The database also contains 9,946 public-school profiles from CDE's public-domain 2025–26 geographic layer. Every profile has quality-controlled coordinates and includes school type, level, grade range, charter, virtual, magnet, Title I, DASS, enrollment, and selected staff context.
 
 Every versioned manifest records the release, exact URL, encoding, byte size, record count, SHA-256 digest, and complete header contract. Source files are not committed. `fetch-dataset` downloads into `data/raw/<source_id>/`, verifies the file, and uses an atomic rename only after verification succeeds.
 
-The A–G completion rate is not the broader Dashboard College/Career Indicator. It measures the share of regular diploma graduates meeting UC/CSU entrance requirements. CCI will be modeled separately because its population and measures differ.
+The A–G completion rate, Dashboard CCI Prepared rate, and 12-month college-going rate are modeled separately. They use different populations, qualifying events, release schedules, and interpretation rules.
 
 ## Local setup
 
@@ -85,6 +87,8 @@ Adapters fail closed on:
 
 CDE `*` values are stored as null measures with `suppression_status = 'suppressed'`. Academic observations with zero current-year denominator are `not-available`. Reported groups with fewer than 30 students receive `reliability_status = 'small-sample'`; this is a product caution, not a replacement for CDE suppression policy.
 
+CCI blank result fields are accepted only when the published denominator is 10 or fewer; the denominator remains public while the prepared count and rate remain null. College-going source rows are validated at their full 230,217-row physical grain, then only the documented `TA` all-completer type is normalized. This prevents completer-type subsets from being double-counted while retaining state, county, district, school, subgroup, charter, and alternative-school scopes.
+
 The 2024–25 Suspension snapshot contains one CDS code associated with three distinct school names. The pipeline retains all three with `identity_resolution = 'ambiguous'` and name-qualified identity keys. It does not silently merge them. Public publishing excludes unresolved identities until the school directory adapter provides an authoritative crosswalk.
 
 The 2023–24 chronic-absence file includes reporting code `GZ`, which the official CDE file structure defines as `Missing Gender`. The pipeline maps it to the explicit `gender_missing` subgroup. The 2022–23 file uses historical codes `GRKN` and `GRK8` for the same grade spans later labeled `GRTKKN` and `GRTK8`; migration `0007_historical_chronic_absence_grade_spans.sql` maps both aliases to the existing canonical grade-span subgroups. Both initial unmapped-code failures and the successful retries remain in the import audit log.
@@ -129,7 +133,7 @@ where cds_code = $1
 order by metric_id, subgroup_id;
 ```
 
-The verified local import contains 12,177 entity identities, 16 imported snapshots, 3,775,696 metric facts, and 9,946 school profiles. Metric facts reference 12,112 of those identities. Sixteen successful import runs reconcile to 3,102,660 source rows and 3,785,642 loaded facts/profiles. Two earlier fail-closed runs record the `GZ` and historical grade-span alias mapping errors before explicit mappings were added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
+The verified local import contains 12,177 entity identities, 20 imported snapshots, 3,962,208 metric facts, and 9,946 school profiles. Metric facts reference 12,112 of those identities. Twenty successful import runs reconcile to 3,435,247 source rows and 3,972,154 loaded facts/profiles. Two earlier fail-closed runs record the `GZ` and historical grade-span alias mapping errors before explicit mappings were added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
 
 ## Roles and credentials
 
@@ -167,4 +171,4 @@ Treat backups as data artifacts, not source code. Store them encrypted with rete
 
 ## Cost and operations
 
-Local development uses one container and no paid service. The verified database is approximately 2.9 GB for 16 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.
+Local development uses one container and no paid service. The verified database is approximately 3.1 GB for 20 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.

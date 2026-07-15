@@ -85,6 +85,12 @@ function SourceDetails({
   metric,
   compact = false,
 }: Pick<ContextPanelProps, "metric"> & { compact?: boolean }) {
+  const metricCaveat =
+    metric.id === "college_going_rate_12_month"
+      ? "College-going data currently end in 2022–23 and use a high-school-completer denominator that differs from the four-year graduation cohort. National Student Clearinghouse privacy blocks can make observed enrollment lower than actual enrollment."
+      : metric.id === "college_career_prepared_rate"
+        ? "The CCI denominator can include students from two graduation cohort types. Prepared pathways and rules can change between Dashboard releases, so read trends with the source methodology in view."
+        : undefined;
   return (
     <section
       className={
@@ -96,6 +102,7 @@ function SourceDetails({
         Values are derived from official public CDE files. Source suppression is
         preserved, and raw files are not redistributed or relicensed.
       </p>
+      {metricCaveat ? <p className="source-caveat">{metricCaveat}</p> : null}
       <a href={metric.sourceUrl} target="_blank" rel="noreferrer">
         {metric.sourceLabel}
         <Icon name="external" size={14} />

@@ -25,7 +25,7 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 - Add subgroup lenses and reliability notes.
 - Add same-district, nearby, and similar-context baselines. Search-result maps, distance-based nearby-school discovery, and address/city/ZIP evidence matches by grade band are implemented incrementally in `0.3.x`.
 - Show selected schools on a coordinate-based comparison map with clear basemap attribution.
-- Provide an experimental seven-indicator profile and user-adjustable weighted composite with explicit coverage warnings.
+- Provide an experimental eight-indicator profile and user-adjustable weighted composite with explicit coverage warnings. College-going remains outside this current-year composite because its latest file is older and uses a different denominator.
 - Generate reproducible share links. Personalized location-search links are implemented in `0.3.2`; full comparison-workspace links remain planned.
 
 The ordered implementation plan for discovery, school profiles, geographic context, dashboard context, and new data is documented in [Next Phase Plan](docs/next-phase-plan.md).
@@ -33,7 +33,7 @@ The ordered implementation plan for discovery, school profiles, geographic conte
 ## Phase 3: Expand outcome coverage
 
 - Publish reviewed chronic absenteeism, academic, suspension, and graduation bundles from the canonical store.
-- Add the distinct Dashboard College/Career Indicator and college-going outcomes for high schools.
+- Maintain the implemented distinct Dashboard College/Career Indicator and 12-month college-going outcomes for high schools as new files are released.
 - Add staff ratios and selected SARC measures.
 - Add a public data freshness and correction page.
 
@@ -47,7 +47,7 @@ The ordered implementation plan for discovery, school profiles, geographic conte
 
 ## Deferred until reliable statewide data exist
 
-- Address-level attendance boundary assignment;
+- Statewide address-level attendance-school assignment without a current official local source. Exact addresses now receive authoritative CDE district-area matches, while assigned schools remain district-verified only;
 - principal history;
 - incident-level safety claims;
 - unverified special programs, awards, or school characteristics;

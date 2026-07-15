@@ -1,10 +1,8 @@
 import type { CSSProperties } from "react";
 import {
   changeStatus,
-  firstObservation,
   formatMetricValue,
   formatSchoolYear,
-  latestObservation,
   metricChange,
   reliabilityLabel,
 } from "../lib/metrics";
@@ -90,7 +88,9 @@ export function ComparisonTable({
             {schools.map((school) => {
               const observations = school.metrics[metric.id]?.[subgroup] ?? [];
               const change = metricChange(observations, startYear, endYear);
-              const latest = latestObservation(observations, endYear);
+              const current = observations.find(
+                (observation) => observation.year === endYear,
+              );
               return (
                 <tr key={school.id} style={schoolStyle(school.color)}>
                   <th scope="row">
@@ -131,7 +131,7 @@ export function ComparisonTable({
                       </span>
                     </td>
                   ) : null}
-                  <td>{latest?.denominator?.toLocaleString() ?? "—"}</td>
+                  <td>{current?.denominator?.toLocaleString() ?? "—"}</td>
                 </tr>
               );
             })}
@@ -163,18 +163,16 @@ export function ComparisonTable({
                 {hasTrend ? (
                   <td>
                     {formatMetricValue(
-                      (latestObservation(baseline, endYear)?.value ?? 0) -
-                        (firstObservation(baseline, startYear)?.value ?? 0),
+                      metricChange(baseline, startYear, endYear),
                       metric,
                       true,
                     )}
                   </td>
                 ) : null}
                 <td>
-                  {latestObservation(
-                    baseline,
-                    endYear,
-                  )?.denominator?.toLocaleString() ?? "—"}
+                  {baseline
+                    .find((observation) => observation.year === endYear)
+                    ?.denominator?.toLocaleString() ?? "—"}
                 </td>
               </tr>
             ) : null}

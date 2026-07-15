@@ -397,6 +397,8 @@ def publish_public_data(
             nav_labels = {
                 "a_g_completion_rate": "A\u2013G completion",
                 "chronic_absenteeism_rate": "Attendance",
+                "college_career_prepared_rate": "College/career",
+                "college_going_rate_12_month": "College-going",
                 "ela_distance_from_standard": "ELA",
                 "four_year_dropout_rate": "Dropout",
                 "four_year_graduation_rate": "Graduation",
@@ -406,6 +408,8 @@ def publish_public_data(
             short_labels = {
                 "a_g_completion_rate": "A\u2013G completion",
                 "chronic_absenteeism_rate": "Chronic absence",
+                "college_career_prepared_rate": "College/career prepared",
+                "college_going_rate_12_month": "College-going within 12 months",
                 "ela_distance_from_standard": "ELA distance",
                 "four_year_dropout_rate": "Dropout rate",
                 "four_year_graduation_rate": "Graduation rate",

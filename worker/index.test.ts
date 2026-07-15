@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { handleDistrictBoundaries } from "./district-boundaries";
 import { handleGeocode } from "./geocode";
 
 function request(body: unknown, method = "POST") {
@@ -78,5 +79,69 @@ describe("geocode worker", () => {
         )
       ).status,
     ).toBe(404);
+  });
+});
+
+describe("district boundary worker", () => {
+  function districtRequest(body: unknown, method = "POST") {
+    return new Request("https://example.com/api/district-boundaries", {
+      body: method === "POST" ? JSON.stringify(body) : undefined,
+      headers: { "Content-Type": "application/json" },
+      method,
+    });
+  }
+
+  it("returns official districts intersecting a California point", async () => {
+    const fetcher = vi.fn(async () =>
+      Response.json({
+        features: [
+          {
+            attributes: {
+              CDCode: "1964733",
+              CDSCode: "19647330000000",
+              DistrictName: "Los Angeles Unified",
+              DistrictType: "Unified",
+              GradeHigh: "12",
+              GradeLow: "PK",
+              Year: "2025-26",
+            },
+          },
+        ],
+      }),
+    );
+
+    const response = await handleDistrictBoundaries(
+      districtRequest({ latitude: 34.2929, longitude: -118.5828 }),
+      fetcher,
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      districts: [
+        {
+          cdsCode: "19647330000000",
+          name: "Los Angeles Unified",
+          type: "Unified",
+        },
+      ],
+      effectiveSchoolYear: "2025-26",
+    });
+    const upstreamUrl = new URL(String(fetcher.mock.calls[0]?.[0]));
+    expect(upstreamUrl.searchParams.get("geometry")).toBe("-118.5828,34.2929");
+    expect(upstreamUrl.searchParams.get("returnGeometry")).toBe("false");
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+  });
+
+  it("rejects unsupported methods and coordinates outside California", async () => {
+    expect(
+      (await handleDistrictBoundaries(districtRequest({}, "GET"))).status,
+    ).toBe(405);
+    expect(
+      (
+        await handleDistrictBoundaries(
+          districtRequest({ latitude: 36.1, longitude: -100.1 }),
+        )
+      ).status,
+    ).toBe(400);
   });
 });

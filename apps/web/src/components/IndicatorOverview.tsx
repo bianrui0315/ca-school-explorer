@@ -90,8 +90,8 @@ function RadarChart({ metrics, series }: RadarChartProps) {
       >
         <title id="radar-title">All indicators comparison</title>
         <desc id="radar-description">
-          Seven indicators normalized to a zero to one hundred comparison scale.
-          Missing indicators are not plotted.
+          {metrics.length} indicators normalized to a zero to one hundred
+          comparison scale. Missing indicators are not plotted.
         </desc>
         {[25, 50, 75, 100].map((level) => (
           <polygon
@@ -325,7 +325,7 @@ export function IndicatorOverview({
       <div className="analysis-grid">
         <article className="analysis-card radar-card">
           <div className="analysis-card-header">
-            <h3>Seven-indicator profile</h3>
+            <h3>{indicatorMetrics.length}-indicator profile</h3>
             <span>Higher is better</span>
           </div>
           <RadarChart metrics={indicatorMetrics} series={series} />

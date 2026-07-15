@@ -1,0 +1,84 @@
+manifest_version = 1
+dataset_id = "cde_cci_2022_23"
+adapter = "cci_v1"
+schema_version = "cde-cci-2023-v1"
+source_id = "cde_cci"
+source_name = "CDE College/Career Indicator Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/cm/ccidatafiles.asp"
+download_url = "https://www3.cde.ca.gov/researchfiles/cadashboard/ccidownload2023.txt"
+academic_year = "2022-23"
+release_date = "2023-12-06"
+filename = "ccidownload2023.txt"
+media_type = "text/tab-separated-values"
+encoding = "utf-8"
+sha256 = "c7e69c7136b8b5e168c1ccbb9c0e54c7c6a8fb9f670c9846a0e08c83354f8e7f"
+byte_size = 6677285
+record_count = 32438
+terms_status = "review-required"
+columns = [
+  "cds",
+  "rtype",
+  "schoolname",
+  "districtname",
+  "countyname",
+  "charter_flag",
+  "coe_flag",
+  "dass_flag",
+  "studentgroup",
+  "studentgroup_pct",
+  "currdenom",
+  "currstatus",
+  "statuslevel",
+  "currnsizemet",
+  "curr_prep",
+  "curr_prep_pct",
+  "curr_prep_summative",
+  "curr_prep_summative_pct",
+  "curr_prep_apexam",
+  "curr_prep_apexam_pct",
+  "curr_prep_ibexam",
+  "curr_prep_ibexam_pct",
+  "curr_prep_collegecredit",
+  "curr_prep_collegecredit_pct",
+  "curr_prep_agplus",
+  "curr_prep_agplus_pct",
+  "curr_prep_cteplus",
+  "curr_prep_cteplus_pct",
+  "curr_prep_ssb",
+  "curr_prep_ssb_pct",
+  "curr_prep_milsci",
+  "curr_prep_milsci_pct",
+  "curr_prep_reg_pre",
+  "curr_prep_reg_pre_pct",
+  "curr_prep_non_reg_pre",
+  "curr_prep_non_reg_pre_pct",
+  "curr_prep_non_reg_pre_dass",
+  "curr_prep_non_reg_pre_dass_pct",
+  "curr_prep_statefedjobs_dass",
+  "curr_prep_statefedjobs_dass_pct",
+  "curr_prep_trans_classwk",
+  "curr_prep_trans_classwk_pct",
+  "curr_aprep",
+  "curr_aprep_pct",
+  "curr_aprep_summative",
+  "curr_aprep_summative_pct",
+  "curr_aprep_collegecredit",
+  "curr_aprep_collegecredit_pct",
+  "curr_aprep_ag",
+  "curr_aprep_ag_pct",
+  "curr_aprep_cte",
+  "curr_aprep_cte_pct",
+  "curr_aprep_milsci",
+  "curr_aprep_milsci_pct",
+  "curr_aprep_non_reg_pre",
+  "curr_aprep_non_reg_pre_pct",
+  "curr_aprep_statefedjobs_dass",
+  "curr_aprep_statefedjobs_dass_pct",
+  "curr_aprep_trans_classwk",
+  "curr_aprep_trans_classwk_pct",
+  "curr_nprep",
+  "curr_nprep_pct",
+  "indicator",
+  "reportingyear",
+]

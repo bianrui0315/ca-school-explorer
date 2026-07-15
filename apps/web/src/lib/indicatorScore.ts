@@ -3,6 +3,7 @@ import type { MetricDefinition, School, SubgroupId } from "../types";
 export const INDICATOR_IDS = [
   "a_g_completion_rate",
   "chronic_absenteeism_rate",
+  "college_career_prepared_rate",
   "ela_distance_from_standard",
   "four_year_dropout_rate",
   "four_year_graduation_rate",
@@ -11,13 +12,14 @@ export const INDICATOR_IDS = [
 ] as const;
 
 export const DEFAULT_INDICATOR_WEIGHTS: Record<string, number> = {
-  a_g_completion_rate: 10,
-  chronic_absenteeism_rate: 15,
-  ela_distance_from_standard: 20,
-  four_year_dropout_rate: 10,
-  four_year_graduation_rate: 15,
-  math_distance_from_standard: 20,
-  suspension_rate: 10,
+  a_g_completion_rate: 6,
+  chronic_absenteeism_rate: 12,
+  college_career_prepared_rate: 14,
+  ela_distance_from_standard: 18,
+  four_year_dropout_rate: 8,
+  four_year_graduation_rate: 12,
+  math_distance_from_standard: 18,
+  suspension_rate: 12,
 };
 
 export interface SchoolIndicatorScores {
