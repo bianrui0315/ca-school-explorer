@@ -5,7 +5,19 @@ import type { MetricDefinition, PublicManifest, SchoolSummary } from "../types";
 import { LocationFinder } from "./LocationFinder";
 
 vi.mock("./LocationRecommendationMap", () => ({
-  LocationRecommendationMap: () => <div>Recommendation map</div>,
+  LocationRecommendationMap: ({
+    boundaries,
+    focus,
+  }: {
+    boundaries: unknown[];
+    focus: string;
+  }) => (
+    <div>
+      <span>Recommendation map</span>
+      <span>Map focus: {focus}</span>
+      <span>Rendered boundaries: {boundaries.length}</span>
+    </div>
+  ),
 }));
 
 const metrics: MetricDefinition[] = [
@@ -190,6 +202,17 @@ describe("LocationFinder", () => {
             {
               cdsCode: "19647330000000",
               districtCode: "1964733",
+              geometry: {
+                coordinates: [
+                  [
+                    [-118.7, 34.2],
+                    [-118.5, 34.2],
+                    [-118.5, 34.4],
+                    [-118.7, 34.2],
+                  ],
+                ],
+                type: "Polygon" as const,
+              },
               gradeHigh: "12",
               gradeLow: "PK",
               name: "Los Angeles Unified",
@@ -224,8 +247,12 @@ describe("LocationFinder", () => {
       await screen.findByText("District at this address"),
     ).toBeInTheDocument();
     expect(screen.getByText("Los Angeles Unified")).toBeInTheDocument();
+    expect(screen.getByText("Rendered boundaries: 1")).toBeInTheDocument();
     expect(
       screen.getByText(/does not identify an assigned school/i),
     ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Full district" }));
+    expect(screen.getByText("Map focus: district")).toBeInTheDocument();
   });
 });

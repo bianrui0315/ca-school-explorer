@@ -1,13 +1,9 @@
-import {
-  type FetchFunction,
-  jsonResponse,
-  readJsonWithLimit,
-} from "./geocode";
+import { type FetchFunction, jsonResponse, readJsonWithLimit } from "./geocode";
 
 const DISTRICT_AREA_QUERY_URL =
   "https://services3.arcgis.com/fdvHcZVgB2QSRNkL/arcgis/rest/services/DistrictAreas2526/FeatureServer/0/query";
 const MAX_REQUEST_BYTES = 256;
-const MAX_UPSTREAM_BYTES = 100_000;
+const MAX_UPSTREAM_BYTES = 500_000;
 const CALIFORNIA_BOUNDS = {
   latitudeMax: 42.1,
   latitudeMin: 32.4,
@@ -25,9 +21,24 @@ interface DistrictAttributes {
   Year?: unknown;
 }
 
+interface DistrictPolygon {
+  coordinates: number[][][];
+  type: "Polygon";
+}
+
+interface DistrictMultiPolygon {
+  coordinates: number[][][][];
+  type: "MultiPolygon";
+}
+
+type DistrictGeometry = DistrictMultiPolygon | DistrictPolygon;
+
 interface ArcGisDistrictResponse {
   error?: { message?: unknown };
-  features?: Array<{ attributes?: DistrictAttributes }>;
+  features?: Array<{
+    geometry?: unknown;
+    properties?: DistrictAttributes;
+  }>;
 }
 
 function coordinate(
@@ -38,7 +49,9 @@ function coordinate(
     return undefined;
   }
   const value = (body as Record<string, unknown>)[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
 }
 
 function inCalifornia(latitude: number, longitude: number) {
@@ -50,7 +63,73 @@ function inCalifornia(latitude: number, longitude: number) {
   );
 }
 
-function district(attributes: DistrictAttributes) {
+function validPosition(value: unknown): value is number[] {
+  if (!Array.isArray(value) || value.length < 2) {
+    return false;
+  }
+  const [longitude, latitude] = value;
+  return (
+    typeof longitude === "number" &&
+    Number.isFinite(longitude) &&
+    longitude >= -180 &&
+    longitude <= 180 &&
+    typeof latitude === "number" &&
+    Number.isFinite(latitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    value.every(
+      (coordinate) =>
+        typeof coordinate === "number" && Number.isFinite(coordinate),
+    )
+  );
+}
+
+function validRing(value: unknown): value is number[][] {
+  return (
+    Array.isArray(value) &&
+    value.length >= 4 &&
+    value.every((position) => validPosition(position))
+  );
+}
+
+function validPolygonCoordinates(value: unknown): value is number[][][] {
+  return Array.isArray(value) && value.every((ring) => validRing(ring));
+}
+
+function validMultiPolygonCoordinates(value: unknown): value is number[][][][] {
+  return (
+    Array.isArray(value) &&
+    value.every((polygon) => validPolygonCoordinates(polygon))
+  );
+}
+
+function districtGeometry(value: unknown): DistrictGeometry | null {
+  if (typeof value !== "object" || value === null || !("type" in value)) {
+    return null;
+  }
+  const candidate = value as { coordinates?: unknown; type?: unknown };
+  if (
+    candidate.type === "Polygon" &&
+    validPolygonCoordinates(candidate.coordinates)
+  ) {
+    return {
+      coordinates: candidate.coordinates,
+      type: "Polygon",
+    };
+  }
+  if (
+    candidate.type === "MultiPolygon" &&
+    validMultiPolygonCoordinates(candidate.coordinates)
+  ) {
+    return {
+      coordinates: candidate.coordinates,
+      type: "MultiPolygon",
+    };
+  }
+  return null;
+}
+
+function district(attributes: DistrictAttributes, geometry: unknown) {
   const cdsCode = attributes.CDSCode;
   const districtCode = attributes.CDCode;
   const name = attributes.DistrictName;
@@ -70,6 +149,7 @@ function district(attributes: DistrictAttributes) {
   return {
     cdsCode,
     districtCode,
+    geometry: districtGeometry(geometry),
     gradeHigh:
       typeof attributes.GradeHigh === "string" ? attributes.GradeHigh : null,
     gradeLow:
@@ -85,9 +165,13 @@ export async function handleDistrictBoundaries(
   fetcher: FetchFunction = fetch,
 ) {
   if (request.method !== "POST") {
-    return jsonResponse({ error: "Use POST for district boundary requests." }, 405, {
-      Allow: "POST",
-    });
+    return jsonResponse(
+      { error: "Use POST for district boundary requests." },
+      405,
+      {
+        Allow: "POST",
+      },
+    );
   }
   const contentLength = Number(request.headers.get("Content-Length") ?? 0);
   if (contentLength > MAX_REQUEST_BYTES) {
@@ -119,7 +203,7 @@ export async function handleDistrictBoundaries(
   }
 
   const upstreamUrl = new URL(DISTRICT_AREA_QUERY_URL);
-  upstreamUrl.searchParams.set("f", "json");
+  upstreamUrl.searchParams.set("f", "geojson");
   upstreamUrl.searchParams.set("geometry", `${longitude},${latitude}`);
   upstreamUrl.searchParams.set("geometryType", "esriGeometryPoint");
   upstreamUrl.searchParams.set("inSR", "4326");
@@ -128,7 +212,10 @@ export async function handleDistrictBoundaries(
     "outFields",
     "Year,CDCode,CDSCode,DistrictName,DistrictType,GradeLow,GradeHigh",
   );
-  upstreamUrl.searchParams.set("returnGeometry", "false");
+  upstreamUrl.searchParams.set("returnGeometry", "true");
+  upstreamUrl.searchParams.set("outSR", "4326");
+  upstreamUrl.searchParams.set("geometryPrecision", "5");
+  upstreamUrl.searchParams.set("maxAllowableOffset", "0.001");
 
   try {
     const response = await fetcher(upstreamUrl, {
@@ -160,7 +247,9 @@ export async function handleDistrictBoundaries(
     }
     const seen = new Set<string>();
     const districts = payload.features.flatMap((feature) => {
-      const parsed = feature.attributes ? district(feature.attributes) : undefined;
+      const parsed = feature.properties
+        ? district(feature.properties, feature.geometry)
+        : undefined;
       if (!parsed || seen.has(parsed.cdsCode)) {
         return [];
       }
@@ -169,7 +258,8 @@ export async function handleDistrictBoundaries(
     });
     districts.sort(
       (left, right) =>
-        left.type.localeCompare(right.type) || left.name.localeCompare(right.name),
+        left.type.localeCompare(right.type) ||
+        left.name.localeCompare(right.name),
     );
     return jsonResponse({
       districts,
@@ -187,7 +277,9 @@ export async function handleDistrictBoundaries(
     );
     return jsonResponse(
       { error: "The official district boundary service did not respond." },
-      error instanceof DOMException && error.name === "TimeoutError" ? 504 : 502,
+      error instanceof DOMException && error.name === "TimeoutError"
+        ? 504
+        : 502,
     );
   }
 }

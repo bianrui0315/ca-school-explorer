@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap } from "leaflet";
+import type { Feature, GeoJsonObject } from "geojson";
 import "leaflet/dist/leaflet.css";
+import type { DistrictBoundary } from "../lib/districtBoundaries";
 import type {
   GradeBandRecommendations,
   LocationSchoolMatch,
@@ -13,12 +15,24 @@ const BAND_COLORS = {
   high: "#6a52b3",
 };
 
+const DISTRICT_COLORS: Record<string, string> = {
+  elementary: "#0f8b8d",
+  high: "#7654c4",
+  unified: "#2468e5",
+};
+
+export type LocationMapFocus = "district" | "nearby";
+
 interface LocationRecommendationMapProps {
+  boundaries: DistrictBoundary[];
+  focus: LocationMapFocus;
   groups: GradeBandRecommendations[];
   location: ResolvedLocation;
 }
 
 export function LocationRecommendationMap({
+  boundaries,
+  focus,
   groups,
   location,
 }: LocationRecommendationMapProps) {
@@ -53,14 +67,52 @@ export function LocationRecommendationMap({
           scrollWheelZoom: false,
           zoomControl: true,
         });
+        map.setView([location.latitude, location.longitude], 11);
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
         }).addTo(map);
-        const bounds = L.latLngBounds([
+        const nearbyBounds = L.latLngBounds([
           [location.latitude, location.longitude],
         ]);
+        const districtBounds = L.latLngBounds([]);
+        boundaries.forEach((boundary) => {
+          if (!boundary.geometry) {
+            return;
+          }
+          const color =
+            DISTRICT_COLORS[boundary.type.toLowerCase()] ?? "#2468e5";
+          const feature: Feature = {
+            geometry: boundary.geometry,
+            properties: {
+              cdsCode: boundary.cdsCode,
+              name: boundary.name,
+              type: boundary.type,
+            },
+            type: "Feature",
+          };
+          const layer = L.geoJSON(feature as GeoJsonObject, {
+            style: {
+              color,
+              fillColor: color,
+              fillOpacity: 0.06,
+              lineCap: "round",
+              lineJoin: "round",
+              opacity: 0.92,
+              weight: 3,
+            },
+          }).addTo(map!);
+          const label = document.createElement("div");
+          const name = document.createElement("strong");
+          const details = document.createElement("span");
+          name.textContent = boundary.name;
+          details.textContent = `${boundary.type} · ${boundary.gradeLow ?? "?"}–${boundary.gradeHigh ?? "?"} · ${boundary.schoolYear}`;
+          label.className = "map-popup";
+          label.append(name, details);
+          layer.bindTooltip(label, { sticky: true });
+          districtBounds.extend(layer.getBounds());
+        });
         const centerMarker = L.circleMarker(
           [location.latitude, location.longitude],
           {
@@ -84,7 +136,7 @@ export function LocationRecommendationMap({
           if (school.latitude === null || school.longitude === null) {
             return;
           }
-          bounds.extend([school.latitude, school.longitude]);
+          nearbyBounds.extend([school.latitude, school.longitude]);
           const marker = L.circleMarker([school.latitude, school.longitude], {
             color: "#ffffff",
             fillColor: BAND_COLORS[match.band],
@@ -102,9 +154,19 @@ export function LocationRecommendationMap({
           marker.bindPopup(popup);
           marker.bindTooltip(school.name);
         });
-        map.fitBounds(bounds.pad(0.18), { maxZoom: 13 });
+        const focusBounds =
+          focus === "district" && districtBounds.isValid()
+            ? districtBounds
+            : nearbyBounds;
+        map.fitBounds(focusBounds.pad(focus === "district" ? 0.06 : 0.18), {
+          maxZoom: focus === "district" ? 11 : 13,
+        });
         window.requestAnimationFrame(() => map?.invalidateSize());
-      } catch {
+      } catch (caught) {
+        console.error(
+          "Unable to initialize location recommendation map.",
+          caught,
+        );
         if (active) {
           setError("The location map could not be loaded.");
         }
@@ -116,7 +178,7 @@ export function LocationRecommendationMap({
       active = false;
       map?.remove();
     };
-  }, [location, matches]);
+  }, [boundaries, focus, location, matches]);
 
   if (error) {
     return (

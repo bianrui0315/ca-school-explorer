@@ -96,7 +96,7 @@ describe("district boundary worker", () => {
       Response.json({
         features: [
           {
-            attributes: {
+            properties: {
               CDCode: "1964733",
               CDSCode: "19647330000000",
               DistrictName: "Los Angeles Unified",
@@ -104,6 +104,17 @@ describe("district boundary worker", () => {
               GradeHigh: "12",
               GradeLow: "PK",
               Year: "2025-26",
+            },
+            geometry: {
+              coordinates: [
+                [
+                  [-118.7, 34.2],
+                  [-118.5, 34.2],
+                  [-118.5, 34.4],
+                  [-118.7, 34.2],
+                ],
+              ],
+              type: "Polygon",
             },
           },
         ],
@@ -120,6 +131,7 @@ describe("district boundary worker", () => {
       districts: [
         {
           cdsCode: "19647330000000",
+          geometry: { type: "Polygon" },
           name: "Los Angeles Unified",
           type: "Unified",
         },
@@ -128,7 +140,9 @@ describe("district boundary worker", () => {
     });
     const upstreamUrl = new URL(String(fetcher.mock.calls[0]?.[0]));
     expect(upstreamUrl.searchParams.get("geometry")).toBe("-118.5828,34.2929");
-    expect(upstreamUrl.searchParams.get("returnGeometry")).toBe("false");
+    expect(upstreamUrl.searchParams.get("f")).toBe("geojson");
+    expect(upstreamUrl.searchParams.get("returnGeometry")).toBe("true");
+    expect(upstreamUrl.searchParams.get("maxAllowableOffset")).toBe("0.001");
     expect(response.headers.get("Cache-Control")).toBe("private, no-store");
   });
 

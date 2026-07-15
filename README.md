@@ -22,10 +22,13 @@ The project does not produce a "best schools" ranking. It leads with separate in
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.4.0 release
+## v0.4.1 release
 
-This release connects the comparison experience to a compact, source-attributed export from the canonical database:
+This release gives comparison and area exploration separate, calmer workspaces while retaining the same source-attributed public data foundation:
 
+- clear Compare and Area Explorer navigation, including a dedicated `/area` route that remains directly shareable on the Worker;
+- a larger location map with official CDE district polygons for exact California street-address matches, district-type styling, and nearby or full-district focus controls;
+- a refined pearl, cobalt, teal, and violet visual system with stronger section boundaries, layered surfaces, responsive spacing, and less crowding;
 - a responsive React comparison experience for desktop and mobile;
 - searchable profiles for 9,946 California public schools and 1,023 district baselines;
 - 2,878,340 school and district observations from 20 official CDE snapshots, including the public-school profile snapshot;

@@ -2,7 +2,7 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { ComparisonTable } from "./components/ComparisonTable";
 import { ContextPanel } from "./components/ContextPanel";
 import { ControlBar } from "./components/ControlBar";
-import { Header } from "./components/Header";
+import { Header, type AppPage } from "./components/Header";
 import { Icon } from "./components/Icon";
 import { IndicatorOverview } from "./components/IndicatorOverview";
 import { LocationFinder } from "./components/LocationFinder";
@@ -32,7 +32,14 @@ interface AppProps {
   dataClient?: PublicDataClient;
 }
 
+function pageFromLocation(): AppPage {
+  return typeof window !== "undefined" && window.location.pathname === "/area"
+    ? "area"
+    : "compare";
+}
+
 export default function App({ dataClient = publicDataClient }: AppProps) {
+  const [activePage, setActivePage] = useState<AppPage>(pageFromLocation);
   const [catalog, setCatalog] = useState<PublicCatalog>();
   const [schoolDetails, setSchoolDetails] = useState<Map<string, SchoolDetail>>(
     () => new Map(),
@@ -47,6 +54,30 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   const [subgroup, setSubgroup] = useState<SubgroupId>("all");
   const [startYear, setStartYear] = useState(2024);
   const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    const handlePopState = () => setActivePage(pageFromLocation());
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    document.title =
+      activePage === "area"
+        ? "Area Explorer · California School Explorer"
+        : "California School Explorer";
+  }, [activePage]);
+
+  function navigate(page: AppPage) {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.pathname = page === "area" ? "/area" : "/";
+    nextUrl.search = "";
+    nextUrl.hash = "";
+    window.history.pushState({}, "", nextUrl);
+    setActivePage(page);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
 
   useEffect(() => {
     let active = true;
@@ -142,7 +173,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   if (error) {
     return (
       <div className="app">
-        <Header />
+        <Header activePage={activePage} onNavigate={navigate} />
         <main className="data-state" role="alert">
           <h1>Public data could not be loaded</h1>
           <p>{error}</p>
@@ -157,7 +188,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   if (!catalog) {
     return (
       <div className="app">
-        <Header />
+        <Header activePage={activePage} onNavigate={navigate} />
         <main className="data-state" aria-live="polite">
           <h1>Loading California school data</h1>
           <p>Preparing the statewide school index and official indicators.</p>
@@ -213,94 +244,104 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
 
   return (
     <div className="app" id="top">
-      <Header onDataFreshness={scrollToFreshness} />
-      <main>
-        <section className="intro">
-          <h1>Compare schools across time and context</h1>
-          <p>
-            See subgroup outcomes, school context, and the limits behind every
-            number.
-          </p>
-        </section>
+      <Header
+        activePage={activePage}
+        onDataFreshness={
+          activePage === "compare" ? scrollToFreshness : undefined
+        }
+        onNavigate={navigate}
+      />
+      {activePage === "area" ? (
+        <main className="area-page">
+          <LocationFinder
+            allSchools={catalog.schools}
+            manifest={catalog.manifest}
+            onAdd={addSchool}
+            selectedSchoolIds={selectedSchoolIds}
+          />
+        </main>
+      ) : (
+        <main className="compare-page">
+          <section className="intro">
+            <h1>Compare schools across time and context</h1>
+            <p>
+              See subgroup outcomes, school context, and the limits behind every
+              number.
+            </p>
+          </section>
 
-        <LocationFinder
-          allSchools={catalog.schools}
-          manifest={catalog.manifest}
-          onAdd={addSchool}
-          selectedSchoolIds={selectedSchoolIds}
-        />
+          <div className="workspace">
+            <aside className="left-rail">
+              <SchoolPicker
+                allSchools={catalog.schools}
+                onAdd={addSchool}
+                onClear={() => setSelectedSchoolIds([])}
+                onQueryChange={setQuery}
+                onRemove={(schoolId) =>
+                  setSelectedSchoolIds((current) =>
+                    current.filter((id) => id !== schoolId),
+                  )
+                }
+                filterQuery={deferredQuery}
+                query={query}
+                selectedSchools={selectedSchools}
+              />
+              <MetricNav
+                metrics={catalog.manifest.metrics}
+                onSelect={setMetricId}
+                selectedMetricId={metric.id}
+              />
+            </aside>
 
-        <div className="workspace">
-          <aside className="left-rail">
-            <SchoolPicker
-              allSchools={catalog.schools}
-              onAdd={addSchool}
-              onClear={() => setSelectedSchoolIds([])}
-              onQueryChange={setQuery}
-              onRemove={(schoolId) =>
-                setSelectedSchoolIds((current) =>
-                  current.filter((id) => id !== schoolId),
-                )
-              }
-              filterQuery={deferredQuery}
-              query={query}
-              selectedSchools={selectedSchools}
+            <ControlBar
+              generatedAt={catalog.manifest.generatedAt}
+              onStartYearChange={setStartYear}
+              onSubgroupChange={setSubgroup}
+              release={catalog.manifest.release}
+              startYear={startYear}
+              subgroup={subgroup}
+              subgroups={catalog.manifest.subgroups}
+              years={years}
             />
-            <MetricNav
+
+            <SchoolOverview
+              profileSchoolYears={catalog.manifest.profileSchoolYears}
+              schools={selectedSchools}
+            />
+
+            <TrendChart
+              baseline={baseline}
+              baselineLabel={activeDistrict?.name}
+              endYear={endYear}
+              metric={metric}
+              schools={selectedSchools}
+              startYear={startYear}
+              subgroup={subgroup}
+            />
+
+            <IndicatorOverview
+              endYear={endYear}
               metrics={catalog.manifest.metrics}
-              onSelect={setMetricId}
-              selectedMetricId={metric.id}
+              schools={selectedSchools}
+              subgroup={subgroup}
             />
-          </aside>
 
-          <ControlBar
-            generatedAt={catalog.manifest.generatedAt}
-            onStartYearChange={setStartYear}
-            onSubgroupChange={setSubgroup}
-            release={catalog.manifest.release}
-            startYear={startYear}
-            subgroup={subgroup}
-            subgroups={catalog.manifest.subgroups}
-            years={years}
-          />
+            <ComparisonTable
+              baseline={baseline}
+              baselineLabel={activeDistrict?.name}
+              endYear={endYear}
+              metric={metric}
+              schools={selectedSchools}
+              startYear={startYear}
+              subgroup={subgroup}
+            />
 
-          <SchoolOverview
-            profileSchoolYears={catalog.manifest.profileSchoolYears}
-            schools={selectedSchools}
-          />
-
-          <TrendChart
-            baseline={baseline}
-            baselineLabel={activeDistrict?.name}
-            endYear={endYear}
-            metric={metric}
-            schools={selectedSchools}
-            startYear={startYear}
-            subgroup={subgroup}
-          />
-
-          <IndicatorOverview
-            endYear={endYear}
-            metrics={catalog.manifest.metrics}
-            schools={selectedSchools}
-            subgroup={subgroup}
-          />
-
-          <ComparisonTable
-            baseline={baseline}
-            baselineLabel={activeDistrict?.name}
-            endYear={endYear}
-            metric={metric}
-            schools={selectedSchools}
-            startYear={startYear}
-            subgroup={subgroup}
-          />
-
-          <div id="source-details">
-            <ContextPanel metric={metric} />
+            <div id="source-details">
+              <ContextPanel metric={metric} />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      )}
 
       <footer className="site-footer">
         <span>

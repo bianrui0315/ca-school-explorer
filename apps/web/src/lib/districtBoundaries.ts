@@ -3,12 +3,25 @@ import type { LocationPoint } from "./schoolDistance";
 export interface DistrictBoundary {
   cdsCode: string;
   districtCode: string;
+  geometry: DistrictGeometry | null;
   gradeHigh: string | null;
   gradeLow: string | null;
   name: string;
   schoolYear: string;
   type: string;
 }
+
+export interface DistrictPolygon {
+  coordinates: number[][][];
+  type: "Polygon";
+}
+
+export interface DistrictMultiPolygon {
+  coordinates: number[][][][];
+  type: "MultiPolygon";
+}
+
+export type DistrictGeometry = DistrictMultiPolygon | DistrictPolygon;
 
 export interface DistrictBoundaryResult {
   districts: DistrictBoundary[];

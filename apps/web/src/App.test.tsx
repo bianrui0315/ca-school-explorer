@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { afterEach } from "vitest";
 import App from "./App";
 import type {
   DistrictDetail,
@@ -218,6 +219,10 @@ const catalog: PublicCatalog = {
   },
 };
 
+afterEach(() => {
+  window.history.replaceState({}, "", "/");
+});
+
 function createDataClient(): PublicDataClient {
   return {
     loadCatalog: async () => catalog,
@@ -397,5 +402,43 @@ describe("school comparison experience", () => {
     expect(screen.getAllByRole("link", { name: "Methodology" })).toHaveLength(
       2,
     );
+  });
+
+  it("separates comparison and area exploration without losing app state", async () => {
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    await screen.findByText("Selected schools (3 of 5)");
+    const primaryNavigation = screen.getByRole("navigation", {
+      name: "Primary navigation",
+    });
+    await user.click(
+      within(primaryNavigation).getByRole("link", {
+        name: "Area Explorer",
+        current: false,
+      }),
+    );
+
+    expect(window.location.pathname).toBe("/area");
+    expect(
+      screen.getByRole("heading", { name: "Find schools near a new place" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("searchbox", {
+        name: "Work address or California place",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Selected schools (3 of 5)"),
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      within(primaryNavigation).getByRole("link", {
+        name: "Compare",
+        current: false,
+      }),
+    );
+    expect(window.location.pathname).toBe("/");
+    expect(screen.getByText("Selected schools (3 of 5)")).toBeInTheDocument();
   });
 });
