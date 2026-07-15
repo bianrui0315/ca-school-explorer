@@ -7,8 +7,33 @@ export interface NearbySchoolResult {
   distanceMiles: number;
 }
 
+export interface LocationPoint {
+  latitude: number;
+  longitude: number;
+}
+
 function radians(degrees: number) {
   return (degrees * Math.PI) / 180;
+}
+
+export function distanceFromCoordinates(
+  first: LocationPoint,
+  second: LocationPoint,
+) {
+  const latitudeDelta = radians(second.latitude - first.latitude);
+  const longitudeDelta = radians(second.longitude - first.longitude);
+  const firstLatitude = radians(first.latitude);
+  const secondLatitude = radians(second.latitude);
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(firstLatitude) *
+      Math.cos(secondLatitude) *
+      Math.sin(longitudeDelta / 2) ** 2;
+  return (
+    2 *
+    EARTH_RADIUS_MILES *
+    Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine))
+  );
 }
 
 export function distanceBetweenSchools(
@@ -24,20 +49,23 @@ export function distanceBetweenSchools(
     return undefined;
   }
 
-  const latitudeDelta = radians(second.latitude - first.latitude);
-  const longitudeDelta = radians(second.longitude - first.longitude);
-  const firstLatitude = radians(first.latitude);
-  const secondLatitude = radians(second.latitude);
-  const haversine =
-    Math.sin(latitudeDelta / 2) ** 2 +
-    Math.cos(firstLatitude) *
-      Math.cos(secondLatitude) *
-      Math.sin(longitudeDelta / 2) ** 2;
-  return (
-    2 *
-    EARTH_RADIUS_MILES *
-    Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine))
+  return distanceFromCoordinates(
+    { latitude: first.latitude, longitude: first.longitude },
+    { latitude: second.latitude, longitude: second.longitude },
   );
+}
+
+export function distanceFromLocation(
+  center: LocationPoint,
+  school: SchoolSummary,
+) {
+  if (school.latitude === null || school.longitude === null) {
+    return undefined;
+  }
+  return distanceFromCoordinates(center, {
+    latitude: school.latitude,
+    longitude: school.longitude,
+  });
 }
 
 export function schoolsWithinDistance(

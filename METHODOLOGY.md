@@ -59,6 +59,14 @@ Every comparison may expose three independent baselines:
 
 Protected characteristics may be used to view an officially published subgroup outcome. They are not used to recommend housing locations or describe a neighborhood as suitable for a demographic group.
 
+## Location evidence matches
+
+The location finder accepts a California street address, city, or ZIP code and returns up to three evidence matches for each grade band within a user-selected straight-line radius. Street addresses are resolved by the U.S. Census Geocoder through the Worker and are not stored by this project. City and ZIP searches use an approximate center calculated from published coordinates for matching schools. A mapped school may appear in more than one band when its published grade span crosses bands.
+
+This feature is an exploratory shortlist, not an attendance-boundary lookup or a universal quality ranking. It uses only the latest reliable all-student observation for each available indicator. Elementary and middle school weights are ELA 35%, mathematics 35%, chronic absence 20%, and suspension 10%. High school weights are ELA 20%, mathematics 20%, A–G completion 15%, four-year graduation 15%, chronic absence 10%, four-year dropout 10%, and suspension 10%.
+
+Each source value uses the same 0–100 normalization defined below. A result is marked comparable only when at least 50% of the grade-band evidence weight is available and at least one academic indicator is present. Comparable results are ordered by normalized evidence score, then available evidence coverage, straight-line distance, and school name. Distance is not included in the score and only breaks a remaining tie. The interface displays distance, evidence coverage, indicator values, and school years so families can inspect the result before adding a school to comparison.
+
 ## Normalized indicator view and experimental composite
 
 The seven-axis comparison and experimental composite use the latest selected school year and student subgroup. They transform unlike source units into a transparent 0–100 comparison index:

@@ -10,10 +10,12 @@
     "web:build": "npm --workspace @ca-school-explorer/web run build",
     "web:lint": "npm --workspace @ca-school-explorer/web run lint",
     "web:test": "npm --workspace @ca-school-explorer/web run test",
+    "worker:test": "vitest run worker/index.test.ts",
+    "worker:typecheck": "tsc --noEmit -p tsconfig.worker.json",
     "worker:dev": "npm run web:build && wrangler dev",
     "worker:dry-run": "npm run web:build && wrangler deploy --dry-run",
     "worker:deploy": "npm run web:build && wrangler deploy",
-    "release:check": "npm run web:lint && npm run web:test && npm run worker:dry-run",
+    "release:check": "npm run web:lint && npm run web:test && npm run worker:test && npm run worker:typecheck && npm run worker:dry-run",
     "release:deploy": "npm run worker:deploy"
   },
   "devDependencies": {

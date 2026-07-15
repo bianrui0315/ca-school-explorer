@@ -19,6 +19,14 @@ from ca_school_explorer.database import require_database_url
 
 DEFAULT_OUTPUT_ROOT = Path("apps/web/public/data")
 SCHOOL_INDEX_CHUNK_SIZE = 2_500
+LATEST_OBSERVATION_ENCODING = [
+    "year",
+    "metricIndex",
+    "value",
+    "denominator",
+    "reliabilityCode",
+    "sourceSnapshotId",
+]
 
 
 class PublicDataError(RuntimeError):
@@ -109,6 +117,63 @@ def _observation(
     ]
 
 
+def _latest_all_student_observations(
+    observations: Sequence[Sequence[int | float | None]],
+    all_students_index: int,
+) -> list[list[int | float | None]]:
+    """Return one compact latest observation per metric for statewide discovery."""
+
+    latest: dict[int, Sequence[int | float | None]] = {}
+    for observation in observations:
+        if len(observation) != 8 or observation[2] != all_students_index:
+            continue
+        year, metric_value, source_value = observation[0], observation[1], observation[7]
+        if (
+            not isinstance(year, (int, float))
+            or not isinstance(metric_value, (int, float))
+            or not isinstance(source_value, (int, float))
+        ):
+            raise PublicDataError("invalid compact school observation")
+        metric_index = int(metric_value)
+        current = latest.get(metric_index)
+        candidate_key = (int(year), int(source_value))
+        current_key = (
+            (int(current[0] or -1), int(current[7] or -1)) if current is not None else (-1, -1)
+        )
+        if candidate_key >= current_key:
+            latest[metric_index] = observation
+    return [
+        [
+            observation[0],
+            observation[1],
+            observation[3],
+            observation[5],
+            observation[6],
+            observation[7],
+        ]
+        for _, observation in sorted(latest.items())
+    ]
+
+
+def _attach_latest_observations(
+    schools: Sequence[dict[str, Any]],
+    school_records: Mapping[str, Mapping[str, Mapping[str, Any]]],
+    all_students_index: int,
+) -> int:
+    enriched = 0
+    for school in schools:
+        shard = str(school.get("shard", ""))
+        school_id = str(school.get("id", ""))
+        record = school_records.get(shard, {}).get(school_id)
+        observations = record.get("observations") if isinstance(record, Mapping) else None
+        school["latestObservations"] = _latest_all_student_observations(
+            observations if isinstance(observations, Sequence) else [],
+            all_students_index,
+        )
+        enriched += 1
+    return enriched
+
+
 def _write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="\n") as output:
@@ -123,11 +188,83 @@ def _safe_output_path(output_root: str | Path) -> Path:
     return root
 
 
+def enrich_public_index_evidence(
+    output_root: str | Path = DEFAULT_OUTPUT_ROOT,
+    *,
+    release: str | None = None,
+    generated_at: datetime | None = None,
+) -> int:
+    """Backfill compact latest evidence into an existing published public index."""
+
+    root = _safe_output_path(output_root)
+    manifest_path = root / "manifest.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise PublicDataError(f"unable to read public manifest: {manifest_path}") from error
+    if manifest.get("schemaVersion") != 1:
+        raise PublicDataError("unsupported public data schema version")
+    subgroups = manifest.get("subgroups")
+    if not isinstance(subgroups, list):
+        raise PublicDataError("public manifest is missing subgroup definitions")
+    all_students_index = next(
+        (
+            index
+            for index, subgroup in enumerate(subgroups)
+            if isinstance(subgroup, Mapping) and subgroup.get("id") == "all"
+        ),
+        None,
+    )
+    if all_students_index is None:
+        raise PublicDataError("public manifest is missing the all-students subgroup")
+
+    shard_cache: dict[str, Mapping[str, Any]] = {}
+    enriched = 0
+    index_files = manifest.get("schoolIndexFiles")
+    if not isinstance(index_files, list):
+        raise PublicDataError("public manifest is missing school index files")
+    for relative_path in index_files:
+        index_path = root / str(relative_path)
+        try:
+            index_payload = json.loads(index_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise PublicDataError(f"unable to read school index: {index_path}") from error
+        schools = index_payload.get("schools")
+        if not isinstance(schools, list):
+            raise PublicDataError(f"school index is missing schools: {index_path}")
+        for school in schools:
+            if not isinstance(school, dict):
+                continue
+            shard = str(school.get("shard", ""))
+            if shard not in shard_cache:
+                shard_path = root / "schools" / f"{shard}.json"
+                try:
+                    shard_payload = json.loads(shard_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError) as error:
+                    raise PublicDataError(f"unable to read school shard: {shard_path}") from error
+                records = shard_payload.get("schools")
+                if not isinstance(records, Mapping):
+                    raise PublicDataError(f"school shard is missing records: {shard_path}")
+                shard_cache[shard] = records
+            enriched += _attach_latest_observations(
+                [school], {shard: shard_cache[shard]}, all_students_index
+            )
+        _write_json(index_path, index_payload)
+
+    manifest["latestObservationEncoding"] = LATEST_OBSERVATION_ENCODING
+    if release is not None:
+        manifest["release"] = release
+        generated = (generated_at or datetime.now(UTC)).astimezone(UTC)
+        manifest["generatedAt"] = generated.isoformat().replace("+00:00", "Z")
+    _write_json(manifest_path, manifest)
+    return enriched
+
+
 def publish_public_data(
     database_url: str,
     output_root: str | Path = DEFAULT_OUTPUT_ROOT,
     *,
-    release: str = "0.3.0",
+    release: str = "0.3.1",
     generated_at: datetime | None = None,
 ) -> PublishResult:
     """Export a compact statewide index and county-sharded indicator bundles."""
@@ -433,6 +570,12 @@ def publish_public_data(
                 )
                 observation_count += 1
 
+            _attach_latest_observations(
+                schools,
+                school_records,
+                subgroup_indexes["all"],
+            )
+
             county_codes = sorted(district_names)
             for county_code in county_codes:
                 districts = {
@@ -495,6 +638,7 @@ def publish_public_data(
                 "reliabilityCode",
                 "sourceSnapshotId",
             ],
+            "latestObservationEncoding": LATEST_OBSERVATION_ENCODING,
             "reliabilityCodes": {
                 "0": "reliable",
                 "1": "small-sample",

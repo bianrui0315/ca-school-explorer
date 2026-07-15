@@ -31,16 +31,26 @@ Status: implemented using the existing versioned public-school directory bundle.
 - Keep a persistent warning that nearby does not mean assigned or eligible.
 - Evaluate a geocoding provider before accepting arbitrary household addresses; do not infer attendance boundaries without authoritative boundary data.
 
-Status: search-result maps and radius-based nearby-school discovery are implemented using published school coordinates. Household-address geocoding and attendance boundaries remain deferred.
+Status: search-result maps and radius-based nearby-school discovery are implemented using published school coordinates. A work-address, city, or ZIP finder now returns transparent evidence matches by grade band. Street addresses use the U.S. Census Geocoder through the Worker and are not stored by this project. Attendance boundaries remain deferred.
 
-### 4. Dashboard context
+### 4. Location evidence matches
+
+- Accept 5, 10, 15, 25, and 50 mile radii around a California work address, city, or ZIP.
+- Group a short list by elementary, middle, and high school grades served.
+- Order only by documented, coverage-aware indicator evidence; use distance only as a tie-break.
+- Show distance, evidence coverage, latest values and years, and the non-assignment warning.
+- Let a family add a result to the existing comparison without duplicating the analytical workflow.
+
+Status: implemented with latest reliable all-student observations in the public school index and no AI model dependency.
+
+### 5. Dashboard context
 
 - Add county and statewide reference series where metric grain and subgroup definitions reconcile.
 - Add indicator coverage and missing-data summaries.
 - Add reproducible comparison links with selected schools, metric, subgroup, and year range.
 - Improve small-screen navigation and comparison-table scanning.
 
-### 5. Data expansion
+### 6. Data expansion
 
 - Implement the California Dashboard College/Career Indicator as a distinct metric.
 - Evaluate college-going and postsecondary outcome sources.
@@ -62,3 +72,5 @@ Status: search-result maps and radius-based nearby-school discovery are implemen
 - Selected schools are excluded from results and no more than five schools can be compared.
 - Search and filters work at desktop and mobile widths with keyboard-visible focus states.
 - No search result claims attendance assignment or enrollment eligibility.
+- A real California street address resolves through the Worker and returns grouped, evidence-labeled results without storing the submitted address.
+- Changing the radius recomputes the shortlist and map without another geocoding request.

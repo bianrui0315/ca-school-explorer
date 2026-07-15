@@ -30,6 +30,14 @@ Observations are compact arrays whose fields are declared by `manifest.observati
 
 Suppressed values remain `null`. Consumers must not reconstruct them from other observations.
 
+School index profiles may include `latestObservations`, a compact summary of the latest all-student record per metric. Its fields are declared by `manifest.latestObservationEncoding`:
+
+```text
+[year, metricIndex, value, denominator, reliabilityCode, sourceSnapshotId]
+```
+
+This optional summary supports statewide and radius-based discovery without loading every detail shard. It preserves null values and source reliability; clients must apply the same suppression rules as full observations. School detail shards remain the authoritative browser read model for subgroup and time-series comparison.
+
 ## Versioning
 
 Adding optional manifest or profile fields is backward compatible. Changing field meaning, observation order,
