@@ -103,9 +103,7 @@ def _peer_context(metadata: Mapping[str, Any]) -> dict[str, float | None]:
     return {
         "englishLearnerPercent": percent("English Learner"),
         "studentsWithDisabilitiesPercent": percent("Students with Disabilities"),
-        "socioeconomicallyDisadvantagedPercent": percent(
-            "Socioeconomically Disadvantaged"
-        ),
+        "socioeconomicallyDisadvantagedPercent": percent("Socioeconomically Disadvantaged"),
     }
 
 
