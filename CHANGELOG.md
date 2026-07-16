@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - A live-site URL, linked product preview, and Buy Me a Coffee support section in the repository README.
 - A compact support strip on every app route with a direct support link and accessible QR-code panel.
 - A README section documenting how OpenAI Codex and GPT-5.6 supported the project's human-reviewed engineering workflow.
+- A dated Build Week collaboration record with commit evidence, concrete Codex acceleration examples, and the project's human product and governance decisions.
+- A source-by-source data, service, attribution, privacy, and redistribution review covering CDE, California Open Data, the Census Geocoder, OpenStreetMap, and top-level software dependencies.
+
+### Changed
+
+- The address-search disclosure now includes a U.S. Census Bureau Geocoder non-endorsement notice.
 
 ## [0.5.1] - 2026-07-16
 

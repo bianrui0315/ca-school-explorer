@@ -12,9 +12,20 @@ California School Explorer is an open-source project that turns fragmented publi
 
 ## Built with OpenAI Codex and GPT-5.6
 
-OpenAI Codex with GPT-5.6 served as an engineering collaborator throughout the project. It helped investigate unfamiliar public-data schemas, design deterministic adapters and database migrations, implement the Python, React, TypeScript, PostgreSQL, and Cloudflare code, generate regression tests, review accessibility and responsive behavior, and verify releases against the live application.
+California School Explorer was created during OpenAI Build Week. The submission period opened at 9:00 a.m. PDT on July 13, 2026; the repository's first commit was created at 12:03 p.m. PDT that day. The primary Codex task used GPT-5.6 (`gpt-5.6-sol`) for the core build, and its session identifier is supplied privately through the required Devpost field.
 
-The work remained human-directed and reviewable: requirements were broken into small releases, source files were checksum-pinned, calculations were reconciled against official totals, changes passed automated checks, and the resulting code and methodology were published for inspection. Codex and GPT-5.6 are not used to generate school outcomes, infer suppressed values, or produce an official school rating. The public metrics are reproducibly derived from cited government datasets, and the optional composite remains transparent and user-editable.
+OpenAI Codex with GPT-5.6 served as an engineering collaborator throughout the project. It accelerated source-schema investigation, deterministic adapter and migration design, implementation across Python, React, TypeScript, PostgreSQL, and Cloudflare, regression-test generation, responsive and accessibility review, and live-release verification. Representative work is visible in the dated commit history:
+
+| Build Week date | Shipped work | Representative commits |
+| --- | --- | --- |
+| July 13 | Product foundation, canonical database, official-data adapters, first release, historical trends, profile chart, and map | `88eb23b`, `1ab81f1`, `2cc347e`, `011d019` |
+| July 14 | School discovery, address and radius search, evidence ordering, filters, personalization, and shareable location results | `46ac8db`, `fad3c2d`, `3553899`, `960b497` |
+| July 15 | College/career data, district boundaries, visual redesign, geographic references, and similar-context matching | `86eee6e`, `b955ca1`, `2b9d2b9`, `5bdb0f7` |
+| July 16 | Teaching resources, unified school profiles, public deployment evidence, and submission documentation | `01256d2`, `0e640ab`, `7b32f18`, `79015de` |
+
+The work remained human-directed and reviewable. The project owner made the key product and governance decisions: do not publish a universal school ranking; preserve suppression and missingness; keep unlike denominators separate; prevent protected characteristics from steering housing results; describe district jurisdiction without claiming attendance assignment; and use a static-first public release backed by a reproducible PostgreSQL source of truth. Codex and GPT-5.6 are not used to generate school outcomes, infer suppressed values, or produce an official school rating. The public metrics are reproducibly derived from cited government datasets, and the optional composite remains transparent and user-editable.
+
+See the [Build Week collaboration record](docs/build-week.md) for the development timeline, concrete acceleration examples, human decisions, and verification evidence.
 
 The product is designed around questions such as:
 
@@ -95,7 +106,7 @@ This release adds shareable single-school profiles while retaining the Compare, 
 
 The current public bundle contains three adjacent outcome years for the implemented Dashboard and DataQuest measures. CDE advises caution when comparing years because processing and reporting changes may affect results; missing and suppressed values remain unconnected and are never inferred. College-going uses a different high-school-completer denominator, can be affected by National Student Clearinghouse privacy blocks, and currently lags the other indicators. The location finder uses transparent, coverage-aware evidence ordering rather than a universal school ranking. Its personalization settings use grade, public-school type, evidence coverage, and user-selected evidence priorities; protected characteristics do not steer housing-location results. The official district-area lookup confirms district jurisdiction at an exact geocoded point, not school attendance assignment. Nearby never means assigned or eligible. Similar-context matching describes institutional profile similarity, not quality, assignment, or eligibility. Private-school directory context remains a roadmap item. The website is an independent informational project, not a CDE product or endorsement.
 
-Raw CDE files are not committed or redistributed. The repository publishes selected factual derived records with source metadata, suppression preserved, and no claim that source data is covered by the Apache-2.0 code license. Formal source-specific permission review remains an open governance item; see [Data Sources and Licensing Policy](DATA_SOURCES.md).
+Raw CDE files are not committed or redistributed. The repository publishes selected factual derived records with source metadata, suppression preserved, and no claim that source data is covered by the Apache-2.0 code license. Formal source-specific permission review remains an open governance item; see the [Data Sources and Licensing Policy](DATA_SOURCES.md) and the [July 16, 2026 data and service usage review](docs/compliance/data-and-service-usage-review-2026-07-16.md).
 
 ## Quick start
 
@@ -183,6 +194,8 @@ See [Cloudflare Workers deployment](docs/cloudflare-workers.md) for the deployme
 ## Documentation
 
 - [Data sources and licensing](DATA_SOURCES.md)
+- [Build Week collaboration record](docs/build-week.md)
+- [Data and service usage review](docs/compliance/data-and-service-usage-review-2026-07-16.md)
 - [Methodology](METHODOLOGY.md)
 - [Roadmap](ROADMAP.md)
 - [Architecture](docs/architecture.md)

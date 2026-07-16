@@ -19,6 +19,8 @@ street address -> same-origin /api/geocode -> U.S. Census Geocoder
                                          -> bounded California match
 ```
 
+The finder identifies the U.S. Census Bureau Geocoder and displays a non-endorsement notice. This follows the Census API attribution principle while naming the actual geocoding service used by the application. Submitted addresses and returned coordinates are not written to project storage.
+
 The committed public read model contains 9,946 school profiles, 1,023 district baselines, and 2,739,483 observations. It is approximately 89 MB across about 500 cacheable files. The statewide search index is split into four manifest-declared files and includes compact latest all-student evidence for local matching, so the browser does not fetch school-detail shards for every nearby candidate. The local canonical database is approximately 2.9 GB because it retains complete provenance, all aggregation levels, and ingestion indexes.
 
 The interactive map loads Leaflet only when the map section approaches the viewport. Map tiles are requested directly by the visitor's browser from the official OpenStreetMap tile endpoint, with visible contributor attribution and normal browser caching. The Worker does not proxy, prefetch, or bulk-download tiles. OpenStreetMap provides this community service on a best-effort basis; sustained high traffic should move to a dedicated OSM-derived tile provider without changing the application data model.

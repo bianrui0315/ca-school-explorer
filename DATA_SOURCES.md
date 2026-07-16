@@ -32,7 +32,25 @@ CDE's website copyright statement says that permission may be required to reprod
 
 See the versioned source catalog at [`config/sources.toml`](config/sources.toml). A source with `license_review = "required"` is not approved for redistribution.
 
+The catalog review states mean:
+
+- `approved`: the specific dataset carries an explicit reuse status, such as the Public Domain designation on the California Open Data portal;
+- `required`: public access has been verified, but the project has not obtained or documented source-specific permission to reproduce the publisher's source file;
+- `restricted`: the source must not be included in a public release under the current terms.
+
 The website publishes selected factual derived records rather than copies of CDE source files. Each public release carries source names, landing pages, release years, and immutable snapshot digests; suppression remains null and cannot be reconstructed by the client. The website does not relicense source data, reproduce CDE branding, or claim CDE endorsement. This technical boundary reduces redistribution risk but is not a substitute for formal source-specific permission review.
+
+## July 16, 2026 review
+
+The dated [data and service usage review](docs/compliance/data-and-service-usage-review-2026-07-16.md) covers all active source families and runtime services. Its principal findings are:
+
+- California Public Schools 2025–26 and California School District Areas 2025–26 are explicitly marked `Public domain` on the California Open Data portal and remain `approved`;
+- CDE makes the outcome and resource files publicly available for informational, research, and policy use, but its general copyright statement separately requires permission to reproduce website material unless otherwise noted, so those source families remain `required`;
+- the public bundle contains selected normalized factual records, not raw CDE files, website text, branding, seals, or source-document replicas;
+- the U.S. Census Geocoder is used only for user-initiated location lookup, with a visible source and non-endorsement notice and no project-side address storage;
+- OpenStreetMap tiles are loaded only for normal interactive viewing with visible attribution, browser caching, the required tile URL, and no proxying, bulk download, or offline feature.
+
+This review is an engineering governance record, not legal advice or a representation that a publisher has granted permission beyond its published terms. Written confirmation or qualified legal review remains recommended before commercial use or broader redistribution.
 
 ## Implemented official sources
 

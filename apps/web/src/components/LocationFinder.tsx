@@ -796,7 +796,8 @@ export function LocationFinder({
             City and ZIP searches use approximate centers derived from published
             school locations and do not claim a district match. A share link
             contains the displayed search center and is created only when you
-            choose Copy share link.
+            choose Copy share link. This product uses the U.S. Census Bureau
+            Geocoder but is not endorsed or certified by the Census Bureau.
           </p>
         </div>
       ) : null}
