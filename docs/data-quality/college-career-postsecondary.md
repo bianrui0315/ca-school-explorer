@@ -48,7 +48,7 @@ CCI 2022–23 does not contain the later `LTEL` reporting category. The 2023–2
 
 ## District boundary validation
 
-The Worker sends exact geocoded coordinates by same-origin POST to the CDE `DistrictAreas2526` ArcGIS service with `returnGeometry=false`. Requests and upstream responses have byte limits and an eight-second timeout; responses are marked `private, no-store`. A test point at 12450 Mason Avenue in Porter Ranch returns Los Angeles Unified, CDS `19647330000000`, as a 2025–26 unified district serving PK–12.
+The Worker sends exact geocoded coordinates by same-origin POST to the CDE `DistrictAreas2526` ArcGIS service. The query returns intersecting districts plus simplified display geometry with bounded precision, selected fields, a 500 KB response limit, and an eight-second timeout; responses are marked `private, no-store`. A test point at 12450 Mason Avenue in Porter Ranch returns Los Angeles Unified, CDS `19647330000000`, as a 2025–26 unified district serving PK–12.
 
 District areas can overlap where separate elementary and high school districts serve the same territory, so the API returns every intersecting district and preserves district type and grade span. The result confirms district jurisdiction only. It does not claim an assigned school, transfer right, or enrollment eligibility.
 

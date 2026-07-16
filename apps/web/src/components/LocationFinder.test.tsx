@@ -278,6 +278,9 @@ describe("LocationFinder", () => {
     expect(
       screen.getByText(/does not identify an assigned school/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/not endorsed or certified by the Census Bureau/i),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Full district" }));
     expect(screen.getByText("Map focus: district")).toBeInTheDocument();
