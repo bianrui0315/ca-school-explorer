@@ -143,6 +143,43 @@ export interface SourceSnapshot {
   termsStatus: string;
 }
 
+export interface ResourceMetricDefinition {
+  id: string;
+  label: string;
+  description: string;
+  unit:
+    | "count"
+    | "fte"
+    | "percent"
+    | "years"
+    | "students_per_class"
+    | "pupils_per_fte";
+  methodologyVersion: string;
+  sourceKey: string;
+  sourceLabel: string;
+  sourceUrl: string;
+}
+
+export interface ResourceObservation {
+  schoolYear: string;
+  dimension: string;
+  value: number;
+  numerator: number | null;
+  denominator: number | null;
+  sourceSnapshotId: number;
+  metadata: Record<string, unknown>;
+}
+
+export type ResourceMetricSeries = Record<
+  string,
+  Record<string, ResourceObservation[]>
+>;
+
+export interface SchoolResources {
+  id: string;
+  metrics: ResourceMetricSeries;
+}
+
 export interface PublicManifest {
   schemaVersion: 1;
   release: string;
@@ -159,6 +196,11 @@ export interface PublicManifest {
   referenceCount?: number;
   referenceFileCount?: number;
   referenceObservationCount?: number;
+  resourceSchoolYears?: string[];
+  resourceObservationCount?: number;
+  resourceShardCount?: number;
+  resourceMetrics?: ResourceMetricDefinition[];
+  resourceObservationEncoding?: string[];
   metrics: MetricDefinition[];
   subgroups: SubgroupDefinition[];
   sourceSnapshots: SourceSnapshot[];
@@ -178,6 +220,10 @@ export interface PublicDataClient {
     summary: SchoolSummary,
     catalog: PublicCatalog,
   ) => Promise<SchoolDetail>;
+  loadSchoolResources: (
+    summary: SchoolSummary,
+    catalog: PublicCatalog,
+  ) => Promise<SchoolResources>;
   loadDistrict: (
     countyCode: string,
     districtId: string,

@@ -39,6 +39,21 @@ const manifest: PublicManifest = {
   observationCount: 0,
   schoolShardCount: 1,
   districtFileCount: 1,
+  resourceSchoolYears: ["2025-26"],
+  resourceObservationCount: 1,
+  resourceShardCount: 1,
+  resourceMetrics: [
+    {
+      id: "teacher_experience_average",
+      label: "Average teacher experience",
+      description: "Average total years of experience.",
+      unit: "years",
+      methodologyVersion: "test-v1",
+      sourceKey: "cde_staff_experience",
+      sourceLabel: "CDE Staff Experience Data",
+      sourceUrl: "https://example.com/staff",
+    },
+  ],
   metrics: [],
   subgroups: [],
   sourceSnapshots: [],
@@ -59,43 +74,62 @@ describe("public data release caching", () => {
         ? manifest
         : url.includes("schools-index")
           ? { schemaVersion: 1, schools: [school] }
-          : url.includes("/schools/")
+          : url.includes("/resources/")
             ? {
                 schemaVersion: 1,
                 shard: school.shard,
                 schools: {
-                  [school.id]: { demographics: {}, observations: [] },
+                  [school.id]: [
+                    [
+                      "2025-26",
+                      0,
+                      "total",
+                      13,
+                      null,
+                      87,
+                      26,
+                      { schoolGradeSpan: "GS_912" },
+                    ],
+                  ],
                 },
               }
-            : url.includes("/references/counties/")
+            : url.includes("/schools/")
               ? {
                   schemaVersion: 1,
-                  id: "01000000000000",
-                  name: "Alameda",
-                  level: "county",
-                  countyCode: "01",
-                  observations: [],
-                  basisByMetric: {},
+                  shard: school.shard,
+                  schools: {
+                    [school.id]: { demographics: {}, observations: [] },
+                  },
                 }
-              : url.includes("/references/state")
+              : url.includes("/references/counties/")
                 ? {
                     schemaVersion: 1,
-                    id: "00000000000000",
-                    name: "California",
-                    level: "state",
+                    id: "01000000000000",
+                    name: "Alameda",
+                    level: "county",
+                    countyCode: "01",
                     observations: [],
                     basisByMetric: {},
                   }
-                : {
-                    schemaVersion: 1,
-                    countyCode: "01",
-                    districts: {
-                      [school.districtId]: {
-                        name: school.district,
-                        observations: [],
+                : url.includes("/references/state")
+                  ? {
+                      schemaVersion: 1,
+                      id: "00000000000000",
+                      name: "California",
+                      level: "state",
+                      observations: [],
+                      basisByMetric: {},
+                    }
+                  : {
+                      schemaVersion: 1,
+                      countyCode: "01",
+                      districts: {
+                        [school.districtId]: {
+                          name: school.district,
+                          observations: [],
+                        },
                       },
-                    },
-                  };
+                    };
       return new Response(JSON.stringify(payload), { status: 200 });
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -103,6 +137,10 @@ describe("public data release caching", () => {
     const { publicDataClient } = await import("./publicData");
     const catalog = await publicDataClient.loadCatalog();
     await publicDataClient.loadSchool(school, catalog);
+    const resources = await publicDataClient.loadSchoolResources(
+      school,
+      catalog,
+    );
     await publicDataClient.loadDistrict(
       school.countyCode,
       school.districtId,
@@ -121,6 +159,13 @@ describe("public data release caching", () => {
       "/data/schools/01-0.json?release=0.2.1",
       { cache: "force-cache" },
     );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/data/resources/01-0.json?release=0.2.1",
+      { cache: "force-cache" },
+    );
+    expect(
+      resources.metrics.teacher_experience_average?.total?.[0]?.value,
+    ).toBe(13);
     expect(fetchMock).toHaveBeenCalledWith(
       "/data/districts/01.json?release=0.2.1",
       { cache: "force-cache" },

@@ -12,6 +12,7 @@ import { SchoolPicker } from "./components/SchoolPicker";
 import { SchoolOverview } from "./components/SchoolOverview";
 import { SimilarContext } from "./components/SimilarContext";
 import { TrendChart } from "./components/TrendChart";
+import { TeachingResources } from "./components/TeachingResources";
 import { publicDataClient } from "./data/publicData";
 import {
   buildComparisonShareUrl,
@@ -31,6 +32,7 @@ import type {
   ReferenceMode,
   School,
   SchoolDetail,
+  SchoolResources,
   SubgroupId,
 } from "./types";
 
@@ -46,9 +48,15 @@ interface AppProps {
 }
 
 function pageFromLocation(): AppPage {
-  return typeof window !== "undefined" && window.location.pathname === "/area"
-    ? "area"
-    : "compare";
+  if (typeof window !== "undefined") {
+    if (window.location.pathname === "/area") {
+      return "area";
+    }
+    if (window.location.pathname === "/resources") {
+      return "resources";
+    }
+  }
+  return "compare";
 }
 
 export default function App({ dataClient = publicDataClient }: AppProps) {
@@ -57,6 +65,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   const [schoolDetails, setSchoolDetails] = useState<Map<string, SchoolDetail>>(
     () => new Map(),
   );
+  const [schoolResources, setSchoolResources] = useState<
+    Map<string, SchoolResources>
+  >(() => new Map());
   const [selectedSchoolIds, setSelectedSchoolIds] = useState<string[]>([]);
   const [district, setDistrict] = useState<DistrictDetail>();
   const [geographicReferences, setGeographicReferences] =
@@ -90,12 +101,15 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     document.title =
       activePage === "area"
         ? "Area Explorer · California School Explorer"
-        : "California School Explorer";
+        : activePage === "resources"
+          ? "Teaching & resources · California School Explorer"
+          : "California School Explorer";
   }, [activePage]);
 
   function navigate(page: AppPage) {
     const nextUrl = new URL(window.location.href);
-    nextUrl.pathname = page === "area" ? "/area" : "/";
+    nextUrl.pathname =
+      page === "area" ? "/area" : page === "resources" ? "/resources" : "/";
     nextUrl.search = "";
     nextUrl.hash = "";
     window.history.pushState({}, "", nextUrl);
@@ -187,6 +201,63 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       }),
     [schoolDetails, selectedSchoolIds],
   );
+
+  useEffect(() => {
+    let active = true;
+    if (
+      activePage !== "resources" ||
+      !catalog ||
+      selectedSchoolIds.length === 0
+    ) {
+      return () => {
+        active = false;
+      };
+    }
+    const summaries = selectedSchoolIds.flatMap((schoolId) => {
+      if (schoolResources.has(schoolId)) {
+        return [];
+      }
+      const summary = schoolIndex.get(schoolId);
+      return summary ? [summary] : [];
+    });
+    if (summaries.length === 0) {
+      return () => {
+        active = false;
+      };
+    }
+    void Promise.allSettled(
+      summaries.map((summary) =>
+        dataClient.loadSchoolResources(summary, catalog),
+      ),
+    ).then((results) => {
+      if (!active) {
+        return;
+      }
+      const loaded = results.map((result, index) =>
+        result.status === "fulfilled"
+          ? result.value
+          : { id: summaries[index]!.id, metrics: {} },
+      );
+      setSchoolResources((current) => {
+        const next = new Map(current);
+        loaded.forEach((resource) => next.set(resource.id, resource));
+        return next;
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, [
+    activePage,
+    catalog,
+    dataClient,
+    schoolIndex,
+    schoolResources,
+    selectedSchoolIds,
+  ]);
+  const resourcesLoading =
+    activePage === "resources" &&
+    selectedSchoolIds.some((schoolId) => !schoolResources.has(schoolId));
   const effectivePeerAnchorId =
     peerAnchorId && selectedSchoolIds.includes(peerAnchorId)
       ? peerAnchorId
@@ -515,6 +586,26 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             selectedSchoolIds={selectedSchoolIds}
           />
         </main>
+      ) : activePage === "resources" ? (
+        <TeachingResources
+          catalog={catalog}
+          filterQuery={deferredQuery}
+          onAdd={addSchool}
+          onClear={() => {
+            setSelectedSchoolIds([]);
+            setShareMessage(undefined);
+          }}
+          onQueryChange={setQuery}
+          onRemove={(schoolId) => {
+            setSelectedSchoolIds((current) =>
+              current.filter((id) => id !== schoolId),
+            );
+          }}
+          query={query}
+          resources={schoolResources}
+          resourcesLoading={resourcesLoading}
+          selectedSchools={selectedSchools}
+        />
       ) : (
         <main className="compare-page">
           <section className="intro">

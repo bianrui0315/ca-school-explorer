@@ -1,0 +1,33 @@
+manifest_version = 1
+dataset_id = "cde_sarc_elementary_class_size_2024_25"
+adapter = "sarc_elementary_class_size_v1"
+schema_version = "cde-sarc-2024-25-v1"
+source_id = "cde_sarc"
+source_name = "CDE School Accountability Report Card Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"
+download_url = "https://www3.cde.ca.gov/researchfiles/sarc/sarc2425/acselm.txt"
+academic_year = "2024-25"
+release_date = "2026-03-27"
+filename = "acselm.txt"
+media_type = "text/tab-separated-values"
+encoding = "windows-1252"
+sha256 = "b5591cce799bf8768544e1a02aac31dde7ef238156a9ea88803362f20c588a73"
+byte_size = 2150927
+record_count = 10399
+terms_status = "review-required"
+columns = [
+  "CDSCODE", "C", "D", "S", "SarcYear",
+  "AVGK_Y1", "AVG1_Y1", "AVG2_Y1", "AVG3_Y1", "AVG4_Y1", "AVG5_Y1", "AVG6_Y1", "AVGO_Y1",
+  "NCSK_Y1", "NCS1_Y1", "NCS2_Y1", "NCS3_Y1", "NCS4_Y1", "NCS5_Y1", "NCS6_Y1", "NCSO_Y1",
+  "NCMK_Y1", "NCM1_Y1", "NCM2_Y1", "NCM3_Y1", "NCM4_Y1", "NCM5_Y1", "NCM6_Y1", "NCMO_Y1",
+  "NCLK_Y1", "NCL1_Y1", "NCL2_Y1", "NCL3_Y1", "NCL4_Y1", "NCL5_Y1", "NCL6_Y1", "NCLO_Y1",
+  "AVGK_Y2", "AVG1_Y2", "AVG2_Y2", "AVG3_Y2", "AVG4_Y2", "AVG5_Y2", "AVG6_Y2", "AVGO_Y2",
+  "NCSK_Y2", "NCS1_Y2", "NCS2_Y2", "NCS3_Y2", "NCS4_Y2", "NCS5_Y2", "NCS6_Y2", "NCSO_Y2",
+  "NCMK_Y2", "NCM1_Y2", "NCM2_Y2", "NCM3_Y2", "NCM4_Y2", "NCM5_Y2", "NCM6_Y2", "NCMO_Y2",
+  "NCLK_Y2", "NCL1_Y2", "NCL2_Y2", "NCL3_Y2", "NCL4_Y2", "NCL5_Y2", "NCL6_Y2", "NCLO_Y2",
+  "AVGK_Y3", "AVG1_Y3", "AVG2_Y3", "AVG3_Y3", "AVG4_Y3", "AVG5_Y3", "AVG6_Y3", "AVGO_Y3",
+  "NCSK_Y3", "NCS1_Y3", "NCS2_Y3", "NCS3_Y3", "NCS4_Y3", "NCS5_Y3", "NCS6_Y3", "NCSO_Y3",
+  "NCMK_Y3", "NCM1_Y3", "NCM2_Y3", "NCM3_Y3", "NCM4_Y3", "NCM5_Y3", "NCM6_Y3", "NCMO_Y3",
+  "NCLK_Y3", "NCL1_Y3", "NCL2_Y3", "NCL3_Y3", "NCL4_Y3", "NCL5_Y3", "NCL6_Y3", "NCLO_Y3",
+]

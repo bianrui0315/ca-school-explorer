@@ -17,6 +17,20 @@ The production pipeline ingests five core California Department of Education out
 
 The database also contains 9,946 public-school profiles from CDE's public-domain 2025–26 geographic layer. Every profile has quality-controlled coordinates and includes school type, level, grade range, charter, virtual, magnet, Title I, DASS, enrollment, and selected staff context.
 
+Release 0.5.0 adds a separate school-resource fact model:
+
+| Snapshot | Physical rows | Normalized database observations | Years represented |
+| --- | ---: | ---: | --- |
+| SARC Teacher Preparation and Placement | 10,549 | 148,175 | 2021–22 through 2023–24 |
+| SARC Elementary Average Class Size | 10,399 | 131,319 | 2022–23 through 2024–25 |
+| SARC Secondary Average Class Size | 6,778 | 54,112 | 2022–23 through 2024–25 |
+| SARC Pupils per Academic Counselor | 10,278 | 5,817 | 2024–25 |
+| SARC Student Support Services Staff | 10,278 | 23,077 | 2024–25 |
+| Staff Experience | 374,325 | 70,098 | 2025–26 |
+| **Total** | **422,607** | **432,598** | **2021–22 through 2025–26** |
+
+One physical row can produce multiple long-form observations. Resource values retain their grade, subject, assignment category, experience category, or support role and are not forced into the student-subgroup grain used by outcome facts.
+
 Every versioned manifest records the release, exact URL, encoding, byte size, record count, SHA-256 digest, and complete header contract. Source files are not committed. `fetch-dataset` downloads into `data/raw/<source_id>/`, verifies the file, and uses an atomic rename only after verification succeeds.
 
 The A–G completion rate, Dashboard CCI Prepared rate, and 12-month college-going rate are modeled separately. They use different populations, qualifying events, release schedules, and interpretation rules.
@@ -59,6 +73,15 @@ ca-school-explorer inspect-dataset --manifest "$MANIFEST"
 ca-school-explorer ingest-school-geography --manifest "$MANIFEST"
 ```
 
+Teaching-resource snapshots use their dedicated load command:
+
+```bash
+MANIFEST=config/datasets/cde_staff_experience_2025_26.toml
+ca-school-explorer fetch-dataset --manifest "$MANIFEST"
+ca-school-explorer inspect-dataset --manifest "$MANIFEST"
+ca-school-explorer ingest-school-resources --manifest "$MANIFEST"
+```
+
 The ingestion command validates the complete file before changing database state. A successful repeat with the same source digest reuses the imported snapshot and does not duplicate facts.
 
 Publish the browser-safe read model after all expected snapshots have imported successfully:
@@ -67,7 +90,7 @@ Publish the browser-safe read model after all expected snapshots have imported s
 make data-publish
 ```
 
-The publisher opens a read-only database transaction, selects resolved public schools and current school and district observations, preserves suppression and provenance, then atomically replaces `apps/web/public/data`. It never copies raw source files. The output contract is documented in [`data/contracts/public-data-v1.md`](../data/contracts/public-data-v1.md).
+The publisher opens a read-only database transaction, selects resolved public schools and current school, district, geographic-reference, and teaching-resource observations, preserves suppression and provenance, then atomically replaces `apps/web/public/data`. Resource observations are written to separate lazy shards so normal outcome comparison does not download them. The publisher never copies raw source files. The output contract is documented in [`data/contracts/public-data-v1.md`](../data/contracts/public-data-v1.md).
 
 `docker compose down` stops the service but preserves the named database volume. Do not use `docker compose down -v` unless deleting all local imported data is intentional.
 
@@ -106,6 +129,8 @@ The `cse` schema contains:
 - `subgroup`: canonical subgroup labels shared across sources;
 - `subgroup_source_code`: source-specific reporting codes mapped to canonical subgroups;
 - `fact_metric`: normalized observations with counts, values, suppression, reliability, source-row provenance, and source-specific explanatory metadata.
+- `resource_metric`: teaching and resource metric definitions, units, source, and methodology version;
+- `school_resource_fact`: school-year resource observations with a typed dimension, optional published counts, source-row provenance, and explanatory metadata.
 
 Entity identity uses a stable `identity_key`, normally `<entity_type>:<cds_code>`. Ambiguous source collisions use a deterministic name-qualified key while retaining the original CDS code for later resolution. This also permits school-level “District Office” records whose zero-filled CDS values identify district-level entities in other aggregate levels.
 
@@ -131,9 +156,16 @@ select school_name, metric_label, subgroup_label, value,
 from cse.school_indicator_current
 where cds_code = $1
 order by metric_id, subgroup_id;
+
+select entity.name, resource.school_year, resource.metric_id,
+       resource.dimension, resource.value, resource.denominator
+from cse.current_school_resource_observation resource
+join cse.entity on entity.id = resource.entity_id
+where entity.cds_code = $1
+order by resource.metric_id, resource.dimension, resource.school_year;
 ```
 
-The verified local import contains 12,177 entity identities, 20 imported snapshots, 3,962,208 metric facts, and 9,946 school profiles. Metric facts reference 12,112 of those identities. Twenty successful import runs reconcile to 3,435,247 source rows and 3,972,154 loaded facts/profiles. Two earlier fail-closed runs record the `GZ` and historical grade-span alias mapping errors before explicit mappings were added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
+The verified local import contains 12,177 entity identities, 26 imported snapshots, 3,962,208 outcome facts, 432,598 school-resource facts, and 9,946 school profiles. Outcome facts reference 12,112 of those identities. Twenty-six successful import runs reconcile to 3,857,854 source rows and 4,404,752 loaded facts/profiles. Two earlier fail-closed runs record the `GZ` and historical grade-span alias mapping errors before explicit mappings were added. Three entities are explicitly ambiguous; the public publisher uses resolved identities only.
 
 ## Roles and credentials
 
@@ -171,4 +203,4 @@ Treat backups as data artifacts, not source code. Store them encrypted with rete
 
 ## Cost and operations
 
-Local development uses one container and no paid service. The verified database is approximately 3.1 GB for 20 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.
+Local development uses one container and no paid service. The verified database is approximately 3.3 GB for 26 snapshots, including indexes and provenance metadata. A small managed PostgreSQL instance is adequate for scheduled batch ingestion during the MVP, while raw snapshots and backups belong in low-cost object storage. The database exceeds Cloudflare D1 Free's per-database storage limit and retains PostgreSQL-specific ingestion behavior, so Workers serve precomputed public bundles rather than replace the canonical store. Public traffic does not directly increase PostgreSQL load under the static-first architecture.

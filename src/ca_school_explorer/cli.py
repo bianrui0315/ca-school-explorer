@@ -24,6 +24,7 @@ from ca_school_explorer.database import (
     ingest_chronic_absenteeism,
     ingest_dataset,
     ingest_school_geography,
+    ingest_school_resources,
     inspect_dataset,
 )
 from ca_school_explorer.dataset_manifest import (
@@ -38,6 +39,7 @@ from ca_school_explorer.public_data import (
     publish_public_data,
 )
 from ca_school_explorer.school_directory import SchoolDirectoryError
+from ca_school_explorer.school_resources import ResourceDataError
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -122,6 +124,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--file", type=Path, help="Source file path; defaults to the manifest's raw path."
     )
 
+    resources_parser = subparsers.add_parser(
+        "ingest-school-resources",
+        help="Validate and load a CDE teaching-resource snapshot into PostgreSQL.",
+    )
+    _add_database_url(resources_parser)
+    _add_manifest(resources_parser)
+    resources_parser.add_argument(
+        "--file", type=Path, help="Source file path; defaults to the manifest's raw path."
+    )
+
     inspect_parser = subparsers.add_parser(
         "inspect-chronic-absenteeism",
         help="Run source-level quality checks without changing the database.",
@@ -153,7 +165,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directory for the generated manifest, index, and county shards.",
     )
     publish_parser.add_argument(
-        "--release", default="0.4.3", help="Application/data release identifier."
+        "--release", default="0.5.0", help="Application/data release identifier."
     )
 
     evidence_parser = subparsers.add_parser(
@@ -167,7 +179,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directory containing the generated manifest, index, and school shards.",
     )
     evidence_parser.add_argument(
-        "--release", default="0.4.3", help="Application/data release identifier."
+        "--release", default="0.5.0", help="Application/data release identifier."
     )
     return parser
 
@@ -286,6 +298,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(json.dumps(asdict(ingest_result), indent=2))
             return 0
 
+        if args.command == "ingest-school-resources":
+            ingest_result = ingest_school_resources(args.database_url, manifest, source_path)
+            print(json.dumps(asdict(ingest_result), indent=2))
+            return 0
+
         raise DatabaseError(f"unsupported command: {args.command}")
     except CatalogError as error:
         print(f"Source catalog validation failed: {error}", file=sys.stderr)
@@ -295,6 +312,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         IndicatorDataError,
         ManifestError,
         PublicDataError,
+        ResourceDataError,
         SchoolDirectoryError,
         OSError,
         psycopg.Error,

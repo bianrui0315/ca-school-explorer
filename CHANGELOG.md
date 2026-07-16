@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-16
+
+### Added
+
+- A dedicated `/resources` Teaching & resources workspace for comparing teacher experience, teacher preparation and placement, class size, student support FTE, and pupils per academic counselor.
+- Six checksum-pinned official CDE snapshots: 2025–26 Staff Experience and five 2024–25 SARC files with their embedded historical years preserved.
+- A canonical school-resource fact model with metric dimensions, source-row provenance, immutable snapshot history, indexes, and current-observation selection.
+- 428,035 browser-safe resource observations in 441 lazy school shards, separate from outcome shards.
+- Desktop and mobile comparison layouts with explicit reporting years, internal table scrolling, source links, missing-data definitions, and no rating language.
+
+### Changed
+
+- The canonical database now contains 26 imported snapshots and 432,598 school-resource facts in addition to the existing 3,962,208 outcome facts and 9,946 school profiles.
+- The public publisher streams larger batches and exports current resource snapshots without inflating the initial statewide school index.
+
+### Known limitations
+
+- Staff experience is reported for 2025–26, class size and student support for 2024–25, and teacher preparation currently ends in 2023–24.
+- Pupils-per-counselor coverage is 58.4%; blank and zero unusable ratios remain `Not reported`.
+- Teaching and resource measures are context, not a rating, rank, or causal explanation of school outcomes.
+
 ## [0.4.3] - 2026-07-15
 
 ### Added

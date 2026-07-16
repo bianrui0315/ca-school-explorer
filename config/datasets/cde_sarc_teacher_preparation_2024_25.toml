@@ -1,0 +1,30 @@
+manifest_version = 1
+dataset_id = "cde_sarc_teacher_preparation_2024_25"
+adapter = "sarc_teacher_preparation_v1"
+schema_version = "cde-sarc-2024-25-v1"
+source_id = "cde_sarc"
+source_name = "CDE School Accountability Report Card Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"
+download_url = "https://www3.cde.ca.gov/researchfiles/sarc/sarc2425/teacherprep.txt"
+academic_year = "2024-25"
+release_date = "2026-03-27"
+filename = "teacherprep.txt"
+media_type = "text/tab-separated-values"
+encoding = "windows-1252"
+sha256 = "99a18c7e895f7bedc69794a092abb8315f1eff0fea485275e92e86ec7893cc56"
+byte_size = 5932648
+record_count = 10549
+terms_status = "review-required"
+columns = [
+  "CDSCODE", "C", "D", "S", "SARCYear",
+  "SNFUL_Y1", "SPFUL_Y1", "SNINT_Y1", "SPINT_Y1", "SNMIS_Y1", "SPMIS_Y1", "SNOOF_Y1", "SPOOF_Y1", "SNUNK_Y1", "SPUNK_Y1", "SNTTP_Y1", "SPTTP_Y1",
+  "DNFUL_Y1", "DPFUL_Y1", "DNINT_Y1", "DPINT_Y1", "DNMIS_Y1", "DPMIS_Y1", "DNOOF_Y1", "DPOOF_Y1", "DNUNK_Y1", "DPUNK_Y1", "DNTTP_Y1", "DPTTP_Y1",
+  "STNFUL_Y1", "STPFUL_Y1", "STNINT_Y1", "STPINT_Y1", "STNMIS_Y1", "STPMIS_Y1", "STNOOF_Y1", "STPOOF_Y1", "STNUNK_Y1", "STPUNK_Y1", "STNTTP_Y1", "STPTTP_Y1",
+  "SNFUL_Y2", "SPFUL_Y2", "SNINT_Y2", "SPINT_Y2", "SNMIS_Y2", "SPMIS_Y2", "SNOOF_Y2", "SPOOF_Y2", "SNUNK_Y2", "SPUNK_Y2", "SNTTP_Y2", "SPTTP_Y2",
+  "DNFUL_Y2", "DPFUL_Y2", "DNINT_Y2", "DPINT_Y2", "DNMIS_Y2", "DPMIS_Y2", "DNOOF_Y2", "DPOOF_Y2", "DNUNK_Y2", "DPUNK_Y2", "DNTTP_Y2", "DPTTP_Y2",
+  "STNFUL_Y2", "STPFUL_Y2", "STNINT_Y2", "STPINT_Y2", "STNMIS_Y2", "STPMIS_Y2", "STNOOF_Y2", "STPOOF_Y2", "STNUNK_Y2", "STPUNK_Y2", "STNTTP_Y2", "STPTTP_Y2",
+  "SNFUL_Y3", "SPFUL_Y3", "SNINT_Y3", "SPINT_Y3", "SNMIS_Y3", "SPMIS_Y3", "SNOOF_Y3", "SPOOF_Y3", "SNUNK_Y3", "SPUNK_Y3", "SNTTP_Y3", "SPTTP_Y3",
+  "DNFUL_Y3", "DPFUL_Y3", "DNINT_Y3", "DPINT_Y3", "DNMIS_Y3", "DPMIS_Y3", "DNOOF_Y3", "DPOOF_Y3", "DNUNK_Y3", "DPUNK_Y3", "DNTTP_Y3", "DPTTP_Y3",
+  "STNFUL_Y3", "STPFUL_Y3", "STNINT_Y3", "STPINT_Y3", "STNMIS_Y3", "STPMIS_Y3", "STNOOF_Y3", "STPOOF_Y3", "STNUNK_Y3", "STPUNK_Y3", "STNTTP_Y3", "STPTTP_Y3",
+]

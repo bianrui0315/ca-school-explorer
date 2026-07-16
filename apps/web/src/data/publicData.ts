@@ -10,7 +10,10 @@ import type {
   Reliability,
   ReferenceBasis,
   ReferenceDetail,
+  ResourceMetricSeries,
+  ResourceObservation,
   SchoolDetail,
+  SchoolResources,
   SchoolSummary,
 } from "../types";
 
@@ -41,6 +44,23 @@ interface SchoolShardResponse {
   schools: Record<string, RawSchoolRecord>;
 }
 
+type RawResourceObservation = [
+  schoolYear: string,
+  metricIndex: number,
+  dimension: string,
+  value: number,
+  numerator: number | null,
+  denominator: number | null,
+  sourceSnapshotId: number,
+  metadata: Record<string, unknown>,
+];
+
+interface ResourceShardResponse {
+  schemaVersion: 1;
+  shard: string;
+  schools: Record<string, RawResourceObservation[]>;
+}
+
 interface DistrictShardResponse {
   schemaVersion: 1;
   countyCode: string;
@@ -59,6 +79,7 @@ interface ReferenceResponse {
 
 const basePath = `${import.meta.env.BASE_URL}data`;
 const schoolShardCache = new Map<string, Promise<SchoolShardResponse>>();
+const resourceShardCache = new Map<string, Promise<ResourceShardResponse>>();
 const districtShardCache = new Map<string, Promise<DistrictShardResponse>>();
 const referenceCache = new Map<string, Promise<ReferenceResponse>>();
 
@@ -168,6 +189,18 @@ function districtShard(countyCode: string, release: string) {
   return request;
 }
 
+function resourceShard(shard: string, release: string) {
+  const cacheKey = `${release}:${shard}`;
+  let request = resourceShardCache.get(cacheKey);
+  if (!request) {
+    request = fetchJson<ResourceShardResponse>(
+      releasePath(`${basePath}/resources/${shard}.json`, release),
+    );
+    resourceShardCache.set(cacheKey, request);
+  }
+  return request;
+}
+
 function referenceFile(path: string, release: string) {
   const cacheKey = `${release}:${path}`;
   let request = referenceCache.get(cacheKey);
@@ -191,6 +224,57 @@ async function loadSchool(summary: SchoolSummary, catalog: PublicCatalog) {
     demographics: record.demographics,
     metrics: decodeObservations(record.observations, catalog),
   } satisfies SchoolDetail;
+}
+
+function decodeResources(
+  rawObservations: RawResourceObservation[],
+  catalog: PublicCatalog,
+): ResourceMetricSeries {
+  const metrics: ResourceMetricSeries = {};
+  const definitions = catalog.manifest.resourceMetrics ?? [];
+  for (const raw of rawObservations) {
+    const definition = definitions[raw[1]];
+    if (!definition) {
+      continue;
+    }
+    const observation: ResourceObservation = {
+      schoolYear: raw[0],
+      dimension: raw[2],
+      value: raw[3],
+      numerator: raw[4],
+      denominator: raw[5],
+      sourceSnapshotId: raw[6],
+      metadata: raw[7] ?? {},
+    };
+    const dimensions = (metrics[definition.id] ??= {});
+    const series = (dimensions[observation.dimension] ??= []);
+    series.push(observation);
+  }
+  for (const dimensions of Object.values(metrics)) {
+    for (const observations of Object.values(dimensions)) {
+      observations.sort((left, right) =>
+        left.schoolYear.localeCompare(right.schoolYear),
+      );
+    }
+  }
+  return metrics;
+}
+
+async function loadSchoolResources(
+  summary: SchoolSummary,
+  catalog: PublicCatalog,
+): Promise<SchoolResources> {
+  if (!catalog.manifest.resourceShardCount) {
+    return { id: summary.id, metrics: {} };
+  }
+  const shard = await resourceShard(summary.shard, catalog.manifest.release);
+  if (shard.schemaVersion !== 1) {
+    throw new Error("Unsupported school resource data version.");
+  }
+  return {
+    id: summary.id,
+    metrics: decodeResources(shard.schools[summary.id] ?? [], catalog),
+  };
 }
 
 async function loadDistrict(
@@ -245,6 +329,7 @@ async function loadReferences(
 export const publicDataClient: PublicDataClient = {
   loadCatalog,
   loadSchool,
+  loadSchoolResources,
   loadDistrict,
   loadReferences,
 };

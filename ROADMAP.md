@@ -34,7 +34,7 @@ The ordered implementation plan for discovery, school profiles, geographic conte
 
 - Publish reviewed chronic absenteeism, academic, suspension, and graduation bundles from the canonical store.
 - Maintain the implemented distinct Dashboard College/Career Indicator and 12-month college-going outcomes for high schools as new files are released.
-- Add staff ratios and selected SARC measures.
+- Maintain the implemented Staff Experience and selected SARC teaching-resource measures as new annual files are released.
 - Add a public data freshness and correction page.
 
 ## Phase 4: Broaden context carefully

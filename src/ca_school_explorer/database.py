@@ -30,6 +30,12 @@ from ca_school_explorer.school_directory import (
     inspect_school_geography,
     iter_school_geography_rows,
 )
+from ca_school_explorer.school_resources import (
+    RESOURCE_ADAPTERS,
+    ResourceDatasetInspection,
+    inspect_school_resources,
+    iter_resource_observations,
+)
 
 DEFAULT_MIGRATIONS_PATH = Path("db/migrations")
 
@@ -136,17 +142,25 @@ def apply_security_roles(database_url: str, sql_path: str | Path = "db/security/
         connection.execute(role_path.read_text(encoding="utf-8"), prepare=False)
 
 
-DatasetInspectionResult = DatasetInspection | MetricDatasetInspection | SchoolGeographyInspection
+DatasetInspectionResult = (
+    DatasetInspection
+    | MetricDatasetInspection
+    | SchoolGeographyInspection
+    | ResourceDatasetInspection
+)
 
 
 def _observation_count(inspection: DatasetInspectionResult) -> int:
-    if isinstance(inspection, (MetricDatasetInspection, SchoolGeographyInspection)):
+    if isinstance(
+        inspection,
+        (MetricDatasetInspection, SchoolGeographyInspection, ResourceDatasetInspection),
+    ):
         return inspection.observation_count
     return inspection.record_count
 
 
 def _metric_counts(inspection: DatasetInspectionResult) -> dict[str, int]:
-    if isinstance(inspection, MetricDatasetInspection):
+    if isinstance(inspection, (MetricDatasetInspection, ResourceDatasetInspection)):
         return inspection.metric_counts
     if isinstance(inspection, SchoolGeographyInspection):
         return {}
@@ -154,7 +168,7 @@ def _metric_counts(inspection: DatasetInspectionResult) -> dict[str, int]:
 
 
 def _ambiguous_entity_count(inspection: DatasetInspectionResult) -> int:
-    if isinstance(inspection, MetricDatasetInspection):
+    if isinstance(inspection, (MetricDatasetInspection, ResourceDatasetInspection)):
         return inspection.ambiguous_entity_count
     return 0
 
@@ -166,6 +180,8 @@ def inspect_dataset(manifest: DatasetManifest, source_path: str | Path) -> Datas
         return inspect_chronic_absenteeism(manifest, source_path)
     if manifest.adapter == "school_geography_v1":
         return inspect_school_geography(manifest, source_path)
+    if manifest.adapter in RESOURCE_ADAPTERS:
+        return inspect_school_resources(manifest, source_path)
     return inspect_metric_dataset(manifest, source_path)
 
 
@@ -597,6 +613,8 @@ def ingest_dataset(
 ) -> IngestResult:
     """Validate, COPY, normalize, and audit one immutable CDE snapshot."""
 
+    if manifest.adapter in RESOURCE_ADAPTERS:
+        return ingest_school_resources(database_url, manifest, source_path)
     inspection = inspect_dataset(manifest, source_path)
     connection = psycopg.connect(require_database_url(database_url))
     source_snapshot_id = 0
@@ -662,6 +680,237 @@ def ingest_dataset(
                       status = 'failed',
                       completed_at = clock_timestamp(),
                       error_summary = %s
+                    where id = %s
+                    """,
+                    (str(error)[:4000], import_run_id),
+                )
+                connection.execute(
+                    "update cse.source_snapshot set import_status = 'failed' where id = %s",
+                    (source_snapshot_id,),
+                )
+        raise
+    finally:
+        connection.close()
+
+
+def _create_resource_staging(connection: Connection[tuple[Any, ...]]) -> None:
+    connection.execute(
+        """
+        create temporary table stage_school_resource (
+          source_row_number bigint not null,
+          school_year text not null,
+          cds_code text not null,
+          metric_id text not null,
+          dimension text not null,
+          value numeric(14, 4) not null,
+          numerator numeric(14, 4),
+          denominator numeric(14, 4),
+          metadata jsonb not null
+        ) on commit drop
+        """
+    )
+
+
+def _copy_resources(
+    connection: Connection[tuple[Any, ...]],
+    manifest: DatasetManifest,
+    source_path: str | Path,
+) -> None:
+    copy_sql = """
+        copy stage_school_resource (
+          source_row_number,
+          school_year,
+          cds_code,
+          metric_id,
+          dimension,
+          value,
+          numerator,
+          denominator,
+          metadata
+        ) from stdin
+    """
+    with connection.cursor().copy(copy_sql) as copy:
+        for row in iter_resource_observations(manifest, source_path):
+            copy.write_row(
+                (
+                    row.source_row_number,
+                    row.school_year,
+                    row.cds_code,
+                    row.metric_id,
+                    row.dimension,
+                    row.value,
+                    row.numerator,
+                    row.denominator,
+                    Jsonb(row.metadata),
+                )
+            )
+
+
+def _load_resource_facts(
+    connection: Connection[tuple[Any, ...]], source_snapshot_id: int
+) -> tuple[int, int, int]:
+    matched = connection.execute(
+        """
+        select count(*), count(distinct entity.id),
+          count(*) filter (where entity.id is null)
+        from stage_school_resource stage
+        left join cse.entity entity
+          on entity.identity_key = 'school:' || stage.cds_code
+          and entity.entity_type = 'school'
+          and entity.identity_resolution = 'resolved'
+        """
+    ).fetchone()
+    if matched is None:
+        raise DatabaseError("failed to inspect resource entity matches")
+    expected_rows = int(matched[0]) - int(matched[2])
+    entity_count = int(matched[1])
+    unmatched_rows = int(matched[2])
+    connection.execute(
+        "delete from cse.school_resource_fact where source_snapshot_id = %s",
+        (source_snapshot_id,),
+    )
+    cursor = connection.execute(
+        """
+        insert into cse.school_resource_fact (
+          entity_id,
+          school_year,
+          school_year_start,
+          metric_id,
+          dimension,
+          value,
+          numerator,
+          denominator,
+          source_snapshot_id,
+          source_row_number,
+          metadata
+        )
+        select
+          entity.id,
+          stage.school_year,
+          substring(stage.school_year from 1 for 4)::smallint,
+          stage.metric_id,
+          stage.dimension,
+          stage.value,
+          stage.numerator,
+          stage.denominator,
+          %s,
+          stage.source_row_number,
+          stage.metadata
+        from stage_school_resource stage
+        join cse.entity entity
+          on entity.identity_key = 'school:' || stage.cds_code
+          and entity.entity_type = 'school'
+          and entity.identity_resolution = 'resolved'
+        """,
+        (source_snapshot_id,),
+    )
+    if cursor.rowcount != expected_rows:
+        raise DatabaseError(
+            f"loaded resource row count mismatch: expected {expected_rows}, got {cursor.rowcount}"
+        )
+    return cursor.rowcount, entity_count, unmatched_rows
+
+
+def _existing_resource_snapshot_result(
+    connection: Connection[tuple[Any, ...]], source_snapshot_id: int
+) -> IngestResult:
+    row = connection.execute(
+        """
+        select count(*), count(distinct entity_id)
+        from cse.school_resource_fact
+        where source_snapshot_id = %s
+        """,
+        (source_snapshot_id,),
+    ).fetchone()
+    return IngestResult(
+        source_snapshot_id=source_snapshot_id,
+        import_run_id=None,
+        rows_loaded=int(row[0]) if row is not None else 0,
+        entities_touched=int(row[1]) if row is not None else 0,
+        rows_suppressed=0,
+        reused_existing_snapshot=True,
+    )
+
+
+def ingest_school_resources(
+    database_url: str,
+    manifest: DatasetManifest,
+    source_path: str | Path,
+) -> IngestResult:
+    """Validate and load one immutable school-resource snapshot."""
+
+    if manifest.adapter not in RESOURCE_ADAPTERS:
+        raise DatabaseError(f"unsupported school resource adapter: {manifest.adapter}")
+    inspection = inspect_school_resources(manifest, source_path)
+    connection = psycopg.connect(require_database_url(database_url))
+    source_snapshot_id = 0
+    import_run_id = 0
+    try:
+        with connection.transaction():
+            source_snapshot_id, snapshot_status = _register_snapshot(
+                connection, manifest, inspection
+            )
+            if snapshot_status == "imported":
+                return _existing_resource_snapshot_result(connection, source_snapshot_id)
+            import_run_id = _start_import_run(connection, source_snapshot_id)
+
+        with connection.transaction():
+            _create_resource_staging(connection)
+            _copy_resources(connection, manifest, source_path)
+            rows_loaded, entities_touched, unmatched_rows = _load_resource_facts(
+                connection, source_snapshot_id
+            )
+            connection.execute(
+                """
+                update cse.source_snapshot
+                set metadata = metadata || %s
+                where id = %s
+                """,
+                (
+                    Jsonb(
+                        {
+                            "normalizedObservationCount": inspection.observation_count,
+                            "matchedObservationCount": rows_loaded,
+                            "unmatchedObservationCount": unmatched_rows,
+                            "schoolYears": inspection.school_years,
+                        }
+                    ),
+                    source_snapshot_id,
+                ),
+            )
+            connection.execute("analyze cse.source_snapshot, cse.school_resource_fact")
+            connection.execute(
+                """
+                update cse.import_run
+                set
+                  status = 'succeeded',
+                  completed_at = clock_timestamp(),
+                  rows_read = %s,
+                  rows_loaded = %s,
+                  rows_suppressed = 0
+                where id = %s
+                """,
+                (inspection.record_count, rows_loaded, import_run_id),
+            )
+            connection.execute(
+                "update cse.source_snapshot set import_status = 'imported' where id = %s",
+                (source_snapshot_id,),
+            )
+        return IngestResult(
+            source_snapshot_id=source_snapshot_id,
+            import_run_id=import_run_id,
+            rows_loaded=rows_loaded,
+            entities_touched=entities_touched,
+            rows_suppressed=0,
+            reused_existing_snapshot=False,
+        )
+    except Exception as error:
+        if source_snapshot_id and import_run_id:
+            with connection.transaction():
+                connection.execute(
+                    """
+                    update cse.import_run
+                    set status = 'failed', completed_at = clock_timestamp(), error_summary = %s
                     where id = %s
                     """,
                     (str(error)[:4000], import_run_id),

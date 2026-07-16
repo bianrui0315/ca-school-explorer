@@ -234,6 +234,7 @@ function createDataClient(): PublicDataClient {
       }
       return detail;
     },
+    loadSchoolResources: async (school) => ({ id: school.id, metrics: {} }),
     loadDistrict: async (): Promise<DistrictDetail> => ({
       id: "01611190000000",
       name: "Alameda Unified",
@@ -501,5 +502,31 @@ describe("school comparison experience", () => {
     );
     expect(window.location.pathname).toBe("/");
     expect(screen.getByText("Selected schools (3 of 5)")).toBeInTheDocument();
+  });
+
+  it("opens the teaching and resources page without mixing reporting years", async () => {
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    await screen.findByText("Selected schools (3 of 5)");
+    const primaryNavigation = screen.getByRole("navigation", {
+      name: "Primary navigation",
+    });
+    await user.click(
+      within(primaryNavigation).getByRole("link", {
+        name: "Teaching & resources",
+      }),
+    );
+
+    expect(window.location.pathname).toBe("/resources");
+    expect(
+      screen.getByRole("heading", { name: "Teaching and school resources" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("2025–26 staff experience")).toBeInTheDocument();
+    expect(screen.getByText("2024–25 SARC")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Assignment context" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Not a rating")).toHaveLength(1);
   });
 });
