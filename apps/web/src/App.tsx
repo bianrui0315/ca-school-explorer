@@ -1,4 +1,11 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { ComparisonTable } from "./components/ComparisonTable";
 import { ContextPanel } from "./components/ContextPanel";
 import { ControlBar } from "./components/ControlBar";
@@ -23,6 +30,7 @@ import {
   buildPeerMetricSeries,
   findSimilarSchools,
 } from "./lib/similarSchools";
+import { routeFromPath, schoolProfilePath } from "./lib/schoolProfileRoute";
 import type {
   DistrictDetail,
   GeographicReferences,
@@ -43,24 +51,34 @@ const INITIAL_SCHOOL_IDS = [
 ];
 const SCHOOL_COLORS = ["#ff625e", "#f2a900", "#1467d8", "#6a52b3", "#16806a"];
 
+const SchoolProfile = lazy(() =>
+  import("./components/SchoolProfile").then((module) => ({
+    default: module.SchoolProfile,
+  })),
+);
+const SchoolProfileNotFound = lazy(() =>
+  import("./components/SchoolProfile").then((module) => ({
+    default: module.SchoolProfileNotFound,
+  })),
+);
+
 interface AppProps {
   dataClient?: PublicDataClient;
 }
 
-function pageFromLocation(): AppPage {
-  if (typeof window !== "undefined") {
-    if (window.location.pathname === "/area") {
-      return "area";
-    }
-    if (window.location.pathname === "/resources") {
-      return "resources";
-    }
-  }
-  return "compare";
+function routeFromLocation() {
+  return routeFromPath(
+    typeof window === "undefined" ? "/" : window.location.pathname,
+  );
 }
 
 export default function App({ dataClient = publicDataClient }: AppProps) {
-  const [activePage, setActivePage] = useState<AppPage>(pageFromLocation);
+  const [initialRoute] = useState(routeFromLocation);
+  const [activePage, setActivePage] = useState<AppPage>(initialRoute.page);
+  const [profileSchoolId, setProfileSchoolId] = useState(
+    initialRoute.profileSchoolId,
+  );
+  const [profileError, setProfileError] = useState<string>();
   const [catalog, setCatalog] = useState<PublicCatalog>();
   const [schoolDetails, setSchoolDetails] = useState<Map<string, SchoolDetail>>(
     () => new Map(),
@@ -92,19 +110,15 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    const handlePopState = () => setActivePage(pageFromLocation());
+    const handlePopState = () => {
+      const route = routeFromLocation();
+      setActivePage(route.page);
+      setProfileSchoolId(route.profileSchoolId);
+      setProfileError(undefined);
+    };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
-
-  useEffect(() => {
-    document.title =
-      activePage === "area"
-        ? "Area Explorer · California School Explorer"
-        : activePage === "resources"
-          ? "Teaching & resources · California School Explorer"
-          : "California School Explorer";
-  }, [activePage]);
 
   function navigate(page: AppPage) {
     const nextUrl = new URL(window.location.href);
@@ -114,6 +128,21 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     nextUrl.hash = "";
     window.history.pushState({}, "", nextUrl);
     setActivePage(page);
+    setProfileSchoolId(undefined);
+    setProfileError(undefined);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+
+  function navigateToProfile(schoolId: string) {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.pathname = schoolProfilePath(schoolId);
+    nextUrl.search = "";
+    nextUrl.hash = "";
+    window.history.pushState({}, "", nextUrl);
+    setProfileSchoolId(schoolId);
+    setProfileError(undefined);
+    setActivePage("profile");
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
@@ -124,12 +153,45 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       .loadCatalog()
       .then(async (loadedCatalog) => {
         const sharedComparison =
-          typeof window === "undefined"
+          initialRoute.page === "profile" || typeof window === "undefined"
             ? undefined
             : parseComparisonShareUrl(window.location.href, loadedCatalog);
         const schoolById = new Map(
           loadedCatalog.schools.map((school) => [school.id, school]),
         );
+        const firstYear = Math.min(
+          ...loadedCatalog.manifest.outcomeSchoolYears.map(Number.parseFloat),
+        );
+        if (initialRoute.page === "profile") {
+          const profileSummary = initialRoute.profileSchoolId
+            ? schoolById.get(initialRoute.profileSchoolId)
+            : undefined;
+          if (!profileSummary) {
+            if (active) {
+              setCatalog(loadedCatalog);
+              setSelectedSchoolIds([]);
+              setProfileError(
+                "The requested CDS code is not in the current directory.",
+              );
+            }
+            return;
+          }
+          const profileDetail = await dataClient.loadSchool(
+            profileSummary,
+            loadedCatalog,
+          );
+          if (!active) {
+            return;
+          }
+          setCatalog(loadedCatalog);
+          setSchoolDetails(new Map([[profileDetail.id, profileDetail]]));
+          setSelectedSchoolIds([]);
+          setPeerAnchorId(profileDetail.id);
+          if (Number.isFinite(firstYear)) {
+            setStartYear(firstYear);
+          }
+          return;
+        }
         const initialSummaries = INITIAL_SCHOOL_IDS.flatMap((id) => {
           const summary = schoolById.get(id);
           return summary ? [summary] : [];
@@ -166,9 +228,6 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
           });
           return;
         }
-        const firstYear = Math.min(
-          ...loadedCatalog.manifest.outcomeSchoolYears.map(Number.parseFloat),
-        );
         if (Number.isFinite(firstYear)) {
           setStartYear(firstYear);
         }
@@ -185,7 +244,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     return () => {
       active = false;
     };
-  }, [dataClient]);
+  }, [dataClient, initialRoute]);
 
   const schoolIndex = useMemo(
     () => new Map(catalog?.schools.map((school) => [school.id, school]) ?? []),
@@ -201,19 +260,111 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       }),
     [schoolDetails, selectedSchoolIds],
   );
+  const profileSchool = useMemo(() => {
+    if (!profileSchoolId) {
+      return undefined;
+    }
+    const detail = schoolDetails.get(profileSchoolId);
+    return detail ? { ...detail, color: "#1467d8" } : undefined;
+  }, [profileSchoolId, schoolDetails]);
 
   useEffect(() => {
     let active = true;
     if (
-      activePage !== "resources" ||
+      activePage !== "profile" ||
       !catalog ||
-      selectedSchoolIds.length === 0
+      !profileSchoolId ||
+      profileSchool ||
+      profileError
     ) {
       return () => {
         active = false;
       };
     }
-    const summaries = selectedSchoolIds.flatMap((schoolId) => {
+    const summary = schoolIndex.get(profileSchoolId);
+    if (!summary) {
+      window.queueMicrotask(() => {
+        if (active) {
+          setProfileError(
+            "The requested CDS code is not in the current directory.",
+          );
+        }
+      });
+      return () => {
+        active = false;
+      };
+    }
+    void dataClient
+      .loadSchool(summary, catalog)
+      .then((detail) => {
+        if (active) {
+          setSchoolDetails((current) =>
+            new Map(current).set(detail.id, detail),
+          );
+        }
+      })
+      .catch((caught: unknown) => {
+        if (active) {
+          setProfileError(
+            caught instanceof Error
+              ? caught.message
+              : "Unable to load this school profile.",
+          );
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [
+    activePage,
+    catalog,
+    dataClient,
+    profileError,
+    profileSchool,
+    profileSchoolId,
+    schoolIndex,
+  ]);
+
+  useEffect(() => {
+    document.title =
+      activePage === "area"
+        ? "Area Explorer · California School Explorer"
+        : activePage === "resources"
+          ? "Teaching & resources · California School Explorer"
+          : activePage === "profile" && profileSchool
+            ? `${profileSchool.name} · California School Explorer`
+            : "California School Explorer";
+    const description = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    );
+    if (description) {
+      description.content =
+        activePage === "profile" && profileSchool
+          ? `Explore official outcomes, student-group context, teaching resources, and location details for ${profileSchool.name}.`
+          : "Compare California schools across time, student groups, and transparent context baselines.";
+    }
+  }, [activePage, profileSchool]);
+
+  const resourceSchoolIds = useMemo(
+    () =>
+      activePage === "profile" && profileSchoolId
+        ? [profileSchoolId]
+        : selectedSchoolIds,
+    [activePage, profileSchoolId, selectedSchoolIds],
+  );
+
+  useEffect(() => {
+    let active = true;
+    if (
+      (activePage !== "resources" && activePage !== "profile") ||
+      !catalog ||
+      resourceSchoolIds.length === 0
+    ) {
+      return () => {
+        active = false;
+      };
+    }
+    const summaries = resourceSchoolIds.flatMap((schoolId) => {
       if (schoolResources.has(schoolId)) {
         return [];
       }
@@ -253,11 +404,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     dataClient,
     schoolIndex,
     schoolResources,
-    selectedSchoolIds,
+    resourceSchoolIds,
   ]);
   const resourcesLoading =
-    activePage === "resources" &&
-    selectedSchoolIds.some((schoolId) => !schoolResources.has(schoolId));
+    (activePage === "resources" || activePage === "profile") &&
+    resourceSchoolIds.some((schoolId) => !schoolResources.has(schoolId));
   const effectivePeerAnchorId =
     peerAnchorId && selectedSchoolIds.includes(peerAnchorId)
       ? peerAnchorId
@@ -328,15 +479,19 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     !peerLoading &&
     peerBaselineSummaries.length > 0 &&
     peerDetails.size === peerBaselineSummaries.length;
-  const commonDistrict = selectedSchools[0]?.districtId;
-  const commonCounty = selectedSchools[0]?.countyCode;
+  const contextSchools =
+    activePage === "profile" && profileSchool
+      ? [profileSchool]
+      : selectedSchools;
+  const commonDistrict = contextSchools[0]?.districtId;
+  const commonCounty = contextSchools[0]?.countyCode;
   const hasCommonDistrict = Boolean(
     commonDistrict &&
-      selectedSchools.every((school) => school.districtId === commonDistrict),
+      contextSchools.every((school) => school.districtId === commonDistrict),
   );
   const hasCommonCounty = Boolean(
     commonCounty &&
-      selectedSchools.every((school) => school.countyCode === commonCounty),
+      contextSchools.every((school) => school.countyCode === commonCounty),
   );
 
   useEffect(() => {
@@ -514,7 +669,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       return;
     }
     try {
-      const detail = await dataClient.loadSchool(summary, catalog);
+      const detail =
+        schoolDetails.get(schoolId) ??
+        (await dataClient.loadSchool(summary, catalog));
       setSchoolDetails((current) => new Map(current).set(detail.id, detail));
       setSelectedSchoolIds((current) =>
         current.includes(detail.id) || current.length >= 5
@@ -533,7 +690,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
 
   const scrollToFreshness = () => {
     document
-      .getElementById("source-details")
+      .getElementById(
+        activePage === "profile" ? "profile-sources" : "source-details",
+      )
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -572,7 +731,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       <Header
         activePage={activePage}
         onDataFreshness={
-          activePage === "compare" ? scrollToFreshness : undefined
+          activePage === "compare" || activePage === "profile"
+            ? scrollToFreshness
+            : undefined
         }
         onNavigate={navigate}
       />
@@ -606,6 +767,49 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
           resourcesLoading={resourcesLoading}
           selectedSchools={selectedSchools}
         />
+      ) : activePage === "profile" ? (
+        <Suspense
+          fallback={
+            <main className="data-state" aria-live="polite">
+              <h1>Loading school profile</h1>
+              <p>
+                Preparing official outcomes, context, and teaching resources.
+              </p>
+            </main>
+          }
+        >
+          {profileSchool ? (
+            <SchoolProfile
+              catalog={catalog}
+              comparisonIsFull={selectedSchoolIds.length >= 5}
+              district={activeDistrict}
+              isInComparison={selectedSchoolIds.includes(profileSchool.id)}
+              onAddToComparison={() => addSchool(profileSchool.id)}
+              onOpenComparison={() => navigate("compare")}
+              onOpenProfile={navigateToProfile}
+              onOpenResources={async () => {
+                await addSchool(profileSchool.id);
+                navigate("resources");
+              }}
+              resources={schoolResources.get(profileSchool.id)}
+              resourcesLoading={resourcesLoading}
+              school={profileSchool}
+            />
+          ) : profileError ? (
+            <SchoolProfileNotFound
+              catalog={catalog}
+              onOpenComparison={() => navigate("compare")}
+              onOpenProfile={navigateToProfile}
+            />
+          ) : (
+            <main className="data-state" aria-live="polite">
+              <h1>Loading school profile</h1>
+              <p>
+                Preparing official outcomes, context, and teaching resources.
+              </p>
+            </main>
+          )}
+        </Suspense>
       ) : (
         <main className="compare-page">
           <section className="intro">
@@ -673,6 +877,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             />
 
             <SchoolOverview
+              onOpenProfile={navigateToProfile}
               profileSchoolYears={catalog.manifest.profileSchoolYears}
               schools={selectedSchools}
             />

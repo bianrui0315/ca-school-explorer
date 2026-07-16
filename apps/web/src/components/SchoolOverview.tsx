@@ -9,6 +9,7 @@ import { Icon } from "./Icon";
 interface SchoolOverviewProps {
   schools: School[];
   profileSchoolYears: string[];
+  onOpenProfile?: (schoolId: string) => void;
 }
 
 function schoolStyle(color: string) {
@@ -32,6 +33,7 @@ function formatAddress(school: School) {
 export function SchoolOverview({
   schools,
   profileSchoolYears,
+  onOpenProfile,
 }: SchoolOverviewProps) {
   return (
     <section
@@ -110,6 +112,17 @@ export function SchoolOverview({
                       <span key={flag}>{flag}</span>
                     ))}
                   </div>
+                ) : null}
+
+                {onOpenProfile ? (
+                  <button
+                    className="school-profile-link"
+                    onClick={() => onOpenProfile(school.id)}
+                    type="button"
+                  >
+                    View school profile
+                    <Icon name="chevronRight" size={16} />
+                  </button>
                 ) : null}
               </article>
             );

@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-07-16
+
+### Added
+
+- Stable `/school/{CDS-code}` profile URLs for every current public school in the published directory.
+- A single-school report that brings together directory context, latest outcome evidence, three-year trends, student-group controls, teaching resources, and location details without introducing a rating or rank.
+- School-profile search, copy-link, add-to-comparison, full teaching-comparison, section navigation, print, mobile, loading, and unknown-CDS states.
+- Direct profile actions from each school card in the comparison workspace.
+
+### Changed
+
+- School-profile routes load only the selected school's outcome and resource shards on first visit.
+- Page titles and descriptions now identify the selected school while retaining the site's evidence and source language.
+
+### Known limitations
+
+- School profiles are client-rendered static routes; dedicated server-rendered social preview cards remain future work.
+- Reporting years still differ by source, and some indicators, student groups, and resource measures are unavailable or suppressed for individual schools.
+
 ## [0.5.0] - 2026-07-16
 
 ### Added

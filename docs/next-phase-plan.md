@@ -22,7 +22,7 @@ A family should be able to move from a place or grade need to a small, explainab
 - Derive clearly labeled student-to-teacher context where both source values are available.
 - Show important directory flags without presenting them as quality judgments.
 
-Status: implemented using the existing versioned public-school directory bundle.
+Status: implemented using the existing versioned public-school directory bundle. Release `0.5.1` adds a stable, shareable single-school report that reuses the same outcome, subgroup, resource, and geographic evidence.
 
 ### 3. Geographic context
 
