@@ -25,6 +25,13 @@ import {
   buildComparisonShareUrl,
   parseComparisonShareUrl,
 } from "./lib/comparisonShare";
+import {
+  buildDecisionBriefEditUrl,
+  buildDecisionBriefShareUrl,
+  parseDecisionBriefShareUrl,
+  PORTER_RANCH_SAMPLE_BRIEF,
+  type DecisionBriefState,
+} from "./lib/decisionBriefShare";
 import { DEFAULT_INDICATOR_WEIGHTS } from "./lib/indicatorScore";
 import {
   buildPeerMetricSeries,
@@ -61,6 +68,11 @@ const SchoolProfileNotFound = lazy(() =>
     default: module.SchoolProfileNotFound,
   })),
 );
+const DecisionBrief = lazy(() =>
+  import("./components/DecisionBrief").then((module) => ({
+    default: module.DecisionBrief,
+  })),
+);
 
 interface AppProps {
   dataClient?: PublicDataClient;
@@ -79,6 +91,7 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     initialRoute.profileSchoolId,
   );
   const [profileError, setProfileError] = useState<string>();
+  const [briefState, setBriefState] = useState<DecisionBriefState>();
   const [catalog, setCatalog] = useState<PublicCatalog>();
   const [schoolDetails, setSchoolDetails] = useState<Map<string, SchoolDetail>>(
     () => new Map(),
@@ -115,6 +128,12 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       setActivePage(route.page);
       setProfileSchoolId(route.profileSchoolId);
       setProfileError(undefined);
+      if (route.page === "brief") {
+        const parsed = parseDecisionBriefShareUrl(window.location.href);
+        if (parsed) {
+          setBriefState(parsed);
+        }
+      }
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -123,7 +142,13 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   function navigate(page: AppPage) {
     const nextUrl = new URL(window.location.href);
     nextUrl.pathname =
-      page === "area" ? "/area" : page === "resources" ? "/resources" : "/";
+      page === "area"
+        ? "/area"
+        : page === "brief"
+          ? "/brief"
+          : page === "resources"
+            ? "/resources"
+            : "/";
     nextUrl.search = "";
     nextUrl.hash = "";
     window.history.pushState({}, "", nextUrl);
@@ -153,7 +178,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       .loadCatalog()
       .then(async (loadedCatalog) => {
         const sharedComparison =
-          initialRoute.page === "profile" || typeof window === "undefined"
+          initialRoute.page === "profile" ||
+          initialRoute.page === "brief" ||
+          typeof window === "undefined"
             ? undefined
             : parseComparisonShareUrl(window.location.href, loadedCatalog);
         const schoolById = new Map(
@@ -189,6 +216,47 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
           setPeerAnchorId(profileDetail.id);
           if (Number.isFinite(firstYear)) {
             setStartYear(firstYear);
+          }
+          return;
+        }
+        if (initialRoute.page === "brief") {
+          const requestedBrief =
+            (typeof window === "undefined"
+              ? undefined
+              : parseDecisionBriefShareUrl(window.location.href)) ??
+            PORTER_RANCH_SAMPLE_BRIEF;
+          const requestedSummaries = requestedBrief.schoolIds.flatMap((id) => {
+            const summary = schoolById.get(id);
+            return summary ? [summary] : [];
+          });
+          const briefSummaries =
+            requestedSummaries.length > 0
+              ? requestedSummaries.slice(0, 3)
+              : loadedCatalog.schools.slice(0, 3);
+          const details = await Promise.all(
+            briefSummaries.map((summary) =>
+              dataClient.loadSchool(summary, loadedCatalog),
+            ),
+          );
+          if (!active) {
+            return;
+          }
+          const effectiveBrief = {
+            ...requestedBrief,
+            schoolIds: details.map((school) => school.id),
+          };
+          setCatalog(loadedCatalog);
+          setSchoolDetails(
+            new Map(details.map((school) => [school.id, school])),
+          );
+          setBriefState(effectiveBrief);
+          setSelectedSchoolIds([]);
+          if (typeof window !== "undefined") {
+            window.history.replaceState(
+              {},
+              "",
+              buildDecisionBriefShareUrl(effectiveBrief, window.location.href),
+            );
           }
           return;
         }
@@ -267,6 +335,16 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     const detail = schoolDetails.get(profileSchoolId);
     return detail ? { ...detail, color: "#1467d8" } : undefined;
   }, [profileSchoolId, schoolDetails]);
+  const briefSchools: School[] = useMemo(
+    () =>
+      (briefState?.schoolIds ?? []).flatMap((id, index) => {
+        const school = schoolDetails.get(id);
+        return school
+          ? [{ ...school, color: SCHOOL_COLORS[index] ?? "#ff625e" }]
+          : [];
+      }),
+    [briefState, schoolDetails],
+  );
 
   useEffect(() => {
     let active = true;
@@ -329,11 +407,13 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     document.title =
       activePage === "area"
         ? "Area Explorer · California School Explorer"
-        : activePage === "resources"
-          ? "Teaching & resources · California School Explorer"
-          : activePage === "profile" && profileSchool
-            ? `${profileSchool.name} · California School Explorer`
-            : "California School Explorer";
+        : activePage === "brief"
+          ? "Family Decision Brief · California School Explorer"
+          : activePage === "resources"
+            ? "Teaching & resources · California School Explorer"
+            : activePage === "profile" && profileSchool
+              ? `${profileSchool.name} · California School Explorer`
+              : "California School Explorer";
     const description = document.querySelector<HTMLMetaElement>(
       'meta[name="description"]',
     );
@@ -341,7 +421,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       description.content =
         activePage === "profile" && profileSchool
           ? `Explore official outcomes, student-group context, teaching resources, and location details for ${profileSchool.name}.`
-          : "Compare California schools across time, student groups, and transparent context baselines.";
+          : activePage === "brief"
+            ? "Turn a California location search into a shareable, explainable school shortlist using official public data."
+            : "Compare California schools across time, student groups, and transparent context baselines.";
     }
   }, [activePage, profileSchool]);
 
@@ -688,6 +770,84 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     }
   };
 
+  const openDecisionBrief = async (
+    searchState: Omit<DecisionBriefState, "schoolIds">,
+    schoolIds: string[],
+  ) => {
+    const boundedIds = [...new Set(schoolIds)].slice(0, 3);
+    const summaries = boundedIds.flatMap((schoolId) => {
+      const summary = schoolIndex.get(schoolId);
+      return summary ? [summary] : [];
+    });
+    if (summaries.length === 0) {
+      return;
+    }
+    try {
+      const details = await Promise.all(
+        summaries.map(
+          (summary) =>
+            schoolDetails.get(summary.id) ??
+            dataClient.loadSchool(summary, catalog),
+        ),
+      );
+      setSchoolDetails((current) => {
+        const next = new Map(current);
+        details.forEach((school) => next.set(school.id, school));
+        return next;
+      });
+      const nextBrief: DecisionBriefState = {
+        ...searchState,
+        schoolIds: details.map((school) => school.id),
+      };
+      setBriefState(nextBrief);
+      const nextUrl = buildDecisionBriefShareUrl(
+        nextBrief,
+        window.location.href,
+      );
+      window.history.pushState({}, "", nextUrl);
+      setActivePage("brief");
+      setProfileSchoolId(undefined);
+      setProfileError(undefined);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Unable to prepare the decision brief.",
+      );
+    }
+  };
+
+  const openSampleBrief = () =>
+    openDecisionBrief(
+      PORTER_RANCH_SAMPLE_BRIEF,
+      PORTER_RANCH_SAMPLE_BRIEF.schoolIds,
+    );
+
+  const editDecisionBrief = () => {
+    if (!briefState) {
+      navigate("area");
+      return;
+    }
+    const nextUrl = buildDecisionBriefEditUrl(briefState, window.location.href);
+    window.history.pushState({}, "", nextUrl);
+    setActivePage("area");
+    setProfileSchoolId(undefined);
+    setProfileError(undefined);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
+  const openBriefInComparison = () => {
+    if (!briefState) {
+      return;
+    }
+    setSelectedSchoolIds(briefState.schoolIds);
+    setPeerAnchorId(briefState.schoolIds[0]);
+    navigate("compare");
+  };
+
   const scrollToFreshness = () => {
     document
       .getElementById(
@@ -735,15 +895,52 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             ? scrollToFreshness
             : undefined
         }
-        onNavigate={navigate}
+        onNavigate={(page) => {
+          if (page === "brief") {
+            void (briefState
+              ? openDecisionBrief(briefState, briefState.schoolIds)
+              : openSampleBrief());
+            return;
+          }
+          navigate(page);
+        }}
       />
-      {activePage === "area" ? (
+      {activePage === "brief" ? (
+        <Suspense
+          fallback={
+            <main className="data-state" aria-live="polite">
+              <h1>Preparing the decision brief</h1>
+              <p>Loading the selected schools and their official evidence.</p>
+            </main>
+          }
+        >
+          {briefState && briefSchools.length > 0 ? (
+            <DecisionBrief
+              catalog={catalog}
+              onEditSearch={editDecisionBrief}
+              onOpenComparison={openBriefInComparison}
+              onOpenProfile={navigateToProfile}
+              schools={briefSchools}
+              state={briefState}
+            />
+          ) : (
+            <main className="data-state" aria-live="polite">
+              <h1>Preparing the decision brief</h1>
+              <p>Loading the selected schools and their official evidence.</p>
+            </main>
+          )}
+        </Suspense>
+      ) : activePage === "area" ? (
         <main className="area-page">
           <LocationFinder
             allSchools={catalog.schools}
             manifest={catalog.manifest}
             onAdd={addSchool}
             onCompare={() => navigate("compare")}
+            onCreateBrief={(searchState, schoolIds) =>
+              openDecisionBrief(searchState, schoolIds)
+            }
+            onTrySample={openSampleBrief}
             selectedSchoolIds={selectedSchoolIds}
           />
         </main>

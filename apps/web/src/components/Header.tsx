@@ -1,7 +1,7 @@
 import type { MouseEvent } from "react";
 import { Icon } from "./Icon";
 
-export type AppPage = "area" | "compare" | "profile" | "resources";
+export type AppPage = "area" | "brief" | "compare" | "profile" | "resources";
 
 interface HeaderProps {
   activePage?: AppPage;
@@ -83,6 +83,13 @@ export function Header({
             Area Explorer
           </a>
           <a
+            aria-current={activePage === "brief" ? "page" : undefined}
+            href="/brief"
+            onClick={(event) => navigate(event, "brief")}
+          >
+            Decision Brief
+          </a>
+          <a
             aria-current={activePage === "resources" ? "page" : undefined}
             href="/resources"
             onClick={(event) => navigate(event, "resources")}
@@ -128,6 +135,13 @@ export function Header({
               onClick={(event) => navigate(event, "area")}
             >
               Area Explorer
+            </a>
+            <a
+              aria-current={activePage === "brief" ? "page" : undefined}
+              href="/brief"
+              onClick={(event) => navigate(event, "brief")}
+            >
+              Decision Brief
             </a>
             <a
               aria-current={activePage === "resources" ? "page" : undefined}

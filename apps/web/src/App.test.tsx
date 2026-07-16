@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach } from "vitest";
+import { afterEach, vi } from "vitest";
 import App from "./App";
 import type {
   DistrictDetail,
@@ -222,6 +222,7 @@ const catalog: PublicCatalog = {
 };
 
 afterEach(() => {
+  vi.restoreAllMocks();
   window.history.replaceState({}, "", "/");
 });
 
@@ -626,6 +627,43 @@ describe("school comparison experience", () => {
     );
     expect(window.location.pathname).toBe("/");
     expect(screen.getByText("Selected schools (3 of 5)")).toBeInTheDocument();
+  });
+
+  it("loads a shareable decision brief and returns to its editable search", async () => {
+    const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
+    window.history.replaceState(
+      {},
+      "",
+      "/brief?view=brief&q=Alameda&lat=37.7&lng=-122.2&place=Alameda%2C+CA&approx=1&r=10&grade=10&type=all&coverage=50&pa=1&pt=1&pc=1&pr=1&schools=01611190130229%2C01611190132142%2C01611190106401#brief-title",
+    );
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Family Decision Brief" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Alameda, CA")).toBeInTheDocument();
+    expect(screen.getByText("Three schools to review")).toBeInTheDocument();
+    expect(screen.getByText("Latest evidence")).toBeInTheDocument();
+    expect(screen.getByText("Three-year direction")).toBeInTheDocument();
+    expect(screen.getByText("What stands out")).toBeInTheDocument();
+    expect(
+      screen.getByText("Nearby does not mean assigned or eligible."),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Print brief" }));
+    expect(print).toHaveBeenCalledOnce();
+
+    await user.click(screen.getByRole("button", { name: "Edit search" }));
+    expect(window.location.pathname).toBe("/area");
+    expect(
+      screen.getByRole("heading", { name: "Find schools near a new place" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("searchbox", {
+        name: "Work address or California place",
+      }),
+    ).toHaveValue("Alameda");
   });
 
   it("opens the teaching and resources page without mixing reporting years", async () => {

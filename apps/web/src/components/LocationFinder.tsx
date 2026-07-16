@@ -19,6 +19,7 @@ import {
 import {
   buildLocationShareUrl,
   parseLocationShareUrl,
+  type SharedLocationSearchState,
 } from "../lib/locationShare";
 import {
   lookupDistrictBoundaries,
@@ -56,6 +57,11 @@ interface LocationFinderProps {
   manifest: PublicManifest;
   onAdd: (schoolId: string) => Promise<void> | void;
   onCompare?: () => void;
+  onCreateBrief?: (
+    state: SharedLocationSearchState,
+    schoolIds: string[],
+  ) => Promise<void> | void;
+  onTrySample?: () => Promise<void> | void;
   resolveLocation?: typeof resolveCaliforniaLocation;
   resolveDistricts?: typeof lookupDistrictBoundaries;
   selectedSchoolIds: string[];
@@ -298,14 +304,20 @@ function PersonalizationControls({
 }
 
 function SchoolMatchCard({
+  briefFull,
+  briefSelected,
   match,
   onAdd,
+  onToggleBrief,
   selected,
   comparisonFull,
 }: {
+  briefFull: boolean;
+  briefSelected: boolean;
   comparisonFull: boolean;
   match: LocationSchoolMatch;
   onAdd: (schoolId: string) => Promise<void> | void;
+  onToggleBrief: (schoolId: string) => void;
   selected: boolean;
 }) {
   const [adding, setAdding] = useState(false);
@@ -351,26 +363,41 @@ function SchoolMatchCard({
           </div>
         ))}
       </dl>
-      <button
-        disabled={selected || comparisonFull || adding}
-        onClick={async () => {
-          setAdding(true);
-          try {
-            await onAdd(match.school.id);
-          } finally {
-            setAdding(false);
-          }
-        }}
-        type="button"
-      >
-        {selected
-          ? "Added to comparison"
-          : comparisonFull
-            ? "Comparison full"
-            : adding
-              ? "Adding…"
-              : "Add to comparison"}
-      </button>
+      <div className="location-school-card-actions">
+        <button
+          disabled={selected || comparisonFull || adding}
+          onClick={async () => {
+            setAdding(true);
+            try {
+              await onAdd(match.school.id);
+            } finally {
+              setAdding(false);
+            }
+          }}
+          type="button"
+        >
+          {selected
+            ? "Added to comparison"
+            : comparisonFull
+              ? "Comparison full"
+              : adding
+                ? "Adding…"
+                : "Add to comparison"}
+        </button>
+        <button
+          aria-pressed={briefSelected}
+          className="location-brief-select"
+          disabled={briefFull && !briefSelected}
+          onClick={() => onToggleBrief(match.school.id)}
+          type="button"
+        >
+          {briefSelected
+            ? "Remove from brief"
+            : briefFull
+              ? "Brief full"
+              : "Add to brief"}
+        </button>
+      </div>
     </article>
   );
 }
@@ -385,11 +412,14 @@ function GradeBandColumn({
 }: {
   band: GradeBand;
   comparisonFull: boolean;
+  briefFull: boolean;
+  briefSelectedIds: Set<string>;
   eligibleCount: number;
   grade: string;
   matches: LocationSchoolMatch[];
   nearbyCount: number;
   onAdd: (schoolId: string) => Promise<void> | void;
+  onToggleBrief: (schoolId: string) => void;
   selectedIds: Set<string>;
 }) {
   return (
@@ -411,10 +441,13 @@ function GradeBandColumn({
         >
           {matches.map((match) => (
             <SchoolMatchCard
+              briefFull={cardProps.briefFull}
+              briefSelected={cardProps.briefSelectedIds.has(match.school.id)}
               comparisonFull={cardProps.comparisonFull}
               key={match.school.id}
               match={match}
               onAdd={cardProps.onAdd}
+              onToggleBrief={cardProps.onToggleBrief}
               selected={cardProps.selectedIds.has(match.school.id)}
             />
           ))}
@@ -434,6 +467,8 @@ export function LocationFinder({
   manifest,
   onAdd,
   onCompare,
+  onCreateBrief,
+  onTrySample,
   resolveLocation = resolveCaliforniaLocation,
   resolveDistricts = lookupDistrictBoundaries,
   selectedSchoolIds,
@@ -459,9 +494,14 @@ export function LocationFinder({
   const [mapFocus, setMapFocus] = useState<LocationMapFocus>("nearby");
   const [shareMessage, setShareMessage] = useState<string>();
   const [shareUrl, setShareUrl] = useState<string>();
+  const [briefSchoolIds, setBriefSchoolIds] = useState<string[]>([]);
   const selectedIds = useMemo(
     () => new Set(selectedSchoolIds),
     [selectedSchoolIds],
+  );
+  const briefSelectedIds = useMemo(
+    () => new Set(briefSchoolIds),
+    [briefSchoolIds],
   );
   const groups = useMemo(
     () =>
@@ -500,7 +540,18 @@ export function LocationFinder({
 
   function updateOptions(nextOptions: LocationRecommendationOptions) {
     setOptions(nextOptions);
+    setBriefSchoolIds([]);
     clearShareState();
+  }
+
+  function toggleBriefSchool(schoolId: string) {
+    setBriefSchoolIds((current) =>
+      current.includes(schoolId)
+        ? current.filter((id) => id !== schoolId)
+        : current.length < 3
+          ? [...current, schoolId]
+          : current,
+    );
   }
 
   async function shareSearch() {
@@ -533,6 +584,16 @@ export function LocationFinder({
             Enter a California work address, city, or ZIP to see transparent
             evidence matches by school level.
           </p>
+          {onTrySample ? (
+            <button
+              className="location-sample-action"
+              onClick={() => void onTrySample()}
+              type="button"
+            >
+              Try a sample Decision Brief
+              <Icon name="chevronRight" size={14} />
+            </button>
+          ) : null}
         </div>
         <form
           className="location-search-form"
@@ -548,6 +609,7 @@ export function LocationFinder({
             setDistrictError(undefined);
             setMapFocus("nearby");
             clearShareState();
+            setBriefSchoolIds([]);
             try {
               const resolved = await resolveLocation(query, allSchools);
               setLocation(resolved);
@@ -582,6 +644,7 @@ export function LocationFinder({
                 aria-label="Work address or California place"
                 onChange={(event) => {
                   setQuery(event.target.value);
+                  setBriefSchoolIds([]);
                   clearShareState();
                 }}
                 placeholder="12450 Mason Ave, Porter Ranch, CA 91326"
@@ -596,6 +659,7 @@ export function LocationFinder({
               aria-label="Location search radius"
               onChange={(event) => {
                 setRadius(Number(event.target.value));
+                setBriefSchoolIds([]);
                 clearShareState();
               }}
               value={radius}
@@ -658,6 +722,32 @@ export function LocationFinder({
               ) : null}
             </div>
           </div>
+          {onCreateBrief ? (
+            <div className="location-brief-builder" aria-live="polite">
+              <div>
+                <Icon name="file" size={22} />
+                <span>
+                  <strong>Build a Family Decision Brief</strong>
+                  Select up to three schools from the evidence matches below.
+                </span>
+              </div>
+              <span>{briefSchoolIds.length} of 3 selected</span>
+              <button
+                disabled={briefSchoolIds.length === 0}
+                onClick={() => {
+                  if (!location) return;
+                  void onCreateBrief(
+                    { location, options, query, radius },
+                    briefSchoolIds,
+                  );
+                }}
+                type="button"
+              >
+                Create brief
+                <Icon name="chevronRight" size={14} />
+              </button>
+            </div>
+          ) : null}
           {shareUrl && shareMessage !== "Share link copied" ? (
             <label className="location-share-fallback">
               <span>Share URL</span>
@@ -755,6 +845,8 @@ export function LocationFinder({
             {groups.map((group) => (
               <GradeBandColumn
                 band={group.band}
+                briefFull={briefSchoolIds.length >= 3}
+                briefSelectedIds={briefSelectedIds}
                 comparisonFull={selectedSchoolIds.length >= 5}
                 eligibleCount={group.eligibleCount}
                 grade={options.grade}
@@ -762,6 +854,7 @@ export function LocationFinder({
                 matches={group.results}
                 nearbyCount={group.nearbyCount}
                 onAdd={onAdd}
+                onToggleBrief={toggleBriefSchool}
                 selectedIds={selectedIds}
               />
             ))}

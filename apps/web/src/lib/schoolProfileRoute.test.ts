@@ -16,6 +16,7 @@ describe("school profile routing", () => {
   it("keeps the existing application routes", () => {
     expect(routeFromPath("/")).toEqual({ page: "compare" });
     expect(routeFromPath("/area")).toEqual({ page: "area" });
+    expect(routeFromPath("/brief")).toEqual({ page: "brief" });
     expect(routeFromPath("/resources")).toEqual({ page: "resources" });
     expect(routeFromPath("/school/not-a-cds-code")).toEqual({
       page: "compare",

@@ -151,6 +151,42 @@ describe("LocationFinder", () => {
     expect(onCompare).toHaveBeenCalledOnce();
   });
 
+  it("builds a bounded decision brief selection from area results", async () => {
+    const user = userEvent.setup();
+    const onCreateBrief = vi.fn();
+    render(
+      <LocationFinder
+        allSchools={[nearbySchool]}
+        manifest={manifest}
+        onAdd={vi.fn()}
+        onCreateBrief={onCreateBrief}
+        selectedSchoolIds={[]}
+      />,
+    );
+
+    await user.type(
+      screen.getByRole("searchbox", {
+        name: "Work address or California place",
+      }),
+      "91326",
+    );
+    await user.click(screen.getByRole("button", { name: "Find schools" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Add to brief" }),
+    );
+
+    expect(screen.getByText("1 of 3 selected")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Create brief" }));
+
+    expect(onCreateBrief).toHaveBeenCalledWith(
+      expect.objectContaining({
+        query: "91326",
+        radius: 10,
+      }),
+      [nearbySchool.id],
+    );
+  });
+
   it("filters the nearby results by a child's grade and school type", async () => {
     const user = userEvent.setup();
     render(

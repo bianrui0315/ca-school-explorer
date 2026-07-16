@@ -55,9 +55,17 @@ The project does not produce a "best schools" ranking. It leads with separate in
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.5.1 release
+## v0.6.0 release
 
-This release adds shareable single-school profiles while retaining the Compare, Area Explorer, and Teaching & resources workspaces:
+This release adds a Family Decision Brief while retaining the Compare, Area Explorer, school profile, and Teaching & resources workspaces:
+
+- a guided workflow from California address, city, or ZIP search to an explainable shortlist of up to three schools;
+- a shareable and printable `/brief` report with distance, grade span, district, school type, evidence coverage, latest ELA, mathematics, attendance, suspension, graduation, dropout, A–G, and College/Career values, and their actual reporting years;
+- compact three-year directions for every available brief indicator, with missing years left unconnected;
+- deterministic strongest-evidence, widest-difference, and missing-data statements generated from versioned public values without a runtime AI model;
+- an independent evidence score explicitly labeled `not a rank`, plus assignment, eligibility, suppression, and source limitations;
+- a one-click Porter Ranch sample using real public-school records so visitors and judges can evaluate the complete flow immediately;
+- brief links that preserve the location context, grade, radius, school type, evidence threshold, user priorities, and selected schools;
 
 - stable `/school/{CDS-code}` URLs for every current public school;
 - a unified school report with directory facts, latest outcomes, actual three-year trends, subgroup exploration, teaching resources, maps, sources, and limitations;
