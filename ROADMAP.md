@@ -26,7 +26,7 @@ The roadmap is task-based rather than feature-count-based. The first milestone s
 - Add same-district, nearby, and similar-context baselines. Search-result maps, distance-based nearby-school discovery, and address/city/ZIP evidence matches by grade band are implemented incrementally in `0.3.x`.
 - Show selected schools on a coordinate-based comparison map with clear basemap attribution.
 - Provide an experimental eight-indicator profile and user-adjustable weighted composite with explicit coverage warnings. College-going remains outside this current-year composite because its latest file is older and uses a different denominator.
-- Generate reproducible share links. Personalized location-search links are implemented in `0.3.2`; full comparison-workspace links remain planned.
+- Generate reproducible share links. Personalized location-search links are implemented in `0.3.2`, full comparison-workspace links in `0.4.2`, and Family Decision Brief links in `0.6.0`.
 
 The ordered implementation plan for discovery, school profiles, geographic context, dashboard context, and new data is documented in [Next Phase Plan](docs/next-phase-plan.md).
 

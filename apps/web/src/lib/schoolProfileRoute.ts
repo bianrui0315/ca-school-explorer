@@ -1,5 +1,5 @@
 export interface AppRoute {
-  page: "area" | "compare" | "profile" | "resources";
+  page: "area" | "brief" | "compare" | "profile" | "resources";
   profileSchoolId?: string;
 }
 
@@ -8,6 +8,9 @@ const PROFILE_PATH = /^\/school\/(\d{14})\/?$/;
 export function routeFromPath(pathname: string): AppRoute {
   if (pathname === "/area") {
     return { page: "area" };
+  }
+  if (pathname === "/brief") {
+    return { page: "brief" };
   }
   if (pathname === "/resources") {
     return { page: "resources" };

@@ -14,12 +14,17 @@ export type IconName =
   | "filter"
   | "file"
   | "info"
+  | "edit"
+  | "link"
   | "mapPin"
   | "menu"
   | "pathways"
   | "plus"
   | "search"
   | "school"
+  | "printer"
+  | "target"
+  | "warning"
   | "users";
 
 const iconPaths: Record<IconName, ReactNode> = {
@@ -82,6 +87,18 @@ const iconPaths: Record<IconName, ReactNode> = {
       <path d="M12 11v6M12 7h.01" />
     </>
   ),
+  edit: (
+    <>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" />
+      <path d="M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1" />
+    </>
+  ),
   mapPin: (
     <>
       <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
@@ -106,6 +123,26 @@ const iconPaths: Record<IconName, ReactNode> = {
     <>
       <path d="m3 10 9-7 9 7" />
       <path d="M5 9v11h14V9M9 20v-6h6v6M8 11h.01M16 11h.01" />
+    </>
+  ),
+  printer: (
+    <>
+      <path d="M6 9V3h12v6" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <path d="M6 14h12v8H6z" />
+    </>
+  ),
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+    </>
+  ),
+  warning: (
+    <>
+      <path d="M10.3 3.8 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z" />
+      <path d="M12 9v4M12 17h.01" />
     </>
   ),
   users: (

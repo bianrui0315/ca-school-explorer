@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-16
+
 ### Added
 
+- A shareable and printable Family Decision Brief that turns one Area Explorer search and up to three selected schools into a concise evidence matrix, three-year trend report, deterministic insights, and explicit decision limits.
+- A separate Add to brief action on every eligible Area Explorer result, with a three-school maximum and a visible brief builder that does not change the existing five-school comparison.
+- A one-click Porter Ranch sample brief for judges and first-time visitors, using three real high-school records and the same public-data workflow as user-created briefs.
+- Stable `/brief` URLs that preserve the displayed location, grade, radius, school type, evidence threshold, user priorities, and selected school CDS codes.
 - A live-site URL, linked product preview, and Buy Me a Coffee support section in the repository README.
 - A compact support strip on every app route with a direct support link and accessible QR-code panel.
 - A README section documenting how OpenAI Codex and GPT-5.6 supported the project's human-reviewed engineering workflow.
@@ -17,6 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - The address-search disclosure now includes a U.S. Census Bureau Geocoder non-endorsement notice.
+- Primary and mobile navigation now include the Decision Brief workflow.
+- Brief summaries are produced by deterministic, tested rules over cited values; no runtime AI rewrites school evidence or fills missing data.
 
 ## [0.5.1] - 2026-07-16
 
