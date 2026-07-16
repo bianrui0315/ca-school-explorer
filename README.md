@@ -2,6 +2,10 @@
 
 **Live website:** [https://ca-school-explorer.thrilling-fragrance.workers.dev/](https://ca-school-explorer.thrilling-fragrance.workers.dev/)
 
+**Try the v0.6.0 decision flow:** [Open the one-click Porter Ranch Family Decision Brief](https://ca-school-explorer.thrilling-fragrance.workers.dev/brief?view=brief&q=Porter+Ranch%2C+CA+91326&lat=34.293744&lng=-118.582012&place=Porter+Ranch%2C+CA+91326&approx=1&r=10&grade=10&type=all&coverage=50&pa=1.5&pt=1&pc=1&pr=1.5&schools=19651361996321%2C19651360102475%2C19647331933746#brief-title)
+
+**Build Week demo:** [Three-minute recording plan and complete narration](docs/demo-video-script.md)
+
 <p align="center">
   <a href="https://ca-school-explorer.thrilling-fragrance.workers.dev/">
     <img src="docs/assets/website-preview.jpg" alt="California School Explorer live website preview" width="1200">
@@ -16,12 +20,12 @@ California School Explorer was created during OpenAI Build Week. The submission 
 
 OpenAI Codex with GPT-5.6 served as an engineering collaborator throughout the project. It accelerated source-schema investigation, deterministic adapter and migration design, implementation across Python, React, TypeScript, PostgreSQL, and Cloudflare, regression-test generation, responsive and accessibility review, and live-release verification. Representative work is visible in the dated commit history:
 
-| Build Week date | Shipped work | Representative commits |
-| --- | --- | --- |
-| July 13 | Product foundation, canonical database, official-data adapters, first release, historical trends, profile chart, and map | `88eb23b`, `1ab81f1`, `2cc347e`, `011d019` |
-| July 14 | School discovery, address and radius search, evidence ordering, filters, personalization, and shareable location results | `46ac8db`, `fad3c2d`, `3553899`, `960b497` |
-| July 15 | College/career data, district boundaries, visual redesign, geographic references, and similar-context matching | `86eee6e`, `b955ca1`, `2b9d2b9`, `5bdb0f7` |
-| July 16 | Teaching resources, unified school profiles, public deployment evidence, and submission documentation | `01256d2`, `0e640ab`, `7b32f18`, `79015de` |
+| Build Week date | Shipped work                                                                                                                     | Representative commits                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| July 13         | Product foundation, canonical database, official-data adapters, first release, historical trends, profile chart, and map         | `88eb23b`, `1ab81f1`, `2cc347e`, `011d019` |
+| July 14         | School discovery, address and radius search, evidence ordering, filters, personalization, and shareable location results         | `46ac8db`, `fad3c2d`, `3553899`, `960b497` |
+| July 15         | College/career data, district boundaries, visual redesign, geographic references, and similar-context matching                   | `86eee6e`, `b955ca1`, `2b9d2b9`, `5bdb0f7` |
+| July 16         | Teaching resources, unified school profiles, the Family Decision Brief, public deployment evidence, and submission documentation | `01256d2`, `0e640ab`, `cf93aab`, `79015de` |
 
 The work remained human-directed and reviewable. The project owner made the key product and governance decisions: do not publish a universal school ranking; preserve suppression and missingness; keep unlike denominators separate; prevent protected characteristics from steering housing results; describe district jurisdiction without claiming attendance assignment; and use a static-first public release backed by a reproducible PostgreSQL source of truth. Codex and GPT-5.6 are not used to generate school outcomes, infer suppressed values, or produce an official school rating. The public metrics are reproducibly derived from cited government datasets, and the optional composite remains transparent and user-editable.
 
@@ -203,6 +207,7 @@ See [Cloudflare Workers deployment](docs/cloudflare-workers.md) for the deployme
 
 - [Data sources and licensing](DATA_SOURCES.md)
 - [Build Week collaboration record](docs/build-week.md)
+- [Three-minute Build Week demo plan and narration](docs/demo-video-script.md)
 - [Data and service usage review](docs/compliance/data-and-service-usage-review-2026-07-16.md)
 - [Methodology](METHODOLOGY.md)
 - [Roadmap](ROADMAP.md)
