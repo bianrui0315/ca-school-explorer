@@ -10,6 +10,12 @@
 
 California School Explorer is an open-source project that turns fragmented public education data into clear, comparable, and trustworthy information for families.
 
+## Built with OpenAI Codex and GPT-5.6
+
+OpenAI Codex with GPT-5.6 served as an engineering collaborator throughout the project. It helped investigate unfamiliar public-data schemas, design deterministic adapters and database migrations, implement the Python, React, TypeScript, PostgreSQL, and Cloudflare code, generate regression tests, review accessibility and responsive behavior, and verify releases against the live application.
+
+The work remained human-directed and reviewable: requirements were broken into small releases, source files were checksum-pinned, calculations were reconciled against official totals, changes passed automated checks, and the resulting code and methodology were published for inspection. Codex and GPT-5.6 are not used to generate school outcomes, infer suppressed values, or produce an official school rating. The public metrics are reproducibly derived from cited government datasets, and the optional composite remains transparent and user-editable.
+
 The product is designed around questions such as:
 
 - Is a school improving over time?
