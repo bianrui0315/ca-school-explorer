@@ -5626,6 +5626,7 @@ tbody td small {
     background: #ffffff;
   }
 
+  .support-strip,
   .site-header,
   .site-footer,
   .profile-actions,
@@ -5677,6 +5678,116 @@ body {
 
 .app {
   min-height: 100vh;
+}
+
+.support-strip {
+  position: relative;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 5px clamp(20px, 4vw, 68px);
+  gap: 12px;
+  background: #122844;
+  color: #dce8f6;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+}
+
+.support-strip-link,
+.support-qr summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffe15a;
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.support-strip-link:hover,
+.support-qr summary:hover {
+  color: #ffffff;
+}
+
+.support-qr {
+  position: relative;
+}
+
+.support-qr summary {
+  color: #dce8f6;
+  font-size: 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.support-qr summary::-webkit-details-marker {
+  display: none;
+}
+
+.support-qr summary::after {
+  width: 5px;
+  height: 5px;
+  margin-left: 1px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  content: "";
+  transform: translateY(-1px) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.support-qr[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.support-qr-panel {
+  position: absolute;
+  z-index: 1200;
+  top: calc(100% + 83px);
+  left: 50%;
+  display: grid;
+  width: 270px;
+  padding: 16px;
+  border: 1px solid #c7d5e5;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 22px 50px rgba(13, 34, 61, 0.22);
+  color: #172740;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.support-qr-panel img {
+  width: 196px;
+  height: 196px;
+  margin: 0 auto 12px;
+  border-radius: 8px;
+}
+
+.support-qr-panel strong {
+  font-size: 14px;
+}
+
+.support-qr-panel p {
+  margin: 5px 0 13px;
+  color: #65748a;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.support-qr-panel a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  gap: 6px;
+  border-radius: 7px;
+  background: #ffdd00;
+  color: #14223a;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .site-header {
@@ -6200,6 +6311,26 @@ body {
 
   .area-page .location-grade-results-row {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .support-strip > span {
+    display: none;
+  }
+
+  .support-strip {
+    min-height: 32px;
+    padding-inline: 14px;
+  }
+
+  .support-qr-panel {
+    position: fixed;
+    top: 104px;
+    right: 14px;
+    left: 14px;
+    width: auto;
+    transform: none;
   }
 }
 

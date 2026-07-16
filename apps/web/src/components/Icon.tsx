@@ -9,6 +9,7 @@ export type IconName =
   | "chevronRight"
   | "climate"
   | "close"
+  | "coffee"
   | "external"
   | "filter"
   | "file"
@@ -52,6 +53,12 @@ const iconPaths: Record<IconName, ReactNode> = {
     </>
   ),
   close: <path d="M18 6 6 18M6 6l12 12" />,
+  coffee: (
+    <>
+      <path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z" />
+      <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M7 3v2M11 2v3M15 3v2" />
+    </>
+  ),
   external: (
     <>
       <path d="M15 3h6v6M10 14 21 3" />
