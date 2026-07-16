@@ -59,7 +59,7 @@ jobs:
 
       - name: Reject non-English CJK text in tracked source files
         run: |
-          if git grep -nP '[\x{3400}-\x{9FFF}]'; then
+          if git grep -InP '[\x{3400}-\x{9FFF}]'; then
             echo "Repository source files must be written in English."
             exit 1
           fi
