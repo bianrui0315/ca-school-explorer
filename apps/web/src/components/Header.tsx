@@ -1,7 +1,7 @@
 import type { MouseEvent } from "react";
 import { Icon } from "./Icon";
 
-export type AppPage = "area" | "compare";
+export type AppPage = "area" | "compare" | "resources";
 
 interface HeaderProps {
   activePage?: AppPage;
@@ -47,6 +47,13 @@ export function Header({
         >
           Area Explorer
         </a>
+        <a
+          aria-current={activePage === "resources" ? "page" : undefined}
+          href="/resources"
+          onClick={(event) => navigate(event, "resources")}
+        >
+          Teaching &amp; resources
+        </a>
       </nav>
       <nav className="header-links" aria-label="Project links">
         <a
@@ -86,6 +93,13 @@ export function Header({
             onClick={(event) => navigate(event, "area")}
           >
             Area Explorer
+          </a>
+          <a
+            aria-current={activePage === "resources" ? "page" : undefined}
+            href="/resources"
+            onClick={(event) => navigate(event, "resources")}
+          >
+            Teaching &amp; resources
           </a>
           <a
             href="https://github.com/bianrui0315/ca-school-explorer/blob/main/METHODOLOGY.md"

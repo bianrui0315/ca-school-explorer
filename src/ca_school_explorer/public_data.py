@@ -19,6 +19,7 @@ from ca_school_explorer.database import require_database_url
 
 DEFAULT_OUTPUT_ROOT = Path("apps/web/public/data")
 SCHOOL_INDEX_CHUNK_SIZE = 2_500
+PUBLIC_CURSOR_BATCH_SIZE = 10_000
 LATEST_OBSERVATION_ENCODING = [
     "year",
     "metricIndex",
@@ -43,6 +44,8 @@ class PublishResult:
     observation_count: int
     school_shard_count: int
     district_file_count: int
+    resource_observation_count: int
+    resource_shard_count: int
     output_root: str
 
 
@@ -128,6 +131,22 @@ def _observation(
         _number(row[5]),
         reliability_codes[str(row[6])],
         int(row[7]),
+    ]
+
+
+def _resource_observation(row: Sequence[Any], metric_indexes: Mapping[str, int]) -> list[Any]:
+    """Encode one school-resource fact without discarding its reporting year."""
+
+    metadata = row[7] if isinstance(row[7], Mapping) else {}
+    return [
+        str(row[0]),
+        metric_indexes[str(row[1])],
+        str(row[2]),
+        _number(row[3]),
+        _number(row[4]),
+        _number(row[5]),
+        int(row[6]),
+        metadata,
     ]
 
 
@@ -278,7 +297,7 @@ def publish_public_data(
     database_url: str,
     output_root: str | Path = DEFAULT_OUTPUT_ROOT,
     *,
-    release: str = "0.4.3",
+    release: str = "0.5.0",
     generated_at: datetime | None = None,
 ) -> PublishResult:
     """Export a compact statewide index and county-sharded indicator bundles."""
@@ -448,6 +467,39 @@ def publish_public_data(
                 for row in metric_rows
             ]
 
+            resource_metric_rows = connection.execute(
+                """
+                select
+                  metric.metric_id,
+                  metric.label,
+                  metric.description,
+                  metric.unit,
+                  metric.methodology_version,
+                  metric.source_key,
+                  source.name,
+                  source.landing_page_url
+                from cse.resource_metric metric
+                join cse.data_source source on source.source_key = metric.source_key
+                order by metric.metric_id
+                """
+            ).fetchall()
+            resource_metrics = [
+                {
+                    "id": str(row[0]),
+                    "label": str(row[1]),
+                    "description": str(row[2]),
+                    "unit": str(row[3]),
+                    "methodologyVersion": str(row[4]),
+                    "sourceKey": str(row[5]),
+                    "sourceLabel": str(row[6]),
+                    "sourceUrl": str(row[7]),
+                }
+                for row in resource_metric_rows
+            ]
+            resource_metric_indexes = {
+                str(metric["id"]): index for index, metric in enumerate(resource_metrics)
+            }
+
             subgroup_rows = connection.execute(
                 """
                 select subgroup_id, label, category_type
@@ -519,6 +571,7 @@ def publish_public_data(
                 defaultdict(lambda: defaultdict(list))
             )
             district_cursor = connection.cursor(name="public_district_observations")
+            district_cursor.itersize = PUBLIC_CURSOR_BATCH_SIZE
             district_cursor.execute(
                 """
                 select
@@ -558,6 +611,7 @@ def publish_public_data(
             reference_records: dict[str, dict[str, Any]] = {}
             reference_observation_count = 0
             reference_cursor = connection.cursor(name="public_geographic_references")
+            reference_cursor.itersize = PUBLIC_CURSOR_BATCH_SIZE
             reference_cursor.execute(
                 """
                 select
@@ -733,6 +787,7 @@ def publish_public_data(
                 )
 
             school_cursor = connection.cursor(name="public_school_observations")
+            school_cursor.itersize = PUBLIC_CURSOR_BATCH_SIZE
             school_cursor.execute(
                 """
                 select
@@ -766,6 +821,45 @@ def publish_public_data(
                 )
                 observation_count += 1
 
+            resource_records: dict[str, dict[str, list[list[Any]]]] = {
+                shard_id: {} for shard_id in school_records
+            }
+            resource_years: set[str] = set()
+            resource_observation_count = 0
+            resource_cursor = connection.cursor(name="public_school_resources")
+            resource_cursor.itersize = PUBLIC_CURSOR_BATCH_SIZE
+            resource_cursor.execute(
+                """
+                select
+                  entity.cds_code,
+                  observation.school_year,
+                  observation.metric_id,
+                  observation.dimension,
+                  observation.value,
+                  observation.numerator,
+                  observation.denominator,
+                  observation.source_snapshot_id,
+                  observation.metadata
+                from cse.school_resource_fact observation
+                join cse.current_source_snapshot current_snapshot
+                  on current_snapshot.id = observation.source_snapshot_id
+                join cse.entity entity on entity.id = observation.entity_id
+                where
+                  entity.entity_type = 'school'
+                  and entity.identity_resolution = 'resolved'
+                """
+            )
+            for row in resource_cursor:
+                school_id = str(row[0])
+                selected_shard = school_shards.get(school_id)
+                if selected_shard is None:
+                    continue
+                resource_records[selected_shard].setdefault(school_id, []).append(
+                    _resource_observation(row[1:], resource_metric_indexes)
+                )
+                resource_years.add(str(row[1]))
+                resource_observation_count += 1
+
             _attach_latest_observations(
                 schools,
                 school_records,
@@ -796,6 +890,15 @@ def publish_public_data(
                     temporary_root / "schools" / f"{shard_id}.json",
                     {"schemaVersion": 1, "shard": shard_id, "schools": records},
                 )
+            for shard_id, resource_school_records in sorted(resource_records.items()):
+                _write_json(
+                    temporary_root / "resources" / f"{shard_id}.json",
+                    {
+                        "schemaVersion": 1,
+                        "shard": shard_id,
+                        "schools": resource_school_records,
+                    },
+                )
 
         school_index_files: list[str] = []
         for offset in range(0, len(schools), SCHOOL_INDEX_CHUNK_SIZE):
@@ -824,7 +927,11 @@ def publish_public_data(
             "referenceCount": len(reference_records),
             "referenceFileCount": len(reference_records),
             "referenceObservationCount": reference_observation_count,
+            "resourceSchoolYears": sorted(resource_years),
+            "resourceObservationCount": resource_observation_count,
+            "resourceShardCount": len(resource_records),
             "metrics": metrics,
+            "resourceMetrics": resource_metrics,
             "subgroups": subgroups,
             "sourceSnapshots": snapshots,
             "observationEncoding": [
@@ -838,6 +945,16 @@ def publish_public_data(
                 "sourceSnapshotId",
             ],
             "latestObservationEncoding": LATEST_OBSERVATION_ENCODING,
+            "resourceObservationEncoding": [
+                "schoolYear",
+                "metricIndex",
+                "dimension",
+                "value",
+                "numerator",
+                "denominator",
+                "sourceSnapshotId",
+                "metadata",
+            ],
             "reliabilityCodes": {
                 "0": "reliable",
                 "1": "small-sample",
@@ -864,5 +981,7 @@ def publish_public_data(
         observation_count=observation_count,
         school_shard_count=len(school_records),
         district_file_count=len(county_codes),
+        resource_observation_count=resource_observation_count,
+        resource_shard_count=len(resource_records),
         output_root=str(destination),
     )

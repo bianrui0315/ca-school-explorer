@@ -35,6 +35,23 @@ source_row_number
 
 Dimensions retain entity history, metric definitions, subgroup definitions, geographic crosswalks, and source metadata.
 
+Teaching and resource observations use a separate long-form grain because a grade, subject, assignment category, experience category, or support role is not a student subgroup:
+
+```text
+entity_id
+school_year
+resource_metric_id
+dimension
+value
+numerator
+denominator
+source_snapshot_id
+source_row_number
+metadata
+```
+
+Missing resource values are omitted rather than converted to zero. Published zero support-staff FTE may remain zero, while a blank or `0.00` pupils-per-counselor ratio is unavailable because it does not describe a usable ratio.
+
 ## Entity identity
 
 The California CDS code is the primary source identifier, but it is not assumed to be collision-free across every downloadable file. A stable entity identity key and resolution state preserve:
@@ -58,6 +75,16 @@ Every comparison may expose three independent baselines:
 - **Similar context:** schools matched using public institutional context such as grade span, school type, urbanicity, enrollment size, and shares of socioeconomically disadvantaged students, English learners, and students with disabilities.
 
 Protected characteristics may be used to view an officially published subgroup outcome. They are not used to recommend housing locations or describe a neighborhood as suitable for a demographic group.
+
+## Teaching and resource context
+
+Teacher experience, teacher preparation and placement, class size, support-staff FTE, and pupils per academic counselor are descriptive context. They are not normalized, weighted, or included in the experimental outcome composite. Higher or lower values are not automatically better.
+
+Staff Experience uses school-level, teacher, all-gender rows. Teacher experience values are headcounts and years, not FTE. Experienced means more than two years, and accepted rows must reconcile experienced plus inexperienced teachers to the published total.
+
+SARC teacher-preparation percentages and teaching-position FTE remain as published because independently rounded FTE cannot safely be used to recompute the displayed percentage. Class size remains separate by elementary grade or secondary subject and is not averaged into one school value. Support roles retain their published FTE units.
+
+The interface keeps reporting years explicit: Staff Experience is currently 2025–26, class size and student support are 2024–25, and teacher preparation currently ends in 2023–24. These values must not be presented as one synchronized snapshot. No small-school reliability threshold is invented when a source does not publish one; the reported teacher count remains visible instead.
 
 ## Location evidence matches
 

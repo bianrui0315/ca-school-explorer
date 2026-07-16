@@ -1,0 +1,24 @@
+manifest_version = 1
+dataset_id = "cde_sarc_secondary_class_size_2024_25"
+adapter = "sarc_secondary_class_size_v1"
+schema_version = "cde-sarc-2024-25-v1"
+source_id = "cde_sarc"
+source_name = "CDE School Accountability Report Card Data"
+publisher = "California Department of Education"
+landing_page_url = "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"
+download_url = "https://www3.cde.ca.gov/researchfiles/sarc/sarc2425/acssec.txt"
+academic_year = "2024-25"
+release_date = "2026-03-27"
+filename = "acssec.txt"
+media_type = "text/tab-separated-values"
+encoding = "windows-1252"
+sha256 = "7efee5f1ff124c36d18ba404736143d6f8f0731e7cc353a60593a1b8d6a9c21c"
+byte_size = 909988
+record_count = 6778
+terms_status = "review-required"
+columns = [
+  "CDSCODE", "C", "D", "S", "SARCYear",
+  "AVGEN_Y1", "AVGMA_Y1", "AVGSC_Y1", "AVGSS_Y1", "NCSEN_Y1", "NCSMA_Y1", "NCSSC_Y1", "NCSSS_Y1", "NCMEN_Y1", "NCMMA_Y1", "NCMSC_Y1", "NCMSS_Y1", "NCLEN_Y1", "NCLMA_Y1", "NCLSC_Y1", "NCLSS_Y1",
+  "AVGEN_Y2", "AVGMA_Y2", "AVGSC_Y2", "AVGSS_Y2", "NCSEN_Y2", "NCSMA_Y2", "NCSSC_Y2", "NCSSS_Y2", "NCMEN_Y2", "NCMMA_Y2", "NCMSC_Y2", "NCMSS_Y2", "NCLEN_Y2", "NCLMA_Y2", "NCLSC_Y2", "NCLSS_Y2",
+  "AVGEN_Y3", "AVGMA_Y3", "AVGSC_Y3", "AVGSS_Y3", "NCSEN_Y3", "NCSMA_Y3", "NCSSC_Y3", "NCSSS_Y3", "NCMEN_Y3", "NCMMA_Y3", "NCMSC_Y3", "NCMSS_Y3", "NCLEN_Y3", "NCLMA_Y3", "NCLSC_Y3", "NCLSS_Y3",
+]

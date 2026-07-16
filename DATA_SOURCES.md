@@ -47,6 +47,10 @@ The canonical database has pinned adapters for 2022–23, 2023–24, and 2024–
 - College-Going Rate (12-month): 230,217 source rows for 2022–23, filtered at the documented all-completer grain into 84,142 canonical facts.
 - Public School Geography 2025–26: 9,946 quality-controlled school coordinates and classification profiles.
 - California School District Areas 2025–26: authoritative public-domain polygons queried by the Worker for district jurisdiction at exact address points.
+- Staff Experience 2025–26: 374,325 physical rows filtered to 10,043 school-level, all-gender teacher records and normalized into experience averages and headcounts.
+- SARC Teacher Preparation and Placement 2024–25: 10,549 school rows with published teaching-position FTE and percentages for 2021–22 through 2023–24.
+- SARC Elementary and Secondary Average Class Size 2024–25: 17,177 physical rows retaining grade, subject, year, and published class-count bands.
+- SARC Student Support Services Staff and Ratio of Pupils to Academic Counselor 2024–25: 20,556 physical rows retaining reported support FTE and usable counselor ratios.
 
 Each manifest records the official URL, release date, encoding, byte size, record count, header contract, and SHA-256 digest. Adapters preserve CDE suppression markers, flag reported samples below 30, and reconcile published rates to source counts where counts are available.
 
@@ -66,7 +70,7 @@ The public directory is continuously updated and organization-reported, so its a
 
 Private schools are cataloged separately. CDE's directory and annual Private School Affidavit files generally include schools reporting six or more students. Inclusion is neither CDE approval nor an outcome measure, and private schools will not be ranked against public schools using missing Dashboard metrics.
 
-Staffing, SARC, CRDC, ACS, SEDA, and Cradle-to-Career data follow after the entity model and comparison rules are stable.
+Additional SARC measures, CRDC, ACS, SEDA, and Cradle-to-Career data remain candidates for reviewed expansion. The implemented staffing and SARC teaching-resource measures remain separate from outcome metrics and are not used to create a school rating.
 
 ## Corrections
 

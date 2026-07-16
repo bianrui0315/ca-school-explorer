@@ -188,6 +188,17 @@ license_review = "required"
 notes = "The pinned 2022-23 file combines CALPADS and National Student Clearinghouse records. It has a publication lag and can undercount blocked directory records."
 
 [[sources]]
+id = "cde_staff_experience"
+name = "Staff Experience Data"
+publisher = "California Department of Education"
+category = "staffing"
+landing_page_url = "https://www.cde.ca.gov/ds/ad/filesstex.asp"
+refresh_cadence = "annual"
+status = "active"
+license_review = "required"
+notes = "The implemented 2025-26 snapshot provides school-level teacher counts and average total and district experience at the documented all-gender grain."
+
+[[sources]]
 id = "cde_staff"
 name = "Staff Data"
 publisher = "California Department of Education"
@@ -205,9 +216,9 @@ publisher = "California Department of Education"
 category = "school_conditions"
 landing_page_url = "https://www.cde.ca.gov/ta/ac/sa/accessdata2425.asp"
 refresh_cadence = "annual"
-status = "planned"
+status = "active"
 license_review = "required"
-notes = "Many standardized files are available, while several narrative fields remain LEA-provided."
+notes = "Five 2024-25 report-card files are implemented for teacher preparation, class size, counselor ratios, and student support; several narrative fields remain LEA-provided."
 
 [[sources]]
 id = "federal_crdc"
