@@ -1,7 +1,7 @@
 import type { MouseEvent } from "react";
 import { Icon } from "./Icon";
 
-export type AppPage = "area" | "compare" | "resources";
+export type AppPage = "area" | "compare" | "profile" | "resources";
 
 interface HeaderProps {
   activePage?: AppPage;

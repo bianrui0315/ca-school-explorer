@@ -11,6 +11,7 @@ import type {
   PublicCatalog,
   PublicDataClient,
   SchoolDetail,
+  SchoolResources,
   SchoolSummary,
   SubgroupDefinition,
 } from "./types";
@@ -225,6 +226,85 @@ afterEach(() => {
 });
 
 function createDataClient(): PublicDataClient {
+  const resourcesFor = (schoolId: string): SchoolResources => ({
+    id: schoolId,
+    metrics: {
+      average_class_size: {
+        grade_k: [
+          {
+            schoolYear: "2024-25",
+            dimension: "grade_k",
+            value: 19,
+            numerator: null,
+            denominator: null,
+            sourceSnapshotId: 2,
+            metadata: {},
+          },
+        ],
+        grade_5: [
+          {
+            schoolYear: "2024-25",
+            dimension: "grade_5",
+            value: 31,
+            numerator: null,
+            denominator: null,
+            sourceSnapshotId: 2,
+            metadata: {},
+          },
+        ],
+      },
+      pupils_per_academic_counselor: {
+        all_students: [
+          {
+            schoolYear: "2024-25",
+            dimension: "all_students",
+            value: 698,
+            numerator: null,
+            denominator: null,
+            sourceSnapshotId: 2,
+            metadata: {},
+          },
+        ],
+      },
+      teacher_assignment_percent: {
+        fully_credentialed: [
+          {
+            schoolYear: "2023-24",
+            dimension: "fully_credentialed",
+            value: 90,
+            numerator: 50.4,
+            denominator: 56,
+            sourceSnapshotId: 2,
+            metadata: {},
+          },
+        ],
+      },
+      teacher_experience_average: {
+        total: [
+          {
+            schoolYear: "2025-26",
+            dimension: "total",
+            value: 12.2,
+            numerator: null,
+            denominator: 57,
+            sourceSnapshotId: 2,
+            metadata: {},
+          },
+        ],
+        district: [
+          {
+            schoolYear: "2025-26",
+            dimension: "district",
+            value: 12,
+            numerator: null,
+            denominator: null,
+            sourceSnapshotId: 2,
+            metadata: {},
+          },
+        ],
+      },
+    },
+  });
   return {
     loadCatalog: async () => catalog,
     loadSchool: async (school) => {
@@ -234,7 +314,7 @@ function createDataClient(): PublicDataClient {
       }
       return detail;
     },
-    loadSchoolResources: async (school) => ({ id: school.id, metrics: {} }),
+    loadSchoolResources: async (school) => resourcesFor(school.id),
     loadDistrict: async (): Promise<DistrictDetail> => ({
       id: "01611190000000",
       name: "Alameda Unified",
@@ -268,6 +348,50 @@ function createDataClient(): PublicDataClient {
 }
 
 describe("school comparison experience", () => {
+  it("loads a stable single-school profile URL and adds the school to comparison", async () => {
+    window.history.replaceState({}, "", "/school/19647339999999");
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Sierra Vista School" }),
+    ).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/school/19647339999999");
+    expect(
+      screen.getByRole("heading", { name: "Latest outcome context" }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText("12.2 years")).toBeInTheDocument();
+    expect(screen.getByText("19–31")).toBeInTheDocument();
+    expect(screen.getByText("698")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Add to compare" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Open comparison" }),
+    );
+    expect(window.location.pathname).toBe("/");
+    expect(screen.getByText("Selected schools (1 of 5)")).toBeInTheDocument();
+  });
+
+  it("offers profile links from comparison and handles unknown CDS codes", async () => {
+    const user = userEvent.setup();
+    render(<App dataClient={createDataClient()} />);
+
+    const profileLinks = await screen.findAllByRole("button", {
+      name: "View school profile",
+    });
+    await user.click(profileLinks[0]!);
+    expect(window.location.pathname).toBe("/school/01611190130229");
+    expect(
+      screen.getByRole("heading", { name: "Alameda High" }),
+    ).toBeInTheDocument();
+
+    window.history.pushState({}, "", "/school/99999999999999");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(
+      await screen.findByRole("heading", { name: "School profile not found" }),
+    ).toBeInTheDocument();
+  });
+
   it("renders official-data disclosure and the initial comparison", async () => {
     render(<App dataClient={createDataClient()} />);
 

@@ -53,4 +53,4 @@ data-ingest:
 	$(PYTHON) -m ca_school_explorer ingest-dataset
 
 data-publish:
-	$(PYTHON) -m ca_school_explorer publish-public-data --release 0.5.0
+	$(PYTHON) -m ca_school_explorer publish-public-data --release 0.5.1

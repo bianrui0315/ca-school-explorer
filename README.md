@@ -22,9 +22,14 @@ The project does not produce a "best schools" ranking. It leads with separate in
 
 Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the research, scope, architecture, cost model, risks, and proposed 8–10 week roadmap.
 
-## v0.5.0 release
+## v0.5.1 release
 
-This release adds a dedicated Teaching & resources workspace while retaining the Compare and Area Explorer workspaces:
+This release adds shareable single-school profiles while retaining the Compare, Area Explorer, and Teaching & resources workspaces:
+
+- stable `/school/{CDS-code}` URLs for every current public school;
+- a unified school report with directory facts, latest outcomes, actual three-year trends, subgroup exploration, teaching resources, maps, sources, and limitations;
+- direct school-profile actions from comparison cards plus profile search, copy-link, add-to-comparison, and full teaching-comparison flows;
+- responsive desktop, mobile, and print layouts with unknown-CDS and partial-data states;
 
 - teacher experience for 2025–26, including total teacher counts, average total and district experience, and transparent experience categories;
 - teacher preparation and placement for 2021–22 through 2023–24, with published percentages and teaching-position FTE preserved;
