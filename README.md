@@ -1,5 +1,13 @@
 # California School Explorer
 
+**Live website:** [https://ca-school-explorer.thrilling-fragrance.workers.dev/](https://ca-school-explorer.thrilling-fragrance.workers.dev/)
+
+<p align="center">
+  <a href="https://ca-school-explorer.thrilling-fragrance.workers.dev/">
+    <img src="docs/assets/website-preview.jpg" alt="California School Explorer live website preview" width="1200">
+  </a>
+</p>
+
 California School Explorer is an open-source project that turns fragmented public education data into clear, comparable, and trustworthy information for families.
 
 The product is designed around questions such as:
@@ -8,6 +16,14 @@ The product is designed around questions such as:
 - How do outcomes differ for English learners, students with disabilities, racial and ethnic groups, and socioeconomically disadvantaged students?
 - How does a school compare with schools in the same district, nearby schools, and schools serving similar student populations?
 - Which findings are reliable, and which are limited by small samples, suppression, missing years, or methodology changes?
+
+## Support the project
+
+California School Explorer is an independent open-source project. If it helps your family, you can support continued public-data updates, hosting, and development at [buymeacoffee.com/bianrui0315](https://buymeacoffee.com/bianrui0315).
+
+<a href="https://buymeacoffee.com/bianrui0315">
+  <img src="apps/web/public/buy-me-a-coffee-qr.png" alt="QR code for buymeacoffee.com/bianrui0315" width="190">
+</a>
 
 ## Product principles and roadmap
 
