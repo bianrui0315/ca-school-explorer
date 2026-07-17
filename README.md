@@ -4,8 +4,6 @@
 
 **Try the v0.6.0 decision flow:** [Open the one-click Porter Ranch Family Decision Brief](https://ca-school-explorer.thrilling-fragrance.workers.dev/brief?view=brief&q=Porter+Ranch%2C+CA+91326&lat=34.293744&lng=-118.582012&place=Porter+Ranch%2C+CA+91326&approx=1&r=10&grade=10&type=all&coverage=50&pa=1.5&pt=1&pc=1&pr=1.5&schools=19651361996321%2C19651360102475%2C19647331933746#brief-title)
 
-**Build Week demo:** [Three-minute recording plan and complete narration](docs/demo-video-script.md)
-
 <p align="center">
   <a href="https://ca-school-explorer.thrilling-fragrance.workers.dev/">
     <img src="docs/assets/website-preview.jpg" alt="California School Explorer live website preview" width="1200">
@@ -207,7 +205,6 @@ See [Cloudflare Workers deployment](docs/cloudflare-workers.md) for the deployme
 
 - [Data sources and licensing](DATA_SOURCES.md)
 - [Build Week collaboration record](docs/build-week.md)
-- [Three-minute Build Week demo plan and narration](docs/demo-video-script.md)
 - [Data and service usage review](docs/compliance/data-and-service-usage-review-2026-07-16.md)
 - [Methodology](METHODOLOGY.md)
 - [Roadmap](ROADMAP.md)
