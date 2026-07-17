@@ -14,15 +14,15 @@ This plan is designed for a 16:9, 1080p screen recording that runs between 2:50 
 
 | Time      | Screen action                                                                                                                                         | Purpose                                                                 |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 0:00–0:20 | Show the project name, then the main comparison dashboard.                                                                                            | State the family problem and the product promise.                       |
+| 0:00–0:20 | Show the project name, then the main comparison dashboard.                                                                                            | State the family scenario and the broader education promise.            |
 | 0:20–0:38 | Briefly show the metric navigation, trend chart, subgroup control, and comparison table.                                                              | Establish the real-data foundation without explaining every control.    |
 | 0:38–1:00 | Open **Area Explorer** and point to location, grade, radius, school type, coverage, and evidence priorities.                                          | Explain the normal discovery workflow.                                  |
 | 1:00–1:20 | Click **Try a sample Decision Brief** and wait for the Porter Ranch brief to load.                                                                    | Give judges a fast, repeatable entry point.                             |
 | 1:20–1:44 | Move across the three school summary cards. Point to distance, district, grade span, coverage, strongest weighted evidence, and the not-a-rank label. | Explain the shortlist and score guardrail.                              |
 | 1:44–2:08 | Scroll through **Latest evidence** and pause on ELA, mathematics, attendance, suspension, graduation, dropout, A–G, and College/Career.               | Show official values, actual reporting years, and reliability state.    |
-| 2:08–2:28 | Scroll through **Three-year direction**.                                                                                                              | Demonstrate historical comparison and preserved missingness.            |
+| 2:08–2:28 | Scroll through **Three-year direction**.                                                                                                              | Connect historical and subgroup evidence to family and school planning. |
 | 2:28–2:48 | Show **What stands out**, data gaps, and **Before you decide**.                                                                                       | Explain the deterministic interpretation and assignment limitation.     |
-| 2:48–3:00 | Point to **Copy share link**, **Print brief**, and the GitHub link. End on the project name.                                                          | Close with shareability, open source, and the Build Week collaboration. |
+| 2:48–3:00 | Point to **Copy share link**, **Print brief**, and the GitHub link. End on the project name.                                                          | Close with the broader audience, open source, and Build Week.           |
 
 ## Complete narration
 
@@ -32,7 +32,7 @@ When a family moves for a new job or plans the next school transition, the quest
 
 ### 0:20–0:38 — The foundation
 
-California publishes valuable education data, but it is spread across separate files and dashboards. California School Explorer turns those public records into one comparable experience, with multiple years, student subgroups, transparent denominators, reliability labels, and visible source notes.
+California publishes valuable education data, but it is spread across separate files and dashboards. California School Explorer turns those records into one comparable experience for families, teachers, and school leaders, with multiple years, student subgroups, reliability labels, and visible source notes.
 
 ### 0:38–1:00 — Start with a new place
 
@@ -52,7 +52,7 @@ The latest-evidence table places the schools side by side across eight indicator
 
 ### 2:08–2:28 — See direction over time
 
-The three-year section makes direction visible without hiding the underlying values. Families can see where evidence is improving, stable, declining, or incomplete. They can then open the full comparison for deeper subgroup analysis, including English learners and students with disabilities.
+The three-year section makes direction visible without hiding the underlying values. Families can see where evidence is improving, stable, declining, or incomplete. Teachers and school leaders can use the same trends and subgroup views to support planning and more informed community conversations.
 
 ### 2:28–2:48 — Explain the evidence and limits
 
@@ -60,11 +60,11 @@ The brief uses deterministic rules to identify the strongest evidence, the large
 
 ### 2:48–3:00 — Close
 
-The result can be shared or printed. California School Explorer is open source, built, tested, documented, and deployed with Codex and GPT-5.6 during OpenAI Build Week.
+Families, teachers, and school leaders can share the same evidence. California School Explorer is open source, built with Codex and GPT-5.6 during OpenAI Build Week.
 
 ## Editing notes
 
 - Keep the opening title on screen for no more than two seconds before showing the product.
 - Use simple cuts and one gentle zoom on the latest-evidence table; avoid decorative transitions.
-- If the recording runs long, shorten pauses before removing narration. The first sentence to cut is the optional subgroup sentence in the three-year section.
+- If the recording runs long, shorten pauses before removing narration. If one sentence must be shortened, use the final sentence in the sample section.
 - End with the live URL and GitHub repository visible for at least two seconds.
