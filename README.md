@@ -1,8 +1,34 @@
-# California School Explorer
+<p align="center">
+  <img src="docs/assets/california-school-explorer-logo.png" alt="California School Explorer logo" width="180">
+</p>
 
-**Live website:** [https://ca-school-explorer.thrilling-fragrance.workers.dev/](https://ca-school-explorer.thrilling-fragrance.workers.dev/)
+<h1 align="center">California School Explorer</h1>
 
-**Try the v0.6.0 decision flow:** [Open the one-click Porter Ranch Family Decision Brief](https://ca-school-explorer.thrilling-fragrance.workers.dev/brief?view=brief&q=Porter+Ranch%2C+CA+91326&lat=34.293744&lng=-118.582012&place=Porter+Ranch%2C+CA+91326&approx=1&r=10&grade=10&type=all&coverage=50&pa=1.5&pt=1&pc=1&pr=1.5&schools=19651361996321%2C19651360102475%2C19647331933746#brief-title)
+<p align="center">
+  <strong>Clear, comparable California public-school data for families, educators, and communities.</strong>
+</p>
+
+<p align="center">
+  <a href="https://ca-school-explorer.thrilling-fragrance.workers.dev/">Live website</a>
+  ·
+  <a href="https://www.youtube.com/watch?v=tQ0Qb5mxX-s">Video demo</a>
+  ·
+  <a href="https://ca-school-explorer.thrilling-fragrance.workers.dev/brief?view=brief&amp;q=Porter+Ranch%2C+CA+91326&amp;lat=34.293744&amp;lng=-118.582012&amp;place=Porter+Ranch%2C+CA+91326&amp;approx=1&amp;r=10&amp;grade=10&amp;type=all&amp;coverage=50&amp;pa=1.5&amp;pt=1&amp;pc=1&amp;pr=1.5&amp;schools=19651361996321%2C19651360102475%2C19647331933746#brief-title">Try the sample Decision Brief</a>
+</p>
+
+## Video demo
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=tQ0Qb5mxX-s">
+    <img src="docs/assets/video-demo-thumbnail.jpg" alt="California School Explorer video demo" width="960">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=tQ0Qb5mxX-s"><strong>Watch the California School Explorer demo on YouTube</strong></a>
+</p>
+
+## Live product
 
 <p align="center">
   <a href="https://ca-school-explorer.thrilling-fragrance.workers.dev/">
