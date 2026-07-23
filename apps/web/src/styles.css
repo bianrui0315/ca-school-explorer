@@ -6722,13 +6722,51 @@ body {
 
 .header-links {
   justify-self: end;
-  gap: 26px;
+  gap: 18px;
 }
 
 .header-links a {
   color: #526178;
   font-size: 12px;
   font-weight: 650;
+}
+
+.language-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #c9d7e7;
+  border-radius: 999px;
+  background: #f5f8fc;
+}
+
+.language-control button,
+.mobile-menu-panel .language-control button {
+  display: grid;
+  width: 31px;
+  min-height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #65738a;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  place-items: center;
+}
+
+.language-control button[aria-pressed="true"],
+.mobile-menu-panel .language-control button[aria-pressed="true"] {
+  background: #ffffff;
+  color: var(--blue);
+  box-shadow: 0 1px 4px rgba(31, 65, 112, 0.18);
+}
+
+.mobile-menu-panel .language-control {
+  align-self: flex-start;
+  margin: 7px 9px 5px;
 }
 
 .intro {
@@ -7089,8 +7127,17 @@ body {
 
 @media (max-width: 1180px) {
   .site-header {
-    grid-template-columns: minmax(225px, 1fr) auto minmax(225px, 1fr);
+    grid-template-columns: minmax(225px, 1fr) auto auto;
     padding-inline: 28px;
+  }
+
+  .header-links {
+    display: none;
+  }
+
+  .mobile-menu,
+  .menu-button {
+    display: flex;
   }
 
   .workspace {

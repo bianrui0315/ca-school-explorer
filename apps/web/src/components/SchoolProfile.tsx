@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from "react";
+import { localeCode, useI18n } from "../i18n";
 import {
   formatMetricValue,
   formatSchoolYear,
@@ -134,11 +135,12 @@ function MiniTrend({
   metric: MetricDefinition;
   observations: Observation[];
 }) {
+  const { t } = useI18n();
   const points = observations
     .filter((observation) => observation.value !== null)
     .slice(-3);
   if (points.length === 0) {
-    return <span className="profile-no-trend">No trend</span>;
+    return <span className="profile-no-trend">{t("No trend")}</span>;
   }
   const values = points.map((point) => point.value as number);
   const minimum = Math.min(...values);
@@ -157,7 +159,9 @@ function MiniTrend({
       className={`profile-mini-trend profile-tone--${metricTone(metric.id)}`}
     >
       <svg
-        aria-label={`${metric.navLabel} three-year trend`}
+        aria-label={t("{metric} three-year trend", {
+          metric: t(metric.navLabel),
+        })}
         role="img"
         viewBox="0 0 128 40"
       >
@@ -215,6 +219,7 @@ function SchoolProfileSearch({
   allSchools: SchoolSummary[];
   onOpenProfile: (schoolId: string) => void;
 }) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const matches = useMemo(
     () =>
@@ -230,7 +235,7 @@ function SchoolProfileSearch({
   return (
     <div className="profile-search">
       <label>
-        <span className="visually-hidden">Find another school</span>
+        <span className="visually-hidden">{t("Find another school")}</span>
         <Icon name="search" size={18} />
         <input
           aria-autocomplete="list"
@@ -239,7 +244,7 @@ function SchoolProfileSearch({
           }
           aria-expanded={matches.length > 0}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Find another school"
+          placeholder={t("Find another school")}
           type="search"
           value={query}
         />
@@ -281,6 +286,7 @@ export function SchoolProfile({
   resourcesLoading,
   school,
 }: SchoolProfileProps) {
+  const { locale, t } = useI18n();
   const endYear = Math.max(
     ...catalog.manifest.outcomeSchoolYears.map((year) =>
       Number.parseInt(year.slice(0, 4), 10),
@@ -386,9 +392,9 @@ export function SchoolProfile({
           ),
         ),
       ]);
-      setShareMessage("Profile link copied");
+      setShareMessage(t("Profile link copied"));
     } catch {
-      setShareMessage("Profile link is ready in the address bar");
+      setShareMessage(t("Profile link is ready in the address bar"));
     }
   };
 
@@ -397,7 +403,7 @@ export function SchoolProfile({
       <section className="profile-identity">
         <div className="profile-identity-copy">
           <p className="profile-breadcrumb">
-            Schools <span>/</span> {school.district}
+            {t("Schools")} <span>/</span> {school.district}
           </p>
           <h1>{school.name}</h1>
           <strong>{school.district}</strong>
@@ -410,21 +416,27 @@ export function SchoolProfile({
               <Icon name="school" size={19} /> {school.gradeSpan}
             </span>
             <span>
-              <Icon name="book" size={19} /> {school.schoolType}
+              <Icon name="book" size={19} /> {t(school.schoolType)}
             </span>
             <span>
-              <Icon name="users" size={19} /> {formatCount(school.enrollment)}{" "}
-              students
+              <Icon name="users" size={19} />{" "}
+              {school.enrollment === null
+                ? t("Not reported")
+                : formatCount(school.enrollment)}{" "}
+              {t("students")}
             </span>
             <span className="profile-teacher-fact">
               <Icon name="users" size={19} />{" "}
-              {formatCount(school.staff.teachers)} reported teachers
+              {school.staff.teachers === null
+                ? t("Not reported")
+                : formatCount(school.staff.teachers)}{" "}
+              {t("reported teachers")}
             </span>
           </div>
           {flags.length > 0 ? (
             <div
               className="profile-directory-flags"
-              aria-label="Directory designations"
+              aria-label={t("Directory designations")}
             >
               {flags.map((flag) => (
                 <span key={flag}>{flag}</span>
@@ -448,27 +460,30 @@ export function SchoolProfile({
             >
               <Icon name={isInComparison ? "chevronRight" : "plus"} size={18} />
               {isInComparison
-                ? "Open comparison"
+                ? t("Open comparison")
                 : comparisonIsFull
-                  ? "Comparison is full"
-                  : "Add to compare"}
+                  ? t("Comparison is full")
+                  : t("Add to compare")}
             </button>
             <button onClick={() => void copyProfile()} type="button">
-              <Icon name="external" size={17} /> Copy profile link
+              <Icon name="external" size={17} /> {t("Copy profile link")}
             </button>
           </div>
           {shareMessage ? <p role="status">{shareMessage}</p> : null}
         </div>
       </section>
 
-      <nav className="profile-section-nav" aria-label="School profile sections">
+      <nav
+        className="profile-section-nav"
+        aria-label={t("School profile sections")}
+      >
         {PROFILE_SECTIONS.map(([id, label], index) => (
           <a
             aria-current={index === 0 ? "location" : undefined}
             href={`#${id}`}
             key={id}
           >
-            {label}
+            {t(label)}
           </a>
         ))}
       </nav>
@@ -476,15 +491,17 @@ export function SchoolProfile({
       <div className="profile-report" id="profile-overview">
         <section
           className="profile-status-strip"
-          aria-label="Profile data years"
+          aria-label={t("Profile data years")}
         >
           <div>
             <span className="profile-status-check">
               <Icon name="check" size={17} />
             </span>
             <span>
-              <strong>Official public data</strong>
-              <small>Release {catalog.manifest.release}</small>
+              <strong>{t("Official public data")}</strong>
+              <small>
+                {t("Release {release}", { release: catalog.manifest.release })}
+              </small>
             </span>
           </div>
           <div>
@@ -493,7 +510,7 @@ export function SchoolProfile({
               <strong>
                 {catalog.manifest.profileSchoolYears.at(-1)} directory
               </strong>
-              <small>Latest available</small>
+              <small>{t("Latest available")}</small>
             </span>
           </div>
           <div>
@@ -503,7 +520,7 @@ export function SchoolProfile({
                 {catalog.manifest.outcomeSchoolYears[0]?.slice(0, 4)}–
                 {catalog.manifest.outcomeSchoolYears.at(-1)?.slice(-2)} outcomes
               </strong>
-              <small>Latest available by measure</small>
+              <small>{t("Latest available by measure")}</small>
             </span>
           </div>
         </section>
@@ -511,17 +528,17 @@ export function SchoolProfile({
         <div className="profile-overview-layout">
           <section className="profile-panel profile-outcome-snapshot">
             <header>
-              <h2>Latest outcome context</h2>
+              <h2>{t("Latest outcome context")}</h2>
               <span>
-                Context, not a rating. <Icon name="info" size={16} />
+                {t("Context, not a rating.")} <Icon name="info" size={16} />
               </span>
             </header>
             <div className="profile-outcome-heading" aria-hidden="true">
-              <span>Measure</span>
-              <span>Year</span>
-              <span>Three-year trend</span>
-              <span>Reliability</span>
-              <span>Same district reference</span>
+              <span>{t("Measure")}</span>
+              <span>{t("Year")}</span>
+              <span>{t("Three-year trend")}</span>
+              <span>{t("Reliability")}</span>
+              <span>{t("Same district reference")}</span>
             </div>
             <div className="profile-outcome-rows">
               {snapshotMetrics.map((metric) => {
@@ -548,17 +565,17 @@ export function SchoolProfile({
                         <Icon name={metricIcon(metric.id)} size={20} />
                       </i>
                       <span>
-                        <strong>{metric.navLabel}</strong>
-                        <small>{metricValuePhrase(latest, metric)}</small>
+                        <strong>{t(metric.navLabel)}</strong>
+                        <small>{t(metricValuePhrase(latest, metric))}</small>
                       </span>
                     </span>
                     <span>{latest ? formatSchoolYear(latest.year) : "—"}</span>
                     <MiniTrend metric={metric} observations={observations} />
                     <span className="profile-reliability">
-                      {reliabilityLabel(latest)}
+                      {t(reliabilityLabel(latest))}
                     </span>
                     <span className="profile-district-value">
-                      <small>{district?.name ?? "Same district"}</small>
+                      <small>{district?.name ?? t("Same district")}</small>
                       <strong>
                         {formatMetricValue(districtLatest?.value, metric)}
                       </strong>
@@ -569,47 +586,63 @@ export function SchoolProfile({
               })}
             </div>
             <p className="profile-panel-note">
-              Values retain each official reporting year. Suppressed results
-              remain hidden.
+              {t(
+                "Values retain each official reporting year. Suppressed results remain hidden.",
+              )}
             </p>
           </section>
 
           <aside className="profile-panel profile-school-context">
-            <h2>School context</h2>
+            <h2>{t("School context")}</h2>
             <dl>
               <div>
                 <dt>
-                  Enrollment ({catalog.manifest.profileSchoolYears.at(-1)})
-                </dt>
-                <dd>{formatCount(school.enrollment)}</dd>
-              </div>
-              <div>
-                <dt>
-                  Reported teachers (
+                  {t("Enrollment")} (
                   {catalog.manifest.profileSchoolYears.at(-1)})
                 </dt>
-                <dd>{formatCount(school.staff.teachers)}</dd>
-              </div>
-              <div>
-                <dt>Students per reported teacher</dt>
                 <dd>
-                  {ratio === undefined ? "Not available" : ratio.toFixed(1)}
+                  {school.enrollment === null
+                    ? t("Not reported")
+                    : formatCount(school.enrollment)}
                 </dd>
               </div>
               <div>
                 <dt>
-                  Total reported staff (
+                  {t("Reported teachers")} (
                   {catalog.manifest.profileSchoolYears.at(-1)})
                 </dt>
-                <dd>{formatCount(school.staff.total)}</dd>
+                <dd>
+                  {school.staff.teachers === null
+                    ? t("Not reported")
+                    : formatCount(school.staff.teachers)}
+                </dd>
+              </div>
+              <div>
+                <dt>{t("Students per reported teacher")}</dt>
+                <dd>
+                  {ratio === undefined ? t("Not available") : ratio.toFixed(1)}
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  {t("Total reported staff")} (
+                  {catalog.manifest.profileSchoolYears.at(-1)})
+                </dt>
+                <dd>
+                  {school.staff.total === null
+                    ? t("Not reported")
+                    : formatCount(school.staff.total)}
+                </dd>
               </div>
             </dl>
             <div className="profile-context-map">
               <span>
-                <Icon name="mapPin" size={17} /> School location
+                <Icon name="mapPin" size={17} /> {t("School location")}
               </span>
               <Suspense
-                fallback={<div className="map-fallback">Loading map…</div>}
+                fallback={
+                  <div className="map-fallback">{t("Loading map…")}</div>
+                }
               >
                 <LazySchoolMap schools={[school]} />
               </Suspense>
@@ -624,39 +657,44 @@ export function SchoolProfile({
           >
             <div className="profile-section-header">
               <div>
-                <h2>Outcome details</h2>
+                <h2>{t("Outcome details")}</h2>
                 <p>
-                  Explore one indicator and student group without changing this
-                  profile URL.
+                  {t(
+                    "Explore one indicator and student group without changing this profile URL.",
+                  )}
                 </p>
               </div>
-              <span>Compared with {district?.name ?? "the same district"}</span>
+              <span>
+                {t("Compared with {district}", {
+                  district: district?.name ?? t("the same district"),
+                })}
+              </span>
             </div>
             <div className="profile-detail-controls">
               <label>
-                <span>Indicator</span>
+                <span>{t("Indicator")}</span>
                 <select
-                  aria-label="Profile indicator"
+                  aria-label={t("Profile indicator")}
                   onChange={(event) => setSelectedMetricId(event.target.value)}
                   value={selectedMetric.id}
                 >
                   {availableMetrics.map((metric) => (
                     <option key={metric.id} value={metric.id}>
-                      {metric.navLabel}
+                      {t(metric.navLabel)}
                     </option>
                   ))}
                 </select>
               </label>
               <label>
-                <span>Student group</span>
+                <span>{t("Student group")}</span>
                 <select
-                  aria-label="Profile student group"
+                  aria-label={t("Profile student group")}
                   onChange={(event) => setSubgroupId(event.target.value)}
                   value={effectiveSubgroup}
                 >
                   {subgroupOptions.map((subgroup) => (
                     <option key={subgroup.id} value={subgroup.id}>
-                      {subgroup.label}
+                      {t(subgroup.label)}
                     </option>
                   ))}
                 </select>
@@ -674,31 +712,41 @@ export function SchoolProfile({
               />
               <aside className="profile-reading-guide">
                 <h3>
-                  <Icon name="book" size={20} /> How to read this
+                  <Icon name="book" size={20} /> {t("How to read this")}
                 </h3>
                 <div>
-                  <strong>Direction</strong>
+                  <strong>{t("Direction")}</strong>
                   <p>
                     {selectedMetric.direction === "higher"
-                      ? "Higher values are generally more favorable for this measure."
+                      ? t(
+                          "Higher values are generally more favorable for this measure.",
+                        )
                       : selectedMetric.direction === "lower"
-                        ? "Lower values are generally more favorable for this measure."
-                        : "This measure is descriptive and has no preferred direction."}
+                        ? t(
+                            "Lower values are generally more favorable for this measure.",
+                          )
+                        : t(
+                            "This measure is descriptive and has no preferred direction.",
+                          )}
                   </p>
                 </div>
                 <div>
-                  <strong>Reliability</strong>
+                  <strong>{t("Reliability")}</strong>
                   <p>
-                    {reliabilityLabel(selectedLatest)} based on the published
-                    result.
+                    {t("{reliability} based on the published result.", {
+                      reliability: t(reliabilityLabel(selectedLatest)),
+                    })}
                   </p>
                 </div>
                 <div>
-                  <strong>Reporting year</strong>
+                  <strong>{t("Reporting year")}</strong>
                   <p>
                     {selectedLatest
-                      ? `${formatSchoolYear(selectedLatest.year)} is the latest available year for this selection.`
-                      : "No public value is available for this selection."}
+                      ? t(
+                          "{year} is the latest available year for this selection.",
+                          { year: formatSchoolYear(selectedLatest.year) },
+                        )
+                      : t("No public value is available for this selection.")}
                   </p>
                 </div>
               </aside>
@@ -712,15 +760,16 @@ export function SchoolProfile({
         >
           <div className="profile-section-header">
             <div>
-              <h2>Student groups</h2>
+              <h2>{t("Student groups")}</h2>
               <p>
-                Directory context describes who is served. It is not a quality
-                measure.
+                {t(
+                  "Directory context describes who is served. It is not a quality measure.",
+                )}
               </p>
             </div>
             <span>
-              <Icon name="info" size={15} /> Small groups may be suppressed to
-              protect student privacy.
+              <Icon name="info" size={15} />{" "}
+              {t("Small groups may be suppressed to protect student privacy.")}
             </span>
           </div>
           <div className="profile-demographic-band">
@@ -732,12 +781,12 @@ export function SchoolProfile({
                     <Icon name={icon} size={22} />
                   </i>
                   <span>
-                    <strong>{label}</strong>
+                    <strong>{t(label)}</strong>
                     <small>{catalog.manifest.profileSchoolYears.at(-1)}</small>
                   </span>
                   <b>
                     {value?.percent === null || value?.percent === undefined
-                      ? "Not reported"
+                      ? t("Not reported")
                       : `${value.percent.toFixed(1)}%`}
                   </b>
                 </div>
@@ -745,8 +794,9 @@ export function SchoolProfile({
             })}
           </div>
           <p className="profile-panel-note">
-            Use the student-group control above to review matching outcome
-            evidence where published.
+            {t(
+              "Use the student-group control above to review matching outcome evidence where published.",
+            )}
           </p>
         </section>
 
@@ -756,64 +806,68 @@ export function SchoolProfile({
         >
           <div className="profile-section-header">
             <div>
-              <h2>Teaching and resources</h2>
-              <p>Each measure keeps its own official reporting year.</p>
+              <h2>{t("Teaching and resources")}</h2>
+              <p>{t("Each measure keeps its own official reporting year.")}</p>
             </div>
             <button onClick={() => void onOpenResources()} type="button">
-              Open full teaching comparison <Icon name="external" size={14} />
+              {t("Open full teaching comparison")}{" "}
+              <Icon name="external" size={14} />
             </button>
           </div>
           {resourcesLoading ? (
             <p className="profile-resource-loading" role="status">
-              Loading teaching and resource context…
+              {t("Loading teaching and resource context…")}
             </p>
           ) : (
             <div className="profile-teaching-layout">
               <dl className="profile-teaching-facts">
                 <div>
-                  <dt>Average teacher experience</dt>
+                  <dt>{t("Average teacher experience")}</dt>
                   <dd>
                     {teacherAverage
-                      ? `${teacherAverage.value.toFixed(1)} years`
-                      : "Not reported"}
+                      ? t("{years} years", {
+                          years: teacherAverage.value.toFixed(1),
+                        })
+                      : t("Not reported")}
                   </dd>
                   <small>
-                    {teacherAverage?.schoolYear ?? "Year unavailable"}
+                    {teacherAverage?.schoolYear ?? t("Year unavailable")}
                   </small>
                 </div>
                 <div>
-                  <dt>Fully credentialed assignments</dt>
+                  <dt>{t("Fully credentialed assignments")}</dt>
                   <dd>
                     {credentialed
                       ? `${credentialed.value.toFixed(1)}%`
-                      : "Not reported"}
+                      : t("Not reported")}
                   </dd>
                   <small>
-                    {credentialed?.schoolYear ?? "Year unavailable"}
+                    {credentialed?.schoolYear ?? t("Year unavailable")}
                   </small>
                 </div>
                 <div>
-                  <dt>Reported class-size range</dt>
-                  <dd>{classRange?.value ?? "Not reported"}</dd>
+                  <dt>{t("Reported class-size range")}</dt>
+                  <dd>{classRange?.value ?? t("Not reported")}</dd>
                   <small>
-                    {classRange?.schoolYear ?? "Year unavailable"} · students
+                    {classRange?.schoolYear ?? t("Year unavailable")} ·{" "}
+                    {t("students")}
                   </small>
                 </div>
                 <div>
-                  <dt>Pupils per academic counselor</dt>
+                  <dt>{t("Pupils per academic counselor")}</dt>
                   <dd>
                     {counselorRatio
                       ? Math.round(counselorRatio.value).toLocaleString()
-                      : "Not reported"}
+                      : t("Not reported")}
                   </dd>
                   <small>
-                    {counselorRatio?.schoolYear ?? "Year unavailable"}
+                    {counselorRatio?.schoolYear ?? t("Year unavailable")}
                   </small>
                 </div>
               </dl>
               <div className="profile-teacher-comparison">
-                <h3>Teacher experience context</h3>
-                <p>Average reported years of experience</p>
+                <h3>{t("Teacher experience context")}</h3>
+                <p>{t("Average reported years of experience")}</p>
                 {[teacherAverage, districtTeacherAverage].map(
                   (observation, index) => (
                     <div key={index === 0 ? "school" : "district"}>
@@ -832,7 +886,9 @@ export function SchoolProfile({
                   ),
                 )}
                 <small>
-                  Descriptive context, not a rating or class-size measure.
+                  {t(
+                    "Descriptive context, not a rating or class-size measure.",
+                  )}
                 </small>
               </div>
             </div>
@@ -845,34 +901,35 @@ export function SchoolProfile({
         >
           <div className="profile-section-header">
             <div>
-              <h2>Location and district</h2>
-              <p>Published coordinates support orientation only.</p>
+              <h2>{t("Location and district")}</h2>
+              <p>{t("Published coordinates support orientation only.")}</p>
             </div>
             <span>
-              <Icon name="info" size={15} /> Nearby does not mean assigned.
+              <Icon name="info" size={15} />{" "}
+              {t("Nearby does not mean assigned.")}
             </span>
           </div>
           <div className="profile-location-layout">
             <Suspense
-              fallback={<div className="map-fallback">Loading map…</div>}
+              fallback={<div className="map-fallback">{t("Loading map…")}</div>}
             >
               <LazySchoolMap schools={[school]} />
             </Suspense>
             <dl>
               <div>
-                <dt>Address</dt>
+                <dt>{t("Address")}</dt>
                 <dd>{formatAddress(school)}</dd>
               </div>
               <div>
-                <dt>District</dt>
+                <dt>{t("District")}</dt>
                 <dd>{school.district}</dd>
               </div>
               <div>
-                <dt>County</dt>
-                <dd>{school.county} County</dd>
+                <dt>{t("County")}</dt>
+                <dd>{t("{name} County", { name: school.county })}</dd>
               </div>
               <div>
-                <dt>CDS code</dt>
+                <dt>{t("CDS code")}</dt>
                 <dd>{school.id}</dd>
               </div>
             </dl>
@@ -882,20 +939,24 @@ export function SchoolProfile({
         <section className="profile-panel profile-sources" id="profile-sources">
           <div className="profile-section-header">
             <div>
-              <h2>Sources and limitations</h2>
+              <h2>{t("Sources and limitations")}</h2>
               <p>
-                Official files are shown with their actual reporting years and
-                suppression rules.
+                {t(
+                  "Official files are shown with their actual reporting years and suppression rules.",
+                )}
               </p>
             </div>
             <span>
-              Updated{" "}
-              {new Date(catalog.manifest.generatedAt).toLocaleDateString()}
+              {t("Updated {date}", {
+                date: new Date(catalog.manifest.generatedAt).toLocaleDateString(
+                  localeCode(locale),
+                ),
+              })}
             </span>
           </div>
           <div className="profile-source-layout">
             <div>
-              <h3>Primary sources</h3>
+              <h3>{t("Primary sources")}</h3>
               {sources.map((source) => (
                 <a
                   href={source.url}
@@ -903,21 +964,21 @@ export function SchoolProfile({
                   rel="noreferrer"
                   target="_blank"
                 >
-                  {source.label} <Icon name="external" size={13} />
+                  {t(source.label)} <Icon name="external" size={13} />
                 </a>
               ))}
             </div>
             <div>
-              <h3>Read with care</h3>
+              <h3>{t("Read with care")}</h3>
               <p>
-                Missing and suppressed values are never reconstructed as zero.
-                Different sections may use different reporting years. School
-                context does not establish causation, assignment, or enrollment
-                eligibility.
+                {t(
+                  "Missing and suppressed values are never reconstructed as zero. Different sections may use different reporting years. School context does not establish causation, assignment, or enrollment eligibility.",
+                )}
               </p>
               <p>
-                This independent open-source project is not affiliated with or
-                endorsed by the California Department of Education.
+                {t(
+                  "This independent open-source project is not affiliated with or endorsed by the California Department of Education.",
+                )}
               </p>
             </div>
           </div>
@@ -932,20 +993,22 @@ export function SchoolProfileNotFound({
   onOpenComparison,
   onOpenProfile,
 }: SchoolProfileNotFoundProps) {
+  const { t } = useI18n();
   return (
     <main className="profile-not-found">
       <Icon name="school" size={38} />
-      <h1>School profile not found</h1>
+      <h1>{t("School profile not found")}</h1>
       <p>
-        This CDS code is not in the current public-school directory. Search for
-        another school or return to comparison.
+        {t(
+          "This CDS code is not in the current public-school directory. Search for another school or return to comparison.",
+        )}
       </p>
       <SchoolProfileSearch
         allSchools={catalog.schools}
         onOpenProfile={onOpenProfile}
       />
       <button onClick={onOpenComparison} type="button">
-        Return to comparison
+        {t("Return to comparison")}
       </button>
     </main>
   );

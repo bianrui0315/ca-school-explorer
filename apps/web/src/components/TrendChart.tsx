@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { useI18n } from "../i18n";
 import type {
   MetricDefinition,
   Observation,
@@ -94,6 +95,7 @@ export function TrendChart({
   startYear,
   endYear,
 }: TrendChartProps) {
+  const { t } = useI18n();
   const compact = useCompactLayout();
   const width = compact ? 390 : 820;
   const height = compact ? 280 : 360;
@@ -125,8 +127,8 @@ export function TrendChart({
     return (
       <section className="trend-panel trend-panel--empty">
         <Icon name="school" size={31} />
-        <h2>Add a school to compare</h2>
-        <p>Use the search field to select up to five schools.</p>
+        <h2>{t("Add a school to compare")}</h2>
+        <p>{t("Use the search field to select up to five schools.")}</p>
       </section>
     );
   }
@@ -175,14 +177,14 @@ export function TrendChart({
       <header className="trend-header">
         <div>
           <div className="title-with-info">
-            <h2 id="trend-title">{metric.label}</h2>
+            <h2 id="trend-title">{t(metric.label)}</h2>
             <Icon name="info" size={17} />
           </div>
-          <p>{metric.description}</p>
+          <p>{t(metric.description)}</p>
         </div>
       </header>
 
-      <div className="chart-legend" aria-label="Chart legend">
+      <div className="chart-legend" aria-label={t("Chart legend")}>
         {schools.map((school) => (
           <span key={school.id}>
             <i style={{ backgroundColor: school.color }} />
@@ -192,7 +194,7 @@ export function TrendChart({
         {baselineLabel && baseline.length > 0 ? (
           <span>
             <i className="baseline-key" />
-            {baselineLabel} baseline
+            {t("{label} baseline", { label: baselineLabel })}
           </span>
         ) : null}
       </div>
@@ -205,13 +207,22 @@ export function TrendChart({
           viewBox={`0 0 ${width} ${height}`}
         >
           <title id="trend-chart-title">
-            {metric.label} from {formatSchoolYear(startYear)} to{" "}
-            {formatSchoolYear(endYear)}
+            {t("{metric} from {start} to {end}", {
+              metric: t(metric.label),
+              start: formatSchoolYear(startYear),
+              end: formatSchoolYear(endYear),
+            })}
           </title>
           <desc id="trend-chart-description">
-            A comparison of {schools.length} selected schools
-            {baselineLabel ? ` and the ${baselineLabel} baseline` : ""} for the
-            selected student group.
+            {t(
+              "A comparison of {count} selected schools{baseline} for the selected student group.",
+              {
+                count: schools.length,
+                baseline: baselineLabel
+                  ? t(" and the {label} baseline", { label: baselineLabel })
+                  : "",
+              },
+            )}
           </desc>
 
           {ticks.map((tick) => {
@@ -279,7 +290,7 @@ export function TrendChart({
                         {formatMetricValue(point.observation.value, metric)};{" "}
                         {point.observation.denominator?.toLocaleString() ??
                           "no"}{" "}
-                        students
+                        {t("students")}
                       </title>
                     </circle>
                   ) : null,

@@ -1,4 +1,5 @@
 import type { SimilarSchoolMatch } from "../lib/similarSchools";
+import { useI18n } from "../i18n";
 import type { School } from "../types";
 import { Icon } from "./Icon";
 
@@ -22,7 +23,7 @@ const matchFeatures = [
   ["EL", "English learner student share"],
   ["SWD", "Students with disabilities share"],
   ["SED", "Socioeconomically disadvantaged share"],
-];
+] as const;
 
 export function SimilarContext({
   anchorId,
@@ -36,10 +37,11 @@ export function SimilarContext({
   onUseBaseline,
   selectedSchools,
 }: SimilarContextProps) {
+  const { t } = useI18n();
   const selectedIds = new Set(selectedSchools.map((school) => school.id));
   const baselineLabel = isLoading
     ? "Preparing peer baseline…"
-    : `Use ${baselineCount}-school peer baseline`;
+    : t("Use {count}-school peer baseline", { count: baselineCount });
 
   return (
     <section
@@ -48,26 +50,26 @@ export function SimilarContext({
     >
       <header className="similar-context-header">
         <div>
-          <p className="eyebrow">Context matching</p>
+          <p className="eyebrow">{t("Context matching")}</p>
           <h2 id="similar-context-title">
-            Find schools with a similar public profile
+            {t("Find schools with a similar public profile")}
           </h2>
-          <p>Outcomes are excluded from matching.</p>
+          <p>{t("Outcomes are excluded from matching.")}</p>
         </div>
 
         <div className="similar-context-actions">
           <label>
-            <span>Anchor school</span>
+            <span>{t("Anchor school")}</span>
             <span className="similar-anchor-select">
               <Icon name="school" size={16} />
               <select
-                aria-label="Similar context anchor school"
+                aria-label={t("Similar context anchor school")}
                 disabled={selectedSchools.length === 0}
                 onChange={(event) => onAnchorChange(event.target.value)}
                 value={anchorId ?? ""}
               >
                 {selectedSchools.length === 0 ? (
-                  <option value="">Add a school first</option>
+                  <option value="">{t("Add a school first")}</option>
                 ) : null}
                 {selectedSchools.map((school) => (
                   <option key={school.id} value={school.id}>
@@ -89,7 +91,7 @@ export function SimilarContext({
             type="button"
           >
             <Icon name={isBaselineActive ? "check" : "users"} size={16} />
-            {isBaselineActive ? "Peer baseline active" : baselineLabel}
+            {isBaselineActive ? t("Peer baseline active") : baselineLabel}
           </button>
         </div>
       </header>
@@ -97,39 +99,43 @@ export function SimilarContext({
       <details className="similar-context-methodology">
         <summary>
           <Icon name="info" size={15} />
-          How context matching works
+          {t("How context matching works")}
           <Icon className="disclosure-chevron" name="chevronDown" size={15} />
         </summary>
         <p>
-          Candidates must share the school level, compatible grade span, DASS
-          status, and virtual-school setting. Remaining profile differences are
-          compared using enrollment, school designations, and published EL, SWD,
-          and SED percentages. No academic, attendance, discipline, graduation,
-          college, or career outcome is used to find peers.
+          {t(
+            "Candidates must share the school level, compatible grade span, DASS status, and virtual-school setting. Remaining profile differences are compared using enrollment, school designations, and published EL, SWD, and SED percentages. No academic, attendance, discipline, graduation, college, or career outcome is used to find peers.",
+          )}
         </p>
       </details>
 
       {selectedSchools.length === 0 ? (
         <div className="similar-context-empty">
           <Icon name="users" size={27} />
-          <strong>Add a school to find similar context peers.</strong>
+          <strong>{t("Add a school to find similar context peers.")}</strong>
         </div>
       ) : matches.length === 0 ? (
         <div className="similar-context-empty" role="status">
           <Icon name="info" size={24} />
-          <strong>No compatible peer set is available for this profile.</strong>
+          <strong>
+            {t("No compatible peer set is available for this profile.")}
+          </strong>
         </div>
       ) : (
         <div className="similar-context-body">
           <div className="similar-peer-list">
-            <h3>Similar context peers ({matches.length})</h3>
+            <h3>
+              {t("Similar context peers ({count})", { count: matches.length })}
+            </h3>
             <div className="similar-peer-table" role="table">
               <div className="similar-peer-table-head" role="row">
-                <span role="columnheader">School</span>
-                <span role="columnheader">District / city</span>
-                <span role="columnheader">Profile</span>
-                <span role="columnheader">Why this is a context match</span>
-                <span role="columnheader">Action</span>
+                <span role="columnheader">{t("School")}</span>
+                <span role="columnheader">{t("District / city")}</span>
+                <span role="columnheader">{t("Profile")}</span>
+                <span role="columnheader">
+                  {t("Why this is a context match")}
+                </span>
+                <span role="columnheader">{t("Action")}</span>
               </div>
               {matches.map(({ school, reasons }) => {
                 const isSelected = selectedIds.has(school.id);
@@ -150,13 +156,14 @@ export function SimilarContext({
                     <div className="similar-peer-profile" role="cell">
                       <span>{school.gradeSpan}</span>
                       <span>
-                        {school.enrollment?.toLocaleString() ?? "Not reported"}
-                        {school.enrollment ? " students" : ""}
+                        {school.enrollment?.toLocaleString() ??
+                          t("Not reported")}
+                        {school.enrollment ? ` ${t("students")}` : ""}
                       </span>
                     </div>
                     <ul className="similar-peer-reasons" role="cell">
                       {reasons.map((reason) => (
-                        <li key={reason}>{reason}</li>
+                        <li key={reason}>{t(reason)}</li>
                       ))}
                     </ul>
                     <div className="similar-peer-action" role="cell">
@@ -167,10 +174,10 @@ export function SimilarContext({
                       >
                         <Icon name={isSelected ? "check" : "plus"} size={14} />
                         {isSelected
-                          ? "Added"
+                          ? t("Added")
                           : selectedSchools.length >= 5
-                            ? "Limit reached"
-                            : "Add"}
+                            ? t("Limit reached")
+                            : t("Add")}
                       </button>
                     </div>
                   </article>
@@ -180,13 +187,13 @@ export function SimilarContext({
           </div>
 
           <aside className="similar-match-guide">
-            <h3>What makes a match</h3>
+            <h3>{t("What makes a match")}</h3>
             {matchFeatures.map(([label, description]) => (
               <div key={label}>
                 <i />
                 <span>
-                  <strong>{label}</strong>
-                  <small>{description}</small>
+                  <strong>{t(label)}</strong>
+                  <small>{t(description)}</small>
                 </span>
               </div>
             ))}
@@ -196,8 +203,9 @@ export function SimilarContext({
 
       <p className="similar-context-note">
         <Icon name="info" size={15} />
-        Academic outcomes are never used to find similar schools. Similarity is
-        context, not a quality rating or enrollment assignment.
+        {t(
+          "Academic outcomes are never used to find similar schools. Similarity is context, not a quality rating or enrollment assignment.",
+        )}
       </p>
     </section>
   );

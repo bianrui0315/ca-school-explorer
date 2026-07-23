@@ -1,4 +1,5 @@
 import type { MetricDefinition, MetricId } from "../types";
+import { useI18n } from "../i18n";
 import { Icon, type IconName } from "./Icon";
 
 function metricIcon(metricId: MetricId): IconName {
@@ -29,9 +30,10 @@ export function MetricNav({
   selectedMetricId,
   onSelect,
 }: MetricNavProps) {
+  const { t } = useI18n();
   return (
-    <nav className="metric-nav" aria-label="Comparison metrics">
-      <h2>Metrics</h2>
+    <nav className="metric-nav" aria-label={t("Comparison metrics")}>
+      <h2>{t("Metrics")}</h2>
       <div className="metric-nav-list">
         {metrics.map((metric) => (
           <button
@@ -46,7 +48,7 @@ export function MetricNav({
             type="button"
           >
             <Icon name={metricIcon(metric.id)} size={21} />
-            <span>{metric.navLabel}</span>
+            <span>{t(metric.navLabel)}</span>
             <Icon className="metric-chevron" name="chevronRight" size={17} />
           </button>
         ))}

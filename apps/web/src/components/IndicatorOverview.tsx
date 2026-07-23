@@ -7,6 +7,7 @@ import {
   type SchoolIndicatorScores,
 } from "../lib/indicatorScore";
 import { formatSchoolYear } from "../lib/metrics";
+import { useI18n } from "../i18n";
 import type { MetricDefinition, School, SubgroupId } from "../types";
 
 const LazySchoolMap = lazy(() =>
@@ -71,10 +72,11 @@ function partialRadarPath(
 }
 
 function RadarChart({ metrics, series }: RadarChartProps) {
+  const { t } = useI18n();
   if (metrics.length < 3) {
     return (
       <div className="radar-fallback">
-        At least three indicators are needed for the radar view.
+        {t("At least three indicators are needed for the radar view.")}
       </div>
     );
   }
@@ -90,10 +92,12 @@ function RadarChart({ metrics, series }: RadarChartProps) {
         role="img"
         viewBox={`0 0 ${RADAR_WIDTH} ${RADAR_HEIGHT}`}
       >
-        <title id="radar-title">All indicators comparison</title>
+        <title id="radar-title">{t("All indicators comparison")}</title>
         <desc id="radar-description">
-          {metrics.length} indicators normalized to a zero to one hundred
-          comparison scale. Missing indicators are not plotted.
+          {t(
+            "{count} indicators normalized to a zero to one hundred comparison scale. Missing indicators are not plotted.",
+            { count: metrics.length },
+          )}
         </desc>
         {[25, 50, 75, 100].map((level) => (
           <polygon
@@ -132,7 +136,7 @@ function RadarChart({ metrics, series }: RadarChartProps) {
               x={point.x}
               y={point.y + 4}
             >
-              {metric.navLabel}
+              {t(metric.navLabel)}
             </text>
           );
         })}
@@ -217,6 +221,7 @@ function RadarChart({ metrics, series }: RadarChartProps) {
 }
 
 function DeferredSchoolMap({ schools }: { schools: School[] }) {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -242,12 +247,14 @@ function DeferredSchoolMap({ schools }: { schools: School[] }) {
   return (
     <div className="deferred-map" ref={containerRef}>
       {visible ? (
-        <Suspense fallback={<div className="map-fallback">Loading map…</div>}>
+        <Suspense
+          fallback={<div className="map-fallback">{t("Loading map…")}</div>}
+        >
           <LazySchoolMap schools={schools} />
         </Suspense>
       ) : (
         <div className="map-fallback">
-          Map loads when this section is visible.
+          {t("Map loads when this section is visible.")}
         </div>
       )}
     </div>
@@ -293,6 +300,7 @@ export function IndicatorOverview({
   weights,
   onWeightsChange,
 }: IndicatorOverviewProps) {
+  const { t } = useI18n();
   const metricById = new Map(metrics.map((metric) => [metric.id, metric]));
   const indicatorMetrics = INDICATOR_IDS.flatMap((metricId) => {
     const metric = metricById.get(metricId);
@@ -315,32 +323,39 @@ export function IndicatorOverview({
     <section className="indicator-overview" aria-labelledby="overview-title">
       <header className="overview-header">
         <div>
-          <p className="eyebrow">Latest year · {formatSchoolYear(endYear)}</p>
-          <h2 id="overview-title">All indicators comparison</h2>
+          <p className="eyebrow">
+            {t("Latest year · {year}", { year: formatSchoolYear(endYear) })}
+          </p>
+          <h2 id="overview-title">{t("All indicators comparison")}</h2>
         </div>
         <p>
-          A common 0–100 comparison scale makes indicators easier to scan. It is
-          not a percentile or CDE rating.
+          {t(
+            "A common 0–100 comparison scale makes indicators easier to scan. It is not a percentile or CDE rating.",
+          )}
         </p>
       </header>
       <div className="analysis-grid">
         <article className="analysis-card radar-card">
           <div className="analysis-card-header">
-            <h3>{indicatorMetrics.length}-indicator profile</h3>
-            <span>Higher is better</span>
+            <h3>
+              {t("{count}-indicator profile", {
+                count: indicatorMetrics.length,
+              })}
+            </h3>
+            <span>{t("Higher is better")}</span>
           </div>
           <RadarChart metrics={indicatorMetrics} series={series} />
           <p className="analysis-note">
-            Rates keep their natural 0–100 scale; lower-is-better rates are
-            reversed. Academic distance maps −150 to 0, standard to 50, and +150
-            to 100. Missing values are not plotted.
+            {t(
+              "Rates keep their natural 0–100 scale; lower-is-better rates are reversed. Academic distance maps −150 to 0, standard to 50, and +150 to 100. Missing values are not plotted.",
+            )}
           </p>
         </article>
 
         <article className="analysis-card composite-card">
           <div className="analysis-card-header">
-            <h3>Experimental composite</h3>
-            <span>Not an official rating</span>
+            <h3>{t("Experimental composite")}</h3>
+            <span>{t("Not an official rating")}</span>
           </div>
           <div className="composite-results">
             {series.map(({ school, values }) => {
@@ -363,9 +378,14 @@ export function IndicatorOverview({
                     <span style={{ width: `${coveragePercent}%` }} />
                   </div>
                   <small>
-                    Data coverage: {result.availableCount}/{result.totalCount}
+                    {t("Data coverage: {available}/{total}", {
+                      available: result.availableCount,
+                      total: result.totalCount,
+                    })}
                     {result.totalWeight > 0
-                      ? ` · ${Math.round(coveragePercent)}% of weight`
+                      ? t(" · {percent}% of weight", {
+                          percent: Math.round(coveragePercent),
+                        })
                       : ""}
                   </small>
                 </div>
@@ -374,7 +394,7 @@ export function IndicatorOverview({
           </div>
           <details className="weight-controls" open>
             <summary>
-              <span>Indicator weights</span>
+              <span>{t("Indicator weights")}</span>
               <b
                 className={
                   Math.abs(totalWeight - 100) > 0.05
@@ -388,9 +408,11 @@ export function IndicatorOverview({
             <div className="weight-list">
               {indicatorMetrics.map((metric) => (
                 <label key={metric.id}>
-                  <span>{metric.navLabel}</span>
+                  <span>{t(metric.navLabel)}</span>
                   <input
-                    aria-label={`${metric.navLabel} weight`}
+                    aria-label={t("{metric} weight", {
+                      metric: t(metric.navLabel),
+                    })}
                     inputMode="decimal"
                     max="100"
                     min="0"
@@ -419,7 +441,7 @@ export function IndicatorOverview({
                 }
                 type="button"
               >
-                Normalize to 100%
+                {t("Normalize to 100%")}
               </button>
               <button
                 onClick={() =>
@@ -427,21 +449,21 @@ export function IndicatorOverview({
                 }
                 type="button"
               >
-                Reset defaults
+                {t("Reset defaults")}
               </button>
             </div>
           </details>
           <p className="analysis-note">
-            Missing indicators are excluded and remaining weights are
-            rebalanced. Compare data coverage and grade span before comparing
-            scores.
+            {t(
+              "Missing indicators are excluded and remaining weights are rebalanced. Compare data coverage and grade span before comparing scores.",
+            )}
           </p>
         </article>
 
         <article className="analysis-card map-card">
           <div className="analysis-card-header">
-            <h3>Selected schools on map</h3>
-            <span>{schools.length} selected</span>
+            <h3>{t("Selected schools on map")}</h3>
+            <span>{t("{count} selected", { count: schools.length })}</span>
           </div>
           <DeferredSchoolMap schools={schools} />
           <div className="map-legend">
@@ -453,9 +475,10 @@ export function IndicatorOverview({
             ))}
           </div>
           <p className="map-warning">
-            <b>Nearby does not mean assigned.</b> Locations are approximate and
-            shown for context only. Verify attendance boundaries with the
-            district.
+            <b>{t("Nearby does not mean assigned.")}</b>{" "}
+            {t(
+              "Locations are approximate and shown for context only. Verify attendance boundaries with the district.",
+            )}
           </p>
         </article>
       </div>

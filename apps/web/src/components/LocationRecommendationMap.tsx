@@ -8,6 +8,7 @@ import type {
   LocationSchoolMatch,
 } from "../lib/locationRecommendations";
 import type { ResolvedLocation } from "../lib/locationSearch";
+import { useI18n } from "../i18n";
 
 const BAND_COLORS = {
   elementary: "#16806a",
@@ -36,6 +37,7 @@ export function LocationRecommendationMap({
   groups,
   location,
 }: LocationRecommendationMapProps) {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string>();
   const matches = useMemo(() => {
@@ -127,10 +129,10 @@ export function LocationRecommendationMap({
         const centerName = document.createElement("strong");
         const centerLabel = document.createElement("span");
         centerName.textContent = location.matchedAddress;
-        centerLabel.textContent = "Search location";
+        centerLabel.textContent = t("Search location");
         centerPopup.className = "map-popup";
         centerPopup.append(centerName, centerLabel);
-        centerMarker.bindTooltip("Search location").bindPopup(centerPopup);
+        centerMarker.bindTooltip(t("Search location")).bindPopup(centerPopup);
         matches.forEach((match) => {
           const { school } = match;
           if (school.latitude === null || school.longitude === null) {
@@ -148,7 +150,7 @@ export function LocationRecommendationMap({
           const name = document.createElement("strong");
           const details = document.createElement("span");
           name.textContent = school.name;
-          details.textContent = `${school.gradeSpan} · ${match.distanceMiles.toFixed(1)} mi · Evidence ${Math.round(match.score ?? 0)}/100`;
+          details.textContent = `${school.gradeSpan} · ${match.distanceMiles.toFixed(1)} mi · ${t("Evidence")} ${Math.round(match.score ?? 0)}/100`;
           popup.className = "map-popup";
           popup.append(name, details);
           marker.bindPopup(popup);
@@ -168,7 +170,7 @@ export function LocationRecommendationMap({
           caught,
         );
         if (active) {
-          setError("The location map could not be loaded.");
+          setError(t("The location map could not be loaded."));
         }
       }
     }
@@ -178,7 +180,7 @@ export function LocationRecommendationMap({
       active = false;
       map?.remove();
     };
-  }, [boundaries, focus, location, matches]);
+  }, [boundaries, focus, location, matches, t]);
 
   if (error) {
     return (
@@ -189,7 +191,7 @@ export function LocationRecommendationMap({
   }
   return (
     <div
-      aria-label="Location recommendation map"
+      aria-label={t("Location recommendation map")}
       className="location-recommendation-map"
       ref={containerRef}
       role="region"

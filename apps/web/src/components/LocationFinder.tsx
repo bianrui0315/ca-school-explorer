@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from "react";
+import { useI18n } from "../i18n";
 import {
   defaultLocationRecommendationOptions,
   gradeBandForGrade,
@@ -85,19 +86,24 @@ function DistrictBoundaryCard({
   onFocusChange: (focus: LocationMapFocus) => void;
   result: DistrictBoundaryResult;
 }) {
+  const { t } = useI18n();
   return (
     <section
       className="district-boundary-card"
       aria-labelledby="district-boundary-title"
     >
       <div>
-        <span>Official district area · {result.effectiveSchoolYear}</span>
+        <span>
+          {t("Official district area · {year}", {
+            year: result.effectiveSchoolYear,
+          })}
+        </span>
         <h3 id="district-boundary-title">
           {result.districts.length === 0
-            ? "No geographic district returned"
+            ? t("No geographic district returned")
             : result.districts.length === 1
-              ? "District at this address"
-              : "Districts at this address"}
+              ? t("District at this address")
+              : t("Districts at this address")}
         </h3>
       </div>
       {result.districts.length > 0 ? (
@@ -119,27 +125,27 @@ function DistrictBoundaryCard({
         </ul>
       ) : null}
       {result.districts.some((district) => district.geometry) ? (
-        <div className="district-view-controls" aria-label="Map view">
+        <div className="district-view-controls" aria-label={t("Map view")}>
           <button
             aria-pressed={focus === "nearby"}
             onClick={() => onFocusChange("nearby")}
             type="button"
           >
-            Nearby view
+            {t("Nearby view")}
           </button>
           <button
             aria-pressed={focus === "district"}
             onClick={() => onFocusChange("district")}
             type="button"
           >
-            Full district
+            {t("Full district")}
           </button>
         </div>
       ) : null}
       <p>
-        This confirms district jurisdiction at the matched point. It does not
-        identify an assigned school; verify current attendance zones and
-        enrollment rules with the district.
+        {t(
+          "This confirms district jurisdiction at the matched point. It does not identify an assigned school; verify current attendance zones and enrollment rules with the district.",
+        )}
       </p>
       <a href={result.sourceUrl} rel="noreferrer" target="_blank">
         {result.sourceLabel}
@@ -179,23 +185,24 @@ function PersonalizationControls({
   onChange: (options: LocationRecommendationOptions) => void;
   options: LocationRecommendationOptions;
 }) {
+  const { t } = useI18n();
   const selectedBand = gradeBandForGrade(options.grade);
   return (
     <details className="location-personalization">
       <summary>
-        <span>Personalize results</span>
+        <span>{t("Personalize results")}</span>
         <small>
-          {gradeLabel(options.grade)} ·
-          {LOCATION_SCHOOL_TYPE_LABELS[options.schoolType]} ·{" "}
+          {t(gradeLabel(options.grade))} ·
+          {t(LOCATION_SCHOOL_TYPE_LABELS[options.schoolType])} ·{" "}
           {Math.round(options.minimumCoverage * 100)}%+ evidence
         </small>
       </summary>
       <div className="location-personalization-body">
         <div className="location-filter-controls">
           <label>
-            <span>Child&apos;s grade</span>
+            <span>{t("Child's grade")}</span>
             <select
-              aria-label="Child's grade"
+              aria-label={t("Child's grade")}
               onChange={(event) =>
                 onChange({ ...options, grade: event.target.value })
               }
@@ -203,15 +210,15 @@ function PersonalizationControls({
             >
               {LOCATION_GRADE_OPTIONS.map((grade) => (
                 <option key={grade.value || "any"} value={grade.value}>
-                  {grade.label}
+                  {t(grade.label)}
                 </option>
               ))}
             </select>
           </label>
           <label>
-            <span>School type</span>
+            <span>{t("School type")}</span>
             <select
-              aria-label="Location school type"
+              aria-label={t("Location school type")}
               onChange={(event) =>
                 onChange({
                   ...options,
@@ -224,16 +231,16 @@ function PersonalizationControls({
               {Object.entries(LOCATION_SCHOOL_TYPE_LABELS).map(
                 ([value, label]) => (
                   <option key={value} value={value}>
-                    {label}
+                    {t(label)}
                   </option>
                 ),
               )}
             </select>
           </label>
           <label>
-            <span>Minimum evidence</span>
+            <span>{t("Minimum evidence")}</span>
             <select
-              aria-label="Minimum evidence coverage"
+              aria-label={t("Minimum evidence coverage")}
               onChange={(event) =>
                 onChange({
                   ...options,
@@ -251,7 +258,7 @@ function PersonalizationControls({
           </label>
         </div>
         <fieldset className="location-priority-controls">
-          <legend>Evidence priorities</legend>
+          <legend>{t("Evidence priorities")}</legend>
           {PRIORITY_ORDER.map((priority) => {
             const disabled =
               priority === "readiness" &&
@@ -259,9 +266,11 @@ function PersonalizationControls({
               selectedBand !== "high";
             return (
               <label key={priority}>
-                <span>{LOCATION_PRIORITY_LABELS[priority]}</span>
+                <span>{t(LOCATION_PRIORITY_LABELS[priority])}</span>
                 <select
-                  aria-label={`${LOCATION_PRIORITY_LABELS[priority]} priority`}
+                  aria-label={t("{priority} priority", {
+                    priority: t(LOCATION_PRIORITY_LABELS[priority]),
+                  })}
                   disabled={disabled}
                   onChange={(event) =>
                     onChange({
@@ -279,7 +288,7 @@ function PersonalizationControls({
                       key={priorityOption.value}
                       value={priorityOption.value}
                     >
-                      {priorityOption.label}
+                      {t(priorityOption.label)}
                     </option>
                   ))}
                 </select>
@@ -292,12 +301,13 @@ function PersonalizationControls({
           onClick={() => onChange(defaultLocationRecommendationOptions())}
           type="button"
         >
-          Reset preferences
+          {t("Reset preferences")}
         </button>
       </div>
       <p>
-        Priorities multiply the published grade-band weights; they do not add
-        new data or change source values.
+        {t(
+          "Priorities multiply the published grade-band weights; they do not add new data or change source values.",
+        )}
       </p>
     </details>
   );
@@ -320,6 +330,7 @@ function SchoolMatchCard({
   onToggleBrief: (schoolId: string) => void;
   selected: boolean;
 }) {
+  const { t } = useI18n();
   const [adding, setAdding] = useState(false);
   return (
     <article className="location-school-card">
@@ -338,22 +349,31 @@ function SchoolMatchCard({
           {match.distanceMiles.toFixed(1)} mi
         </span>
         <span>
-          Evidence {match.availableCount}/{match.totalCount} ·{" "}
-          {Math.round((match.availableWeight / match.totalWeight) * 100)}%
+          {t("Evidence {available}/{total} · {percent}%", {
+            available: match.availableCount,
+            total: match.totalCount,
+            percent: Math.round(
+              (match.availableWeight / match.totalWeight) * 100,
+            ),
+          })}
         </span>
       </div>
       {match.primaryDriver ? (
         <p className="location-match-explanation">
-          Primary driver: {match.primaryDriver.label} ·{" "}
-          {Math.round(match.primaryDriver.score)}/100 at{" "}
-          {Math.round(match.primaryDriver.weightShare * 100)}% of available
-          weight
+          {t(
+            "Primary driver: {indicator} · {score}/100 at {weight}% of available weight",
+            {
+              indicator: t(match.primaryDriver.label),
+              score: Math.round(match.primaryDriver.score),
+              weight: Math.round(match.primaryDriver.weightShare * 100),
+            },
+          )}
         </p>
       ) : null}
       <dl className="location-evidence-list">
         {evidenceItems(match).map(({ metric, value, year }) => (
           <div key={metric.id}>
-            <dt>{metric.navLabel}</dt>
+            <dt>{t(metric.navLabel)}</dt>
             <dd>
               {formatMetricValue(value, metric, metric.unit === "points")}
               <small>
@@ -377,12 +397,12 @@ function SchoolMatchCard({
           type="button"
         >
           {selected
-            ? "Added to comparison"
+            ? t("Added to comparison")
             : comparisonFull
-              ? "Comparison full"
+              ? t("Comparison full")
               : adding
-                ? "Adding…"
-                : "Add to comparison"}
+                ? t("Adding…")
+                : t("Add to comparison")}
         </button>
         <button
           aria-pressed={briefSelected}
@@ -392,10 +412,10 @@ function SchoolMatchCard({
           type="button"
         >
           {briefSelected
-            ? "Remove from brief"
+            ? t("Remove from brief")
             : briefFull
-              ? "Brief full"
-              : "Add to brief"}
+              ? t("Brief full")
+              : t("Add to brief")}
         </button>
       </div>
     </article>
@@ -422,17 +442,20 @@ function GradeBandColumn({
   onToggleBrief: (schoolId: string) => void;
   selectedIds: Set<string>;
 }) {
+  const { t } = useI18n();
   return (
     <section className="location-grade-band" aria-labelledby={`band-${band}`}>
       <div className="location-grade-heading">
         <h3 id={`band-${band}`}>
           {grade
-            ? `${gradeLabel(grade)} options`
-            : `${GRADE_BAND_LABELS[band]} schools`}
+            ? t("{grade} options", { grade: t(gradeLabel(grade)) })
+            : t("{band} schools", { band: t(GRADE_BAND_LABELS[band]) })}
         </h3>
         <span>
-          {eligibleCount.toLocaleString()} eligible ·{" "}
-          {nearbyCount.toLocaleString()} nearby
+          {t("{eligible} eligible · {nearby} nearby", {
+            eligible: eligibleCount.toLocaleString(),
+            nearby: nearbyCount.toLocaleString(),
+          })}
         </span>
       </div>
       {matches.length > 0 ? (
@@ -454,8 +477,9 @@ function GradeBandColumn({
         </div>
       ) : (
         <p className="location-grade-empty">
-          No schools meet the selected grade, type, and evidence coverage in
-          this radius.
+          {t(
+            "No schools meet the selected grade, type, and evidence coverage in this radius.",
+          )}
         </p>
       )}
     </section>
@@ -473,6 +497,7 @@ export function LocationFinder({
   resolveDistricts = lookupDistrictBoundaries,
   selectedSchoolIds,
 }: LocationFinderProps) {
+  const { t } = useI18n();
   const [sharedState] = useState(() =>
     typeof window === "undefined"
       ? undefined
@@ -566,9 +591,9 @@ export function LocationFinder({
     setShareUrl(nextShareUrl);
     try {
       await navigator.clipboard.writeText(nextShareUrl);
-      setShareMessage("Share link copied");
+      setShareMessage(t("Share link copied"));
     } catch {
-      setShareMessage("Share link ready — copy it below");
+      setShareMessage(t("Share link ready — copy it below"));
     }
   }
 
@@ -579,10 +604,13 @@ export function LocationFinder({
     >
       <div className="location-finder-intro">
         <div>
-          <h1 id="location-finder-title">Find schools near a new place</h1>
+          <h1 id="location-finder-title">
+            {t("Find schools near a new place")}
+          </h1>
           <p>
-            Enter a California work address, city, or ZIP to see transparent
-            evidence matches by school level.
+            {t(
+              "Enter a California work address, city, or ZIP to see transparent evidence matches by school level.",
+            )}
           </p>
           {onTrySample ? (
             <button
@@ -590,7 +618,7 @@ export function LocationFinder({
               onClick={() => void onTrySample()}
               type="button"
             >
-              Try a sample Decision Brief
+              {t("Try a sample Decision Brief")}
               <Icon name="chevronRight" size={14} />
             </button>
           ) : null}
@@ -637,11 +665,11 @@ export function LocationFinder({
           }}
         >
           <label className="location-address-field">
-            <span>Work address or place</span>
+            <span>{t("Work address or place")}</span>
             <div>
               <Icon name="mapPin" size={17} />
               <input
-                aria-label="Work address or California place"
+                aria-label={t("Work address or California place")}
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setBriefSchoolIds([]);
@@ -654,9 +682,9 @@ export function LocationFinder({
             </div>
           </label>
           <label className="location-radius-field">
-            <span>Radius</span>
+            <span>{t("Radius")}</span>
             <select
-              aria-label="Location search radius"
+              aria-label={t("Location search radius")}
               onChange={(event) => {
                 setRadius(Number(event.target.value));
                 setBriefSchoolIds([]);
@@ -672,7 +700,7 @@ export function LocationFinder({
             </select>
           </label>
           <button disabled={loading} type="submit">
-            {loading ? "Finding…" : "Find schools"}
+            {loading ? t("Finding…") : t("Find schools")}
           </button>
         </form>
         <PersonalizationControls onChange={updateOptions} options={options} />
@@ -680,7 +708,7 @@ export function LocationFinder({
 
       {error ? (
         <p className="location-search-error" role="alert">
-          {error}
+          {t(error)}
         </p>
       ) : null}
 
@@ -688,23 +716,27 @@ export function LocationFinder({
         <div className="location-results">
           <div className="location-results-summary">
             <div>
-              <span>Search center</span>
+              <span>{t("Search center")}</span>
               <strong>{location.matchedAddress}</strong>
               <small>
                 {location.provider}
-                {location.approximate ? " · Approximate center" : ""}
+                {location.approximate ? t(" · Approximate center") : ""}
               </small>
             </div>
             <div className="location-results-actions">
               <p>
-                Evidence matches within <b>{radius} miles</b> for{" "}
-                <b>{gradeLabel(options.grade).toLowerCase()}</b> at{" "}
-                <b>{Math.round(options.minimumCoverage * 100)}%+ coverage</b>.
-                Distance is not part of the score and only breaks ties.
+                {t(
+                  "Evidence matches within {radius} miles for {grade} at {coverage}%+ coverage. Distance is not part of the score and only breaks ties.",
+                  {
+                    radius,
+                    grade: t(gradeLabel(options.grade)).toLocaleLowerCase(),
+                    coverage: Math.round(options.minimumCoverage * 100),
+                  },
+                )}
               </p>
               <button onClick={() => void shareSearch()} type="button">
                 <Icon name="external" size={12} />
-                Copy share link
+                {t("Copy share link")}
               </button>
               {selectedSchoolIds.length > 0 && onCompare ? (
                 <button
@@ -712,7 +744,9 @@ export function LocationFinder({
                   onClick={onCompare}
                   type="button"
                 >
-                  Compare selected ({selectedSchoolIds.length})
+                  {t("Compare selected ({count})", {
+                    count: selectedSchoolIds.length,
+                  })}
                 </button>
               ) : null}
               {shareMessage ? (
@@ -727,11 +761,15 @@ export function LocationFinder({
               <div>
                 <Icon name="file" size={22} />
                 <span>
-                  <strong>Build a Family Decision Brief</strong>
-                  Select up to three schools from the evidence matches below.
+                  <strong>{t("Build a Family Decision Brief")}</strong>
+                  {t(
+                    "Select up to three schools from the evidence matches below.",
+                  )}
                 </span>
               </div>
-              <span>{briefSchoolIds.length} of 3 selected</span>
+              <span>
+                {t("{count} of 3 selected", { count: briefSchoolIds.length })}
+              </span>
               <button
                 disabled={briefSchoolIds.length === 0}
                 onClick={() => {
@@ -743,16 +781,16 @@ export function LocationFinder({
                 }}
                 type="button"
               >
-                Create brief
+                {t("Create brief")}
                 <Icon name="chevronRight" size={14} />
               </button>
             </div>
           ) : null}
-          {shareUrl && shareMessage !== "Share link copied" ? (
+          {shareUrl && shareMessage !== t("Share link copied") ? (
             <label className="location-share-fallback">
-              <span>Share URL</span>
+              <span>{t("Share URL")}</span>
               <input
-                aria-label="Location finder share URL"
+                aria-label={t("Location finder share URL")}
                 onFocus={(event) => event.target.select()}
                 readOnly
                 value={shareUrl}
@@ -764,7 +802,9 @@ export function LocationFinder({
           >
             <div className="location-map-panel">
               <Suspense
-                fallback={<div className="map-fallback">Loading map…</div>}
+                fallback={
+                  <div className="map-fallback">{t("Loading map…")}</div>
+                }
               >
                 <LazyLocationRecommendationMap
                   boundaries={districtBoundaries}
@@ -776,24 +816,24 @@ export function LocationFinder({
               <div className="location-map-legend">
                 <span>
                   <i className="location-center-dot" />
-                  Search location
+                  {t("Search location")}
                 </span>
                 {visibleBands.has("elementary") ? (
                   <span>
                     <i className="elementary-dot" />
-                    Elementary
+                    {t("Elementary")}
                   </span>
                 ) : null}
                 {visibleBands.has("middle") ? (
                   <span>
                     <i className="middle-dot" />
-                    Middle
+                    {t("Middle")}
                   </span>
                 ) : null}
                 {visibleBands.has("high") ? (
                   <span>
                     <i className="high-dot" />
-                    High
+                    {t("High")}
                   </span>
                 ) : null}
                 {districtBoundaries.some(
@@ -801,7 +841,7 @@ export function LocationFinder({
                 ) ? (
                   <span>
                     <i className="district-outline district-outline--unified" />
-                    Unified district
+                    {t("Unified district")}
                   </span>
                 ) : null}
                 {districtBoundaries.some(
@@ -809,7 +849,7 @@ export function LocationFinder({
                 ) ? (
                   <span>
                     <i className="district-outline district-outline--elementary" />
-                    Elementary district
+                    {t("Elementary district")}
                   </span>
                 ) : null}
                 {districtBoundaries.some(
@@ -817,7 +857,7 @@ export function LocationFinder({
                 ) ? (
                   <span>
                     <i className="district-outline district-outline--high" />
-                    High school district
+                    {t("High school district")}
                   </span>
                 ) : null}
               </div>
@@ -833,7 +873,9 @@ export function LocationFinder({
                 ) : null}
                 {districtError ? (
                   <p className="district-boundary-error" role="status">
-                    District boundary unavailable: {districtError}
+                    {t("District boundary unavailable: {error}", {
+                      error: t(districtError),
+                    })}
                   </p>
                 ) : null}
               </aside>
@@ -860,37 +902,28 @@ export function LocationFinder({
             ))}
           </div>
           <details className="location-methodology">
-            <summary>How these matches are ordered</summary>
+            <summary>{t("How these matches are ordered")}</summary>
             <p>
-              Elementary and middle: ELA 35%, mathematics 35%, chronic absence
-              20%, suspension 10%. High school: ELA 20%, mathematics 20%, CCI
-              12%, graduation 12%, chronic absence 10%, A–G 8%, dropout 8%,
-              suspension 10%.
+              {t(
+                "Elementary and middle: ELA 35%, mathematics 35%, chronic absence 20%, suspension 10%. High school: ELA 20%, mathematics 20%, CCI 12%, graduation 12%, chronic absence 10%, A–G 8%, dropout 8%, suspension 10%.",
+              )}
             </p>
             <p>
-              Your priorities multiply these base weights. Only reliable
-              latest-year all-student values count. Results need at least{" "}
-              {Math.round(options.minimumCoverage * 100)}% of their selected
-              evidence weight and one academic indicator. This is an
-              experimental local evidence order, not a CDE rating or a claim
-              that one school is best for every child. Nearby does not mean
-              assigned or eligible.
+              {t(
+                "Your priorities multiply these base weights. Only reliable latest-year all-student values count. Results need at least {coverage}% of their selected evidence weight and one academic indicator. This is an experimental local evidence order, not a CDE rating or a claim that one school is best for every child. Nearby does not mean assigned or eligible.",
+                { coverage: Math.round(options.minimumCoverage * 100) },
+              )}
             </p>
             <p>
-              Protected characteristics are not used to rank housing locations.
-              Official subgroup outcomes remain available after schools are
-              added to comparison.
+              {t(
+                "Protected characteristics are not used to rank housing locations. Official subgroup outcomes remain available after schools are added to comparison.",
+              )}
             </p>
           </details>
           <p className="location-privacy-note">
-            Street addresses are sent to the U.S. Census Geocoder through this
-            Worker. Exact matched coordinates are then sent to the official CDE
-            district-area service. This project does not store either request.
-            City and ZIP searches use approximate centers derived from published
-            school locations and do not claim a district match. A share link
-            contains the displayed search center and is created only when you
-            choose Copy share link. This product uses the U.S. Census Bureau
-            Geocoder but is not endorsed or certified by the Census Bureau.
+            {t(
+              "Street addresses are sent to the U.S. Census Geocoder through this Worker. Exact matched coordinates are then sent to the official CDE district-area service. This project does not store either request. City and ZIP searches use approximate centers derived from published school locations and do not claim a district match. A share link contains the displayed search center and is created only when you choose Copy share link. This product uses the U.S. Census Bureau Geocoder but is not endorsed or certified by the Census Bureau.",
+            )}
           </p>
         </div>
       ) : null}

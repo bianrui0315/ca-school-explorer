@@ -1,4 +1,5 @@
 import type { MetricDefinition, ReferenceBasis, ReferenceMode } from "../types";
+import { useI18n } from "../i18n";
 import { Icon } from "./Icon";
 
 interface ContextPanelProps {
@@ -48,30 +49,32 @@ export function ContextPanel({
   referenceLabel,
   referenceMode,
 }: ContextPanelProps) {
+  const { t } = useI18n();
   const baselineSections = [
     {
       icon: "school" as const,
       title: referenceLabel
-        ? `${referenceLabel} reference`
-        : "Reference context",
-      body: `${referenceDescription} ${basisLabel(referenceBasis, referenceMode)} It is context, not a target.`,
+        ? t("{label} reference", { label: referenceLabel })
+        : t("Reference context"),
+      body: `${t(referenceDescription)} ${t(basisLabel(referenceBasis, referenceMode))} ${t("It is context, not a target.")}`,
     },
     ...supportingSections,
   ];
   return (
     <aside className="context-panel" aria-labelledby="context-heading">
       <div className="desktop-context">
-        <h2 id="context-heading">How to read this</h2>
+        <h2 id="context-heading">{t("How to read this")}</h2>
         <p>
-          Use separate evidence and context. Treat the experimental composite as
-          an optional lens, not a school rating.
+          {t(
+            "Use separate evidence and context. Treat the experimental composite as an optional lens, not a school rating.",
+          )}
         </p>
         {baselineSections.map((section) => (
           <section className="context-section" key={section.title}>
             <Icon name={section.icon} size={22} />
             <div>
-              <h3>{section.title}</h3>
-              <p>{section.body}</p>
+              <h3>{t(section.title)}</h3>
+              <p>{t(section.body)}</p>
             </div>
           </section>
         ))}
@@ -83,16 +86,16 @@ export function ContextPanel({
           <summary>
             <Icon name="book" size={22} />
             <span>
-              <strong>How to read this</strong>
-              <small>Reference context, map, and caveats</small>
+              <strong>{t("How to read this")}</strong>
+              <small>{t("Reference context, map, and caveats")}</small>
             </span>
             <Icon className="disclosure-chevron" name="chevronDown" size={20} />
           </summary>
           <div className="disclosure-body">
             {baselineSections.map((section) => (
               <section key={section.title}>
-                <h3>{section.title}</h3>
-                <p>{section.body}</p>
+                <h3>{t(section.title)}</h3>
+                <p>{t(section.body)}</p>
               </section>
             ))}
           </div>
@@ -101,8 +104,10 @@ export function ContextPanel({
           <summary>
             <Icon name="file" size={22} />
             <span>
-              <strong>View source details</strong>
-              <small>Where the data comes from and how it is calculated</small>
+              <strong>{t("View source details")}</strong>
+              <small>
+                {t("Where the data comes from and how it is calculated")}
+              </small>
             </span>
             <Icon className="disclosure-chevron" name="chevronDown" size={20} />
           </summary>
@@ -119,6 +124,7 @@ function SourceDetails({
   metric,
   compact = false,
 }: Pick<ContextPanelProps, "metric"> & { compact?: boolean }) {
+  const { t } = useI18n();
   const metricCaveat =
     metric.id === "college_going_rate_12_month"
       ? "College-going data currently end in 2022–23 and use a high-school-completer denominator that differs from the four-year graduation cohort. National Student Clearinghouse privacy blocks can make observed enrollment lower than actual enrollment."
@@ -131,19 +137,21 @@ function SourceDetails({
         compact ? "source-details source-details--compact" : "source-details"
       }
     >
-      {compact ? null : <h2>Sources & notes</h2>}
+      {compact ? null : <h2>{t("Sources & notes")}</h2>}
       <p>
-        Values are derived from official public CDE files. Source suppression is
-        preserved, and raw files are not redistributed or relicensed.
+        {t(
+          "Values are derived from official public CDE files. Source suppression is preserved, and raw files are not redistributed or relicensed.",
+        )}
       </p>
-      {metricCaveat ? <p className="source-caveat">{metricCaveat}</p> : null}
+      {metricCaveat ? <p className="source-caveat">{t(metricCaveat)}</p> : null}
       <a href={metric.sourceUrl} target="_blank" rel="noreferrer">
-        {metric.sourceLabel}
+        {t(metric.sourceLabel)}
         <Icon name="external" size={14} />
       </a>
       <p className="source-caveat">
-        This independent open-source project is not affiliated with or endorsed
-        by the California Department of Education.
+        {t(
+          "This independent open-source project is not affiliated with or endorsed by the California Department of Education.",
+        )}
       </p>
     </section>
   );

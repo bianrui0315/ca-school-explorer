@@ -87,6 +87,7 @@ Read the [project and MVP plan](docs/ca-school-explorer-plan.html) for the resea
 
 This release adds a Family Decision Brief while retaining the Compare, Area Explorer, school profile, and Teaching & resources workspaces:
 
+- a persistent English/Spanish interface across comparison, location discovery, Decision Brief, school-profile, teaching-resource, source-note, and accessibility content, while official school names and public values remain unchanged;
 - a guided workflow from California address, city, or ZIP search to an explainable shortlist of up to three schools;
 - a shareable and printable `/brief` report with distance, grade span, district, school type, evidence coverage, latest ELA, mathematics, attendance, suspension, graduation, dropout, A–G, and College/Career values, and their actual reporting years;
 - compact three-year directions for every available brief indicator, with missing years left unconnected;

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useI18n } from "../i18n";
 import {
   directoryFlags,
   studentsPerReportedTeacher,
@@ -35,6 +36,7 @@ export function SchoolOverview({
   profileSchoolYears,
   onOpenProfile,
 }: SchoolOverviewProps) {
+  const { t } = useI18n();
   return (
     <section
       className="school-overview"
@@ -43,13 +45,16 @@ export function SchoolOverview({
       <div className="school-overview-header">
         <div>
           <p className="eyebrow">
-            {profileSchoolYears.join(", ")} public directory
+            {t("{years} public directory", {
+              years: profileSchoolYears.join(", "),
+            })}
           </p>
-          <h2 id="school-overview-heading">School overview</h2>
+          <h2 id="school-overview-heading">{t("School overview")}</h2>
         </div>
         <p>
-          Staffing and enrollment describe school context. They are not quality
-          ratings.
+          {t(
+            "Staffing and enrollment describe school context. They are not quality ratings.",
+          )}
         </p>
       </div>
 
@@ -74,27 +79,41 @@ export function SchoolOverview({
 
                 <div className="school-profile-meta">
                   <span>{school.gradeSpan}</span>
-                  <span>{school.schoolType}</span>
+                  <span>{t(school.schoolType)}</span>
                 </div>
 
                 <dl className="school-profile-facts">
                   <div>
-                    <dt>Enrollment</dt>
-                    <dd>{formatCount(school.enrollment)}</dd>
-                  </div>
-                  <div>
-                    <dt>Reported teachers</dt>
-                    <dd>{formatCount(school.staff.teachers)}</dd>
-                  </div>
-                  <div>
-                    <dt>Students per reported teacher</dt>
+                    <dt>{t("Enrollment")}</dt>
                     <dd>
-                      {ratio === undefined ? "Not available" : ratio.toFixed(1)}
+                      {school.enrollment === null
+                        ? t("Not reported")
+                        : formatCount(school.enrollment)}
                     </dd>
                   </div>
                   <div>
-                    <dt>Total reported staff</dt>
-                    <dd>{formatCount(school.staff.total)}</dd>
+                    <dt>{t("Reported teachers")}</dt>
+                    <dd>
+                      {school.staff.teachers === null
+                        ? t("Not reported")
+                        : formatCount(school.staff.teachers)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("Students per reported teacher")}</dt>
+                    <dd>
+                      {ratio === undefined
+                        ? t("Not available")
+                        : ratio.toFixed(1)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("Total reported staff")}</dt>
+                    <dd>
+                      {school.staff.total === null
+                        ? t("Not reported")
+                        : formatCount(school.staff.total)}
+                    </dd>
                   </div>
                 </dl>
 
@@ -106,7 +125,7 @@ export function SchoolOverview({
                 {flags.length > 0 ? (
                   <div
                     className="school-profile-flags"
-                    aria-label="Directory designations"
+                    aria-label={t("Directory designations")}
                   >
                     {flags.map((flag) => (
                       <span key={flag}>{flag}</span>
@@ -120,7 +139,7 @@ export function SchoolOverview({
                     onClick={() => onOpenProfile(school.id)}
                     type="button"
                   >
-                    View school profile
+                    {t("View school profile")}
                     <Icon name="chevronRight" size={16} />
                   </button>
                 ) : null}
@@ -130,14 +149,14 @@ export function SchoolOverview({
         </div>
       ) : (
         <p className="school-overview-empty">
-          Add a school to see its directory profile.
+          {t("Add a school to see its directory profile.")}
         </p>
       )}
 
       <p className="school-overview-note">
-        Students per reported teacher is enrollment divided by reported teacher
-        staff. It is not a class-size measure. Directory designations are shown
-        for context only.
+        {t(
+          "Students per reported teacher is enrollment divided by reported teacher staff. It is not a class-size measure. Directory designations are shown for context only.",
+        )}
       </p>
     </section>
   );

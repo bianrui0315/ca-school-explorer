@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties } from "react";
+import { useI18n } from "../i18n";
 import {
   briefDataGapSentence,
   briefTrendStatus,
@@ -80,15 +81,19 @@ function primaryDriverSentence(
   match: LocationSchoolMatch | undefined,
   school: School,
   catalog: PublicCatalog,
+  t: (source: string, values?: Record<string, string | number>) => string,
 ) {
   if (!match?.primaryDriver) {
-    return strongestEvidenceSentence(school, catalog.manifest);
+    return t(strongestEvidenceSentence(school, catalog.manifest));
   }
-  return `${match.primaryDriver.label} is the strongest weighted driver at ${Math.round(
-    match.primaryDriver.score,
-  )}/100 and ${Math.round(
-    match.primaryDriver.weightShare * 100,
-  )}% of available weight.`;
+  return t(
+    "{indicator} is the strongest weighted driver at {score}/100 and {weight}% of available weight.",
+    {
+      indicator: t(match.primaryDriver.label),
+      score: Math.round(match.primaryDriver.score),
+      weight: Math.round(match.primaryDriver.weightShare * 100),
+    },
+  );
 }
 
 function BriefMiniTrend({
@@ -102,11 +107,14 @@ function BriefMiniTrend({
   observations: Observation[];
   schoolName: string;
 }) {
+  const { t } = useI18n();
   const points = observations
     .filter((observation) => observation.value !== null)
     .slice(-3);
   if (points.length === 0) {
-    return <span className="brief-trend-unavailable">Not available</span>;
+    return (
+      <span className="brief-trend-unavailable">{t("Not available")}</span>
+    );
   }
   const values = points.map((point) => point.value as number);
   const minimum = Math.min(...values);
@@ -129,7 +137,10 @@ function BriefMiniTrend({
         {schoolName}
       </span>
       <svg
-        aria-label={`${schoolName} ${metric.navLabel} three-year trend`}
+        aria-label={t("{school} {metric} three-year trend", {
+          school: schoolName,
+          metric: t(metric.navLabel),
+        })}
         role="img"
         viewBox="0 0 108 40"
       >
@@ -146,7 +157,7 @@ function BriefMiniTrend({
       <span
         className={`brief-trend-status brief-trend-status--${observationTone(status)}`}
       >
-        {status === "insufficient" ? "1 year" : status}
+        {status === "insufficient" ? t("1 year") : t(status)}
       </span>
       <strong>
         {formatMetricValue(latest.value, metric, metric.unit === "points")}
@@ -163,6 +174,7 @@ export function DecisionBrief({
   schools,
   state,
 }: DecisionBriefProps) {
+  const { t } = useI18n();
   const [shareMessage, setShareMessage] = useState<string>();
   const metrics = useMemo(
     () => decisionBriefMetrics(catalog.manifest),
@@ -199,9 +211,9 @@ export function DecisionBrief({
           ),
         ),
       ]);
-      setShareMessage("Share link copied");
+      setShareMessage(t("Share link copied"));
     } catch {
-      setShareMessage("Share link ready in the address bar");
+      setShareMessage(t("Share link ready in the address bar"));
     }
   }
 
@@ -209,13 +221,13 @@ export function DecisionBrief({
     <main className="decision-brief-page" id="brief-title">
       <header className="decision-brief-heading">
         <div>
-          <h1>Family Decision Brief</h1>
-          <p>From a new address to an explainable school shortlist.</p>
+          <h1>{t("Family Decision Brief")}</h1>
+          <p>{t("From a new address to an explainable school shortlist.")}</p>
         </div>
         <div className="decision-brief-actions">
           <button onClick={onEditSearch} type="button">
             <Icon name="edit" size={16} />
-            Edit search
+            {t("Edit search")}
           </button>
           <button
             className="decision-brief-share"
@@ -223,39 +235,42 @@ export function DecisionBrief({
             type="button"
           >
             <Icon name="link" size={16} />
-            Copy share link
+            {t("Copy share link")}
           </button>
           <button onClick={() => window.print()} type="button">
             <Icon name="printer" size={16} />
-            Print brief
+            {t("Print brief")}
           </button>
           {shareMessage ? <span role="status">{shareMessage}</span> : null}
         </div>
       </header>
 
-      <section className="decision-brief-context" aria-label="Search context">
+      <section
+        className="decision-brief-context"
+        aria-label={t("Search context")}
+      >
         <span>
           <Icon name="mapPin" size={19} />
           <strong>{state.location.matchedAddress}</strong>
         </span>
         <span>
           <Icon name="pathways" size={19} />
-          {gradeLabel(state.options.grade)}
+          {t(gradeLabel(state.options.grade))}
         </span>
         <span>
           <Icon name="target" size={19} />
-          {state.radius} miles
+          {t("{radius} miles", { radius: state.radius })}
         </span>
         <span>
           <Icon name="school" size={19} />
-          {LOCATION_SCHOOL_TYPE_LABELS[state.options.schoolType]}
+          {t(LOCATION_SCHOOL_TYPE_LABELS[state.options.schoolType])}
         </span>
         <div>
-          <strong>Evidence priorities</strong>
+          <strong>{t("Evidence priorities")}</strong>
           {PRIORITY_ORDER.map((priority) => (
             <span key={priority}>
               <Icon name="check" size={13} />
-              {LOCATION_PRIORITY_LABELS[priority]}{" "}
+              {t(LOCATION_PRIORITY_LABELS[priority])}{" "}
               {state.options.priorityMultipliers[priority]}×
             </span>
           ))}
@@ -268,14 +283,15 @@ export function DecisionBrief({
       >
         <div className="decision-brief-section-heading">
           <div>
-            <h2 id="brief-schools-title">Three schools to review</h2>
+            <h2 id="brief-schools-title">{t("Three schools to review")}</h2>
             <p>
-              Selected from the location search. The score summarizes available
-              evidence and is not a rank.
+              {t(
+                "Selected from the location search. The score summarizes available evidence and is not a rank.",
+              )}
             </p>
           </div>
           <button onClick={onOpenComparison} type="button">
-            Open full comparison
+            {t("Open full comparison")}
             <Icon name="chevronRight" size={14} />
           </button>
         </div>
@@ -299,36 +315,41 @@ export function DecisionBrief({
                 </header>
                 <dl>
                   <div>
-                    <dt>Distance</dt>
+                    <dt>{t("Distance")}</dt>
                     <dd>
                       {match && Number.isFinite(match.distanceMiles)
-                        ? `${match.distanceMiles.toFixed(1)} miles`
-                        : "Not available"}
+                        ? t("{distance} miles", {
+                            distance: match.distanceMiles.toFixed(1),
+                          })
+                        : t("Not available")}
                     </dd>
                   </div>
                   <div>
-                    <dt>District</dt>
+                    <dt>{t("District")}</dt>
                     <dd>{school.district}</dd>
                   </div>
                   <div>
-                    <dt>Grades / type</dt>
+                    <dt>{t("Grades / type")}</dt>
                     <dd>
                       {school.gradeSpan} ·{" "}
-                      {school.charter ? "Charter" : school.schoolType}
+                      {t(school.charter ? "Charter" : school.schoolType)}
                     </dd>
                   </div>
                   <div>
-                    <dt>Evidence coverage</dt>
+                    <dt>{t("Evidence coverage")}</dt>
                     <dd>
                       {match
-                        ? `${match.availableCount} of ${match.totalCount} indicators`
-                        : "Not available"}
+                        ? t("{available} of {total} indicators", {
+                            available: match.availableCount,
+                            total: match.totalCount,
+                          })
+                        : t("Not available")}
                     </dd>
                   </div>
                 </dl>
-                <p>{primaryDriverSentence(match, school, catalog)}</p>
+                <p>{primaryDriverSentence(match, school, catalog, t)}</p>
                 <footer>
-                  <span>Evidence score (not a rank)</span>
+                  <span>{t("Evidence score (not a rank)")}</span>
                   <strong>
                     {match?.score === null || match?.score === undefined
                       ? "—"
@@ -348,10 +369,11 @@ export function DecisionBrief({
       >
         <div className="decision-brief-section-heading">
           <div>
-            <h2 id="brief-evidence-title">Latest evidence</h2>
+            <h2 id="brief-evidence-title">{t("Latest evidence")}</h2>
             <p>
-              Actual source values retain their reporting years and reliability
-              state.
+              {t(
+                "Actual source values retain their reporting years and reliability state.",
+              )}
             </p>
           </div>
         </div>
@@ -359,7 +381,7 @@ export function DecisionBrief({
           <table className="decision-brief-table">
             <thead>
               <tr>
-                <th scope="col">Indicator</th>
+                <th scope="col">{t("Indicator")}</th>
                 {schools.map((school) => (
                   <th key={school.id} scope="col">
                     {school.name}
@@ -371,8 +393,8 @@ export function DecisionBrief({
               {metrics.map((metric) => (
                 <tr key={metric.id}>
                   <th scope="row">
-                    {metric.navLabel}
-                    <small>{metric.shortLabel}</small>
+                    {t(metric.navLabel)}
+                    <small>{t(metric.shortLabel)}</small>
                   </th>
                   {schools.map((school) => {
                     const evidence = latestBriefEvidence(
@@ -392,9 +414,11 @@ export function DecisionBrief({
                         <span>
                           {evidence.observation
                             ? formatSchoolYear(evidence.observation.year)
-                            : "No published year"}
+                            : t("No published year")}
                         </span>
-                        <small>{reliabilityLabel(evidence.observation)}</small>
+                        <small>
+                          {t(reliabilityLabel(evidence.observation))}
+                        </small>
                       </td>
                     );
                   })}
@@ -411,18 +435,19 @@ export function DecisionBrief({
       >
         <div className="decision-brief-section-heading">
           <div>
-            <h2 id="brief-trends-title">Three-year direction</h2>
+            <h2 id="brief-trends-title">{t("Three-year direction")}</h2>
             <p>
-              Direction follows each indicator definition; missing years are
-              never connected.
+              {t(
+                "Direction follows each indicator definition; missing years are never connected.",
+              )}
             </p>
           </div>
         </div>
         <div className="decision-brief-trend-grid">
           {metrics.map((metric) => (
             <article key={metric.id}>
-              <h3>{metric.navLabel}</h3>
-              <p>{metric.shortLabel}</p>
+              <h3>{t(metric.navLabel)}</h3>
+              <p>{t(metric.shortLabel)}</p>
               {schools.map((school) => (
                 <BriefMiniTrend
                   color={school.color}
@@ -443,38 +468,39 @@ export function DecisionBrief({
       >
         <div className="decision-brief-section-heading">
           <div>
-            <h2 id="brief-insights-title">What stands out</h2>
+            <h2 id="brief-insights-title">{t("What stands out")}</h2>
             <p>
-              Deterministic statements derived from the values above—no
-              generated interpretation.
+              {t(
+                "Deterministic statements derived from the values above—no generated interpretation.",
+              )}
             </p>
           </div>
         </div>
         <div>
           <article>
             <Icon name="check" size={22} />
-            <h3>Strongest evidence</h3>
+            <h3>{t("Strongest evidence")}</h3>
             <ul>
               {schools.map((school, index) => (
                 <li key={school.id}>
                   <strong>{school.name}:</strong>{" "}
-                  {primaryDriverSentence(matches[index], school, catalog)}
+                  {primaryDriverSentence(matches[index], school, catalog, t)}
                 </li>
               ))}
             </ul>
           </article>
           <article>
             <Icon name="target" size={22} />
-            <h3>Material difference</h3>
-            <p>{widestBriefDifference(schools, catalog.manifest)}</p>
+            <h3>{t("Material difference")}</h3>
+            <p>{t(widestBriefDifference(schools, catalog.manifest))}</p>
           </article>
           <article>
             <Icon name="warning" size={22} />
-            <h3>Data gaps</h3>
+            <h3>{t("Data gaps")}</h3>
             <ul>
               {schools.map((school) => (
                 <li key={school.id}>
-                  {briefDataGapSentence(school, catalog.manifest)}
+                  {t(briefDataGapSentence(school, catalog.manifest))}
                 </li>
               ))}
             </ul>
@@ -488,25 +514,24 @@ export function DecisionBrief({
       >
         <Icon name="warning" size={34} />
         <div>
-          <h2 id="brief-limits-title">Before you decide</h2>
-          <strong>Nearby does not mean assigned or eligible.</strong>
+          <h2 id="brief-limits-title">{t("Before you decide")}</h2>
+          <strong>{t("Nearby does not mean assigned or eligible.")}</strong>
           <p>
-            District boundaries, enrollment rules, programs, admissions, and
-            transportation can change. Confirm current options directly with
-            each school or district. Missing and suppressed values are not
-            estimated.
+            {t(
+              "District boundaries, enrollment rules, programs, admissions, and transportation can change. Confirm current options directly with each school or district. Missing and suppressed values are not estimated.",
+            )}
           </p>
         </div>
         <div>
-          <strong>Sources &amp; methodology</strong>
+          <strong>{t("Sources & methodology")}</strong>
           <a
             href="https://github.com/bianrui0315/ca-school-explorer/blob/main/METHODOLOGY.md"
             rel="noreferrer"
             target="_blank"
           >
-            Read methodology <Icon name="external" size={12} />
+            {t("Read methodology")} <Icon name="external" size={12} />
           </a>
-          <a href="/#source-details">View source notes</a>
+          <a href="/#source-details">{t("View source notes")}</a>
         </div>
       </aside>
     </main>
