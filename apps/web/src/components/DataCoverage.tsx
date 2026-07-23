@@ -1,4 +1,5 @@
 import type { MetricDefinition, School, SubgroupId } from "../types";
+import { useI18n } from "../i18n";
 import { formatSchoolYear } from "../lib/metrics";
 
 interface DataCoverageProps {
@@ -47,19 +48,23 @@ export function DataCoverage({
   schools,
   subgroup,
 }: DataCoverageProps) {
+  const { t } = useI18n();
   if (schools.length === 0) {
     return null;
   }
   return (
     <section className="data-coverage" aria-labelledby="coverage-heading">
       <div className="data-coverage-intro">
-        <span>Data completeness</span>
+        <span>{t("Data completeness")}</span>
         <strong id="coverage-heading">
-          Published measures for {formatSchoolYear(endYear)}
+          {t("Published measures for {year}", {
+            year: formatSchoolYear(endYear),
+          })}
         </strong>
         <small>
-          Older-only means a prior public value exists. Missing and suppressed
-          results remain unavailable.
+          {t(
+            "Older-only means a prior public value exists. Missing and suppressed results remain unavailable.",
+          )}
         </small>
       </div>
       <div className="data-coverage-schools">
@@ -77,11 +82,16 @@ export function DataCoverage({
                 {school.name}
               </span>
               <strong>
-                {coverage.current}/{metrics.length} current
+                {t("{current}/{total} current", {
+                  current: coverage.current,
+                  total: metrics.length,
+                })}
               </strong>
               <small>
-                {coverage.olderOnly} older-only · {coverage.unavailable}{" "}
-                unavailable
+                {t("{older} older-only · {unavailable} unavailable", {
+                  older: coverage.olderOnly,
+                  unavailable: coverage.unavailable,
+                })}
               </small>
             </article>
           );

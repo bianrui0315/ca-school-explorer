@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState, type CSSProperties } from "react";
+import { useI18n } from "../i18n";
 import { schoolsWithinDistance } from "../lib/schoolDistance";
 import {
   gradeOptionsForSchools,
@@ -48,6 +49,7 @@ export function SchoolPicker({
   onRemove,
   onClear,
 }: SchoolPickerProps) {
+  const { t } = useI18n();
   const [pendingSchoolId, setPendingSchoolId] = useState<string>();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nearbyEnabled, setNearbyEnabled] = useState(false);
@@ -152,9 +154,9 @@ export function SchoolPicker({
               searchIsActive ? "school-results-status" : undefined
             }
             aria-expanded={searchIsActive}
-            aria-label="Search schools by name, district, address, or ZIP"
+            aria-label={t("Search schools by name, district, address, or ZIP")}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="School, district, address, or ZIP"
+            placeholder={t("School, district, address, or ZIP")}
             type="search"
             value={query}
           />
@@ -174,7 +176,8 @@ export function SchoolPicker({
               type="button"
             >
               <Icon name="filter" size={15} />
-              Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+              {t("Filters")}
+              {activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
               <Icon
                 className="filter-toggle-chevron"
                 name="chevronDown"
@@ -199,7 +202,7 @@ export function SchoolPicker({
               type="button"
             >
               <Icon name="mapPin" size={15} />
-              Nearby
+              {t("Nearby")}
             </button>
           </div>
           {activeFilterCount > 0 ? (
@@ -208,7 +211,7 @@ export function SchoolPicker({
               onClick={clearFilters}
               type="button"
             >
-              Reset
+              {t("Reset")}
             </button>
           ) : null}
         </div>
@@ -216,9 +219,9 @@ export function SchoolPicker({
         {filtersOpen ? (
           <div className="school-filter-panel" id="school-filter-panel">
             <label>
-              <span>County</span>
+              <span>{t("County")}</span>
               <select
-                aria-label="County filter"
+                aria-label={t("County filter")}
                 onChange={(event) =>
                   setFilters((current) => ({
                     ...current,
@@ -228,7 +231,7 @@ export function SchoolPicker({
                 }
                 value={filters.county}
               >
-                <option value="">All counties</option>
+                <option value="">{t("All counties")}</option>
                 {counties.map((county) => (
                   <option key={county} value={county}>
                     {county}
@@ -237,9 +240,9 @@ export function SchoolPicker({
               </select>
             </label>
             <label>
-              <span>City</span>
+              <span>{t("City")}</span>
               <select
-                aria-label="City filter"
+                aria-label={t("City filter")}
                 onChange={(event) =>
                   setFilters((current) => ({
                     ...current,
@@ -248,7 +251,7 @@ export function SchoolPicker({
                 }
                 value={filters.city}
               >
-                <option value="">All cities</option>
+                <option value="">{t("All cities")}</option>
                 {cities.map((city) => (
                   <option key={city} value={city}>
                     {city}
@@ -257,9 +260,9 @@ export function SchoolPicker({
               </select>
             </label>
             <label>
-              <span>Grade</span>
+              <span>{t("Grade")}</span>
               <select
-                aria-label="Grade filter"
+                aria-label={t("Grade filter")}
                 onChange={(event) =>
                   setFilters((current) => ({
                     ...current,
@@ -268,10 +271,10 @@ export function SchoolPicker({
                 }
                 value={filters.grade}
               >
-                <option value="">All grades</option>
+                <option value="">{t("All grades")}</option>
                 {gradeOptions.map((grade) => (
                   <option key={grade.value} value={grade.value}>
-                    {grade.label}
+                    {t(grade.label)}
                   </option>
                 ))}
               </select>
@@ -296,18 +299,29 @@ export function SchoolPicker({
               >
                 {results.length === 0
                   ? nearbyActive
-                    ? `No schools within ${nearbyRadius} mi`
-                    : "No matching schools"
+                    ? t("No schools within {radius} mi", {
+                        radius: nearbyRadius,
+                      })
+                    : t("No matching schools")
                   : nearbyActive
-                    ? `${results.length.toLocaleString()} ${
-                        results.length === 1 ? "school" : "schools"
-                      } within ${nearbyRadius} mi`
-                    : `${results.length.toLocaleString()} matching ${
-                        results.length === 1 ? "school" : "schools"
-                      }`}
+                    ? t(
+                        results.length === 1
+                          ? "{count} school within {radius} mi"
+                          : "{count} schools within {radius} mi",
+                        {
+                          count: results.length.toLocaleString(),
+                          radius: nearbyRadius,
+                        },
+                      )
+                    : t(
+                        results.length === 1
+                          ? "{count} matching school"
+                          : "{count} matching schools",
+                        { count: results.length.toLocaleString() },
+                      )}
               </div>
               <div
-                aria-label="Search result view"
+                aria-label={t("Search result view")}
                 className="result-view-toggle"
                 role="group"
               >
@@ -316,14 +330,14 @@ export function SchoolPicker({
                   onClick={() => setResultView("list")}
                   type="button"
                 >
-                  List
+                  {t("List")}
                 </button>
                 <button
                   aria-pressed={resultView === "map"}
                   onClick={() => setResultView("map")}
                   type="button"
                 >
-                  Map
+                  {t("Map")}
                 </button>
               </div>
             </div>
@@ -331,9 +345,9 @@ export function SchoolPicker({
             {nearbyActive && nearbyCenter ? (
               <div className="nearby-controls">
                 <label>
-                  <span>Center</span>
+                  <span>{t("Center")}</span>
                   <select
-                    aria-label="Nearby center school"
+                    aria-label={t("Nearby center school")}
                     onChange={(event) => setNearbyCenterId(event.target.value)}
                     value={nearbyCenter.id}
                   >
@@ -345,9 +359,9 @@ export function SchoolPicker({
                   </select>
                 </label>
                 <label>
-                  <span>Radius</span>
+                  <span>{t("Radius")}</span>
                   <select
-                    aria-label="Nearby radius"
+                    aria-label={t("Nearby radius")}
                     onChange={(event) =>
                       setNearbyRadius(Number.parseInt(event.target.value, 10))
                     }
@@ -388,7 +402,10 @@ export function SchoolPicker({
                       {distanceMiles === undefined || !nearbyCenter ? null : (
                         <small className="school-result-distance">
                           <Icon name="mapPin" size={12} />
-                          {distanceMiles.toFixed(1)} mi from {nearbyCenter.name}
+                          {t("{distance} mi from {school}", {
+                            distance: distanceMiles.toFixed(1),
+                            school: nearbyCenter.name,
+                          })}
                         </small>
                       )}
                     </button>
@@ -403,7 +420,9 @@ export function SchoolPicker({
                 id="school-discovery-map-panel"
               >
                 <Suspense
-                  fallback={<div className="map-fallback">Loading map…</div>}
+                  fallback={
+                    <div className="map-fallback">{t("Loading map…")}</div>
+                  }
                 >
                   <LazySchoolDiscoveryMap
                     centerSchool={nearbyActive ? nearbyCenter : undefined}
@@ -417,21 +436,28 @@ export function SchoolPicker({
 
             {resultView === "list" && results.length > suggestions.length ? (
               <p className="school-results-note">
-                Showing the first {MAX_LIST_RESULTS} results. Add a ZIP or
-                filter to narrow.
+                {t(
+                  "Showing the first {count} results. Add a ZIP or filter to narrow.",
+                  { count: MAX_LIST_RESULTS },
+                )}
               </p>
             ) : null}
             {resultView === "map" && results.length > mapResults.length ? (
               <p className="school-results-note">
-                Showing the first {MAX_MAP_RESULTS} map results. Narrow the
-                search for more detail.
+                {t(
+                  "Showing the first {count} map results. Narrow the search for more detail.",
+                  { count: MAX_MAP_RESULTS },
+                )}
               </p>
             ) : null}
             {nearbyActive ? (
               <p className="nearby-disclaimer">
-                <strong>Nearby does not mean assigned or eligible.</strong>{" "}
-                Distances are straight-line estimates from published school
-                coordinates. Verify boundaries with the district.
+                <strong>
+                  {t("Nearby does not mean assigned or eligible.")}
+                </strong>{" "}
+                {t(
+                  "Distances are straight-line estimates from published school coordinates. Verify boundaries with the district.",
+                )}
               </p>
             ) : null}
           </div>
@@ -440,7 +466,9 @@ export function SchoolPicker({
 
       <div className="section-heading-row">
         <h2 id="selected-schools-heading">
-          Selected schools ({selectedSchools.length} of 5)
+          {t("Selected schools ({count} of 5)", {
+            count: selectedSchools.length,
+          })}
         </h2>
         {selectedSchools.length > 0 ? (
           <button
@@ -451,7 +479,7 @@ export function SchoolPicker({
               onClear();
             }}
           >
-            Clear all
+            {t("Clear all")}
           </button>
         ) : null}
       </div>
@@ -475,7 +503,7 @@ export function SchoolPicker({
                   }
                   onRemove(school.id);
                 }}
-                aria-label={`Remove ${school.name}`}
+                aria-label={t("Remove {school}", { school: school.name })}
               >
                 <Icon name="close" size={16} />
               </button>
@@ -484,7 +512,7 @@ export function SchoolPicker({
         </div>
       ) : (
         <p className="empty-selection">
-          Search for a school to begin a comparison.
+          {t("Search for a school to begin a comparison.")}
         </p>
       )}
 
@@ -499,7 +527,7 @@ export function SchoolPicker({
         }
       >
         <Icon name="plus" size={19} />
-        Add school
+        {t("Add school")}
       </button>
     </section>
   );

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { School, SchoolSummary } from "../types";
+import { useI18n } from "../i18n";
 
 export interface DiscoveryMapResult {
   school: SchoolSummary;
@@ -21,6 +22,7 @@ export function SchoolDiscoveryMap({
   onAdd,
   results,
 }: SchoolDiscoveryMapProps) {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const onAddRef = useRef(onAdd);
   const [error, setError] = useState<string>();
@@ -89,7 +91,7 @@ export function SchoolDiscoveryMap({
           const name = document.createElement("strong");
           const label = document.createElement("span");
           name.textContent = centerSchool.name;
-          label.textContent = "Nearby search center";
+          label.textContent = t("Nearby search center");
           popup.className = "map-popup";
           popup.append(name, label);
           centerMarker.bindPopup(popup);
@@ -122,17 +124,17 @@ export function SchoolDiscoveryMap({
           action.className = "map-popup-action";
           action.disabled = comparisonFull;
           action.textContent = comparisonFull
-            ? "Comparison full"
-            : "Add to comparison";
+            ? t("Comparison full")
+            : t("Add to comparison");
           action.type = "button";
           action.addEventListener("click", () => {
             action.disabled = true;
-            action.textContent = "Adding…";
+            action.textContent = t("Adding…");
             void Promise.resolve(onAddRef.current(school.id)).catch(() => {
               action.disabled = comparisonFull;
               action.textContent = comparisonFull
-                ? "Comparison full"
-                : "Add to comparison";
+                ? t("Comparison full")
+                : t("Add to comparison");
             });
           });
           popup.className = "map-popup";
@@ -151,7 +153,7 @@ export function SchoolDiscoveryMap({
         window.requestAnimationFrame(() => map?.invalidateSize());
       } catch {
         if (active) {
-          setError("The discovery map could not be loaded.");
+          setError(t("The discovery map could not be loaded."));
         }
       }
     }
@@ -161,12 +163,12 @@ export function SchoolDiscoveryMap({
       active = false;
       map?.remove();
     };
-  }, [centerSchool, comparisonFull, locations]);
+  }, [centerSchool, comparisonFull, locations, t]);
 
   if (locations.length === 0) {
     return (
       <div className="map-fallback" role="status">
-        No mapped schools match the current search.
+        {t("No mapped schools match the current search.")}
       </div>
     );
   }
@@ -179,7 +181,7 @@ export function SchoolDiscoveryMap({
   }
   return (
     <div
-      aria-label="School discovery map"
+      aria-label={t("School discovery map")}
       className="school-discovery-map"
       ref={containerRef}
       role="region"

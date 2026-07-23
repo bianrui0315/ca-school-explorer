@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useI18n } from "../i18n";
 import {
   changeStatus,
   formatMetricValue,
@@ -38,6 +39,7 @@ export function ComparisonTable({
   startYear,
   endYear,
 }: ComparisonTableProps) {
+  const { t } = useI18n();
   const years = Array.from(
     { length: endYear - startYear + 1 },
     (_, index) => startYear + index,
@@ -56,11 +58,13 @@ export function ComparisonTable({
       <div className="table-scroll">
         <table>
           <caption id="comparison-table-heading">
-            Exact {metric.shortLabel.toLowerCase()} values for selected schools
+            {t("Exact {metric} values for selected schools", {
+              metric: t(metric.shortLabel).toLocaleLowerCase(),
+            })}
           </caption>
           <thead>
             <tr>
-              <th scope="col">School</th>
+              <th scope="col">{t("School")}</th>
               {years.map((year) => (
                 <th
                   className={
@@ -74,15 +78,20 @@ export function ComparisonTable({
               ))}
               {hasTrend ? (
                 <th scope="col">
-                  Change
+                  {t("Change")}
                   <small>
-                    {formatSchoolYear(startYear)} to {formatSchoolYear(endYear)}
+                    {t("{start} to {end}", {
+                      start: formatSchoolYear(startYear),
+                      end: formatSchoolYear(endYear),
+                    })}
                   </small>
                 </th>
               ) : null}
               <th scope="col">
-                Students
-                <small>{formatSchoolYear(endYear)} denominator</small>
+                {t("Students")}
+                <small>
+                  {t("{year} denominator", { year: formatSchoolYear(endYear) })}
+                </small>
               </th>
             </tr>
           </thead>
@@ -119,7 +128,7 @@ export function ComparisonTable({
                         <small
                           className={`reliability reliability--${observation?.reliability ?? "not-available"}`}
                         >
-                          {reliabilityLabel(observation)}
+                          {t(reliabilityLabel(observation))}
                         </small>
                       </td>
                     );
@@ -142,8 +151,8 @@ export function ComparisonTable({
                 <th scope="row">
                   <span className="baseline-dot" />
                   <span>
-                    {baselineLabel} baseline
-                    <small>{baselineDescription}</small>
+                    {t("{label} baseline", { label: baselineLabel })}
+                    <small>{t(baselineDescription)}</small>
                   </span>
                 </th>
                 {years.map((year) => {
@@ -158,7 +167,7 @@ export function ComparisonTable({
                       key={year}
                     >
                       {formatMetricValue(observation?.value, metric)}
-                      <small>{reliabilityLabel(observation)}</small>
+                      <small>{t(reliabilityLabel(observation))}</small>
                     </td>
                   );
                 })}
@@ -182,8 +191,9 @@ export function ComparisonTable({
         </table>
       </div>
       <p className="table-note">
-        Suppressed values remain hidden. Small-sample results should be treated
-        as directional, not conclusive.
+        {t(
+          "Suppressed values remain hidden. Small-sample results should be treated as directional, not conclusive.",
+        )}
       </p>
     </section>
   );

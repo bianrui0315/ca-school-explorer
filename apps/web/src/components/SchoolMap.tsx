@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { School } from "../types";
+import { useI18n } from "../i18n";
 
 interface SchoolMapProps {
   schools: School[];
 }
 
 export function SchoolMap({ schools }: SchoolMapProps) {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string>();
   const locations = useMemo(
@@ -78,7 +80,7 @@ export function SchoolMap({ schools }: SchoolMapProps) {
         window.requestAnimationFrame(() => map?.invalidateSize());
       } catch {
         if (active) {
-          setError("The interactive map could not be loaded.");
+          setError(t("The interactive map could not be loaded."));
         }
       }
     }
@@ -88,12 +90,12 @@ export function SchoolMap({ schools }: SchoolMapProps) {
       active = false;
       map?.remove();
     };
-  }, [locations]);
+  }, [locations, t]);
 
   if (locations.length === 0) {
     return (
       <div className="map-fallback" role="status">
-        Coordinates are not available for the selected schools.
+        {t("Coordinates are not available for the selected schools.")}
       </div>
     );
   }
@@ -106,7 +108,7 @@ export function SchoolMap({ schools }: SchoolMapProps) {
   }
   return (
     <div
-      aria-label="Selected schools map"
+      aria-label={t("Selected schools map")}
       className="school-map"
       ref={containerRef}
     />

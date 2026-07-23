@@ -21,6 +21,7 @@ import { SimilarContext } from "./components/SimilarContext";
 import { TrendChart } from "./components/TrendChart";
 import { TeachingResources } from "./components/TeachingResources";
 import { publicDataClient } from "./data/publicData";
+import { useI18n } from "./i18n";
 import {
   buildComparisonShareUrl,
   parseComparisonShareUrl,
@@ -85,6 +86,7 @@ function routeFromLocation() {
 }
 
 export default function App({ dataClient = publicDataClient }: AppProps) {
+  const { locale, t } = useI18n();
   const [initialRoute] = useState(routeFromLocation);
   const [activePage, setActivePage] = useState<AppPage>(initialRoute.page);
   const [profileSchoolId, setProfileSchoolId] = useState(
@@ -406,11 +408,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
   useEffect(() => {
     document.title =
       activePage === "area"
-        ? "Area Explorer · California School Explorer"
+        ? t("Area Explorer · California School Explorer")
         : activePage === "brief"
-          ? "Family Decision Brief · California School Explorer"
+          ? t("Family Decision Brief · California School Explorer")
           : activePage === "resources"
-            ? "Teaching & resources · California School Explorer"
+            ? t("Teaching & resources · California School Explorer")
             : activePage === "profile" && profileSchool
               ? `${profileSchool.name} · California School Explorer`
               : "California School Explorer";
@@ -420,12 +422,19 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     if (description) {
       description.content =
         activePage === "profile" && profileSchool
-          ? `Explore official outcomes, student-group context, teaching resources, and location details for ${profileSchool.name}.`
+          ? t(
+              "Explore official outcomes, student-group context, teaching resources, and location details for {school}.",
+              { school: profileSchool.name },
+            )
           : activePage === "brief"
-            ? "Turn a California location search into a shareable, explainable school shortlist using official public data."
-            : "Compare California schools across time, student groups, and transparent context baselines.";
+            ? t(
+                "Turn a California location search into a shareable, explainable school shortlist using official public data.",
+              )
+            : t(
+                "Compare California schools across time, student groups, and transparent context baselines.",
+              );
     }
-  }, [activePage, profileSchool]);
+  }, [activePage, locale, profileSchool, t]);
 
   const resourceSchoolIds = useMemo(
     () =>
@@ -629,10 +638,10 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       <div className="app">
         <Header activePage={activePage} onNavigate={navigate} />
         <main className="data-state" role="alert">
-          <h1>Public data could not be loaded</h1>
-          <p>{error}</p>
+          <h1>{t("Public data could not be loaded")}</h1>
+          <p>{t(error)}</p>
           <button type="button" onClick={() => window.location.reload()}>
-            Try again
+            {t("Try again")}
           </button>
         </main>
       </div>
@@ -644,8 +653,10 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       <div className="app">
         <Header activePage={activePage} onNavigate={navigate} />
         <main className="data-state" aria-live="polite">
-          <h1>Loading California school data</h1>
-          <p>Preparing the statewide school index and official indicators.</p>
+          <h1>{t("Loading California school data")}</h1>
+          <p>
+            {t("Preparing the statewide school index and official indicators.")}
+          </p>
         </main>
       </div>
     );
@@ -692,26 +703,34 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       : (baselineSource?.metrics[metric.id]?.[subgroup] ?? []);
   const baselineLabel =
     effectiveReferenceMode === "peers"
-      ? `Similar peers · ${peerDetails.size} schools`
+      ? t("Similar peers · {count} schools", { count: peerDetails.size })
       : effectiveReferenceMode === "county" && activeReference
-        ? `${activeReference.name} County`
+        ? t("{name} County", { name: activeReference.name })
         : baselineSource?.name;
   const baselineDescription =
     effectiveReferenceMode === "peers"
-      ? "Similar-context reference"
+      ? t("Similar-context reference")
       : effectiveReferenceMode === "district"
-        ? "Same-district context"
+        ? t("Same-district context")
         : effectiveReferenceMode === "county"
-          ? "Countywide context"
-          : "Statewide context";
+          ? t("Countywide context")
+          : t("Statewide context");
   const referenceDescription =
     effectiveReferenceMode === "peers"
-      ? `Built from ${peerDetails.size} public schools matched to ${peerAnchor?.name ?? "the anchor school"} using institutional profile data. Outcomes are excluded from matching.`
+      ? t(
+          "Built from {count} public schools matched to {school} using institutional profile data. Outcomes are excluded from matching.",
+          {
+            count: peerDetails.size,
+            school: peerAnchor?.name ?? t("the anchor school"),
+          },
+        )
       : effectiveReferenceMode === "district"
-        ? "Available when all selected schools belong to the same district."
+        ? t("Available when all selected schools belong to the same district.")
         : effectiveReferenceMode === "county"
-          ? "Available when all selected schools belong to the same county."
-          : "California provides a consistent statewide context across selections.";
+          ? t("Available when all selected schools belong to the same county.")
+          : t(
+              "California provides a consistent statewide context across selections.",
+            );
   const referenceBasis =
     effectiveReferenceMode === "peers"
       ? ("derived-peer-weighted" as const)
@@ -720,23 +739,23 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
     {
       value: "district" as const,
       label: activeDistrict
-        ? `District · ${activeDistrict.name}`
-        : "Same district",
+        ? t("District · {name}", { name: activeDistrict.name })
+        : t("Same district"),
       disabled: !hasCommonDistrict,
     },
     {
       value: "county" as const,
       label:
         hasCommonCounty && selectedSchools[0]
-          ? `County · ${selectedSchools[0].county}`
-          : "Same county",
+          ? t("County · {name}", { name: selectedSchools[0].county })
+          : t("Same county"),
       disabled: !hasCommonCounty,
     },
     {
       value: "peers" as const,
       label: peerBaselineReady
-        ? `Similar peers · ${peerDetails.size} schools`
-        : "Similar peers",
+        ? t("Similar peers · {count} schools", { count: peerDetails.size })
+        : t("Similar peers"),
       disabled: !peerBaselineReady,
     },
     { value: "california" as const, label: "California" },
@@ -880,9 +899,9 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
           ),
         ),
       ]);
-      setShareMessage("Share link copied");
+      setShareMessage(t("Share link copied"));
     } catch {
-      setShareMessage("Share link ready in the address bar");
+      setShareMessage(t("Share link ready in the address bar"));
     }
   };
 
@@ -909,8 +928,10 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
         <Suspense
           fallback={
             <main className="data-state" aria-live="polite">
-              <h1>Preparing the decision brief</h1>
-              <p>Loading the selected schools and their official evidence.</p>
+              <h1>{t("Preparing the decision brief")}</h1>
+              <p>
+                {t("Loading the selected schools and their official evidence.")}
+              </p>
             </main>
           }
         >
@@ -925,8 +946,10 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             />
           ) : (
             <main className="data-state" aria-live="polite">
-              <h1>Preparing the decision brief</h1>
-              <p>Loading the selected schools and their official evidence.</p>
+              <h1>{t("Preparing the decision brief")}</h1>
+              <p>
+                {t("Loading the selected schools and their official evidence.")}
+              </p>
             </main>
           )}
         </Suspense>
@@ -968,9 +991,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
         <Suspense
           fallback={
             <main className="data-state" aria-live="polite">
-              <h1>Loading school profile</h1>
+              <h1>{t("Loading school profile")}</h1>
               <p>
-                Preparing official outcomes, context, and teaching resources.
+                {t(
+                  "Preparing official outcomes, context, and teaching resources.",
+                )}
               </p>
             </main>
           }
@@ -1000,9 +1025,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
             />
           ) : (
             <main className="data-state" aria-live="polite">
-              <h1>Loading school profile</h1>
+              <h1>{t("Loading school profile")}</h1>
               <p>
-                Preparing official outcomes, context, and teaching resources.
+                {t(
+                  "Preparing official outcomes, context, and teaching resources.",
+                )}
               </p>
             </main>
           )}
@@ -1010,10 +1037,11 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       ) : (
         <main className="compare-page">
           <section className="intro">
-            <h1>Compare schools across time and context</h1>
+            <h1>{t("Compare schools across time and context")}</h1>
             <p>
-              See subgroup outcomes, school context, and the limits behind every
-              number.
+              {t(
+                "See subgroup outcomes, school context, and the limits behind every number.",
+              )}
             </p>
           </section>
 
@@ -1154,17 +1182,19 @@ export default function App({ dataClient = publicDataClient }: AppProps) {
       <footer className="site-footer">
         <span>
           <Icon name="info" size={17} />
-          Nearby does not mean assigned.
+          {t("Nearby does not mean assigned.")}
         </span>
         <span>
-          Official public data · Informational use only · No school ranking
+          {t(
+            "Official public data · Informational use only · No school ranking",
+          )}
         </span>
         <a
           href="https://github.com/bianrui0315/ca-school-explorer"
           target="_blank"
           rel="noreferrer"
         >
-          Open source on GitHub
+          {t("Open source on GitHub")}
           <Icon name="external" size={13} />
         </a>
       </footer>

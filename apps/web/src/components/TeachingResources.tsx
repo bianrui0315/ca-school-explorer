@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties } from "react";
+import { useI18n } from "../i18n";
 import type {
   PublicCatalog,
   ResourceObservation,
@@ -165,6 +166,7 @@ export function TeachingResources({
   onRemove,
   onClear,
 }: TeachingResourcesProps) {
+  const { t } = useI18n();
   const [classYear, setClassYear] = useState("2024-25");
   const [preparationYear, setPreparationYear] = useState("2023-24");
   const classYears = useMemo(
@@ -209,11 +211,12 @@ export function TeachingResources({
   return (
     <main className="resources-page">
       <section className="resources-intro">
-        <p className="eyebrow">Official teaching context</p>
-        <h1>Teaching and school resources</h1>
+        <p className="eyebrow">{t("Official teaching context")}</p>
+        <h1>{t("Teaching and school resources")}</h1>
         <p>
-          Compare teacher experience, assignment context, class size, and
-          student support reported in official public data.
+          {t(
+            "Compare teacher experience, assignment context, class size, and student support reported in official public data.",
+          )}
         </p>
       </section>
 
@@ -234,15 +237,19 @@ export function TeachingResources({
         <div className="resources-main">
           <section
             className="resource-status-strip"
-            aria-label="Data reporting years"
+            aria-label={t("Data reporting years")}
           >
             <article>
               <span className="resource-status-icon resource-status-icon--ready">
                 <Icon name="check" size={18} />
               </span>
               <span>
-                <strong>Official public data</strong>
-                <small>Release {catalog.manifest.release}</small>
+                <strong>{t("Official public data")}</strong>
+                <small>
+                  {t("Release {release}", {
+                    release: catalog.manifest.release,
+                  })}
+                </small>
               </span>
             </article>
             <article>
@@ -250,8 +257,8 @@ export function TeachingResources({
                 <Icon name="users" size={18} />
               </span>
               <span>
-                <strong>2025–26 staff experience</strong>
-                <small>Latest staff data year</small>
+                <strong>{t("2025–26 staff experience")}</strong>
+                <small>{t("Latest staff data year")}</small>
               </span>
             </article>
             <article>
@@ -260,7 +267,7 @@ export function TeachingResources({
               </span>
               <span>
                 <strong>2024–25 SARC</strong>
-                <small>Class size and support</small>
+                <small>{t("Class size and support")}</small>
               </span>
             </article>
             <article>
@@ -268,25 +275,25 @@ export function TeachingResources({
                 <Icon name="calendar" size={18} />
               </span>
               <span>
-                <strong>2023–24 assignments</strong>
-                <small>Latest preparation year</small>
+                <strong>{t("2023–24 assignments")}</strong>
+                <small>{t("Latest preparation year")}</small>
               </span>
             </article>
           </section>
 
           {resourcesLoading ? (
             <p className="resource-loading" role="status">
-              Loading teaching and resource records…
+              {t("Loading teaching and resource records…")}
             </p>
           ) : null}
 
           <section className="resource-card resource-overview">
             <div className="resource-card-header">
               <div>
-                <p className="eyebrow">Comparable context</p>
-                <h2>At a glance</h2>
+                <p className="eyebrow">{t("Comparable context")}</p>
+                <h2>{t("At a glance")}</h2>
               </div>
-              <span>Each row keeps its official reporting year</span>
+              <span>{t("Each row keeps its official reporting year")}</span>
             </div>
             <div className="resource-table-wrap">
               <div
@@ -297,21 +304,24 @@ export function TeachingResources({
                   } as CSSProperties
                 }
               >
-                <div className="resource-grid-corner">Measure</div>
+                <div className="resource-grid-corner">{t("Measure")}</div>
                 <SchoolColumns schools={selectedSchools} />
                 <div className="resource-row-label">
                   <Icon name="users" size={18} />
                   <span>
-                    Average teacher experience<small>2025–26 · years</small>
+                    {t("Average teacher experience")}
+                    <small>2025–26 · {t("years")}</small>
                   </span>
                 </div>
                 {selectedSchools.map((school) => (
                   <strong key={school.id}>
-                    {formatValue(
-                      latest(
-                        resources.get(school.id),
-                        "teacher_experience_average",
-                        "total",
+                    {t(
+                      formatValue(
+                        latest(
+                          resources.get(school.id),
+                          "teacher_experience_average",
+                          "total",
+                        ),
                       ),
                     )}
                   </strong>
@@ -319,8 +329,8 @@ export function TeachingResources({
                 <div className="resource-row-label">
                   <Icon name="school" size={18} />
                   <span>
-                    Fully credentialed assignments
-                    <small>2023–24 · percent</small>
+                    {t("Fully credentialed assignments")}
+                    <small>2023–24 · {t("percent")}</small>
                   </span>
                 </div>
                 {selectedSchools.map((school) => (
@@ -337,14 +347,16 @@ export function TeachingResources({
                             "fully_credentialed",
                           ),
                         )}%`
-                      : "Not reported"}
+                      : t("Not reported")}
                   </strong>
                 ))}
                 <div className="resource-row-label">
                   <Icon name="book" size={18} />
                   <span>
-                    Reported class-size range
-                    <small>Latest available · students</small>
+                    {t("Reported class-size range")}
+                    <small>
+                      {t("Latest available")} · {t("students")}
+                    </small>
                   </span>
                 </div>
                 {selectedSchools.map((school) => {
@@ -353,25 +365,28 @@ export function TeachingResources({
                     <strong key={school.id}>
                       {range
                         ? `${range.minimum.toLocaleString()}–${range.maximum.toLocaleString()}`
-                        : "Not reported"}
+                        : t("Not reported")}
                     </strong>
                   );
                 })}
                 <div className="resource-row-label">
                   <Icon name="users" size={18} />
                   <span>
-                    Pupils per academic counselor<small>2024–25 · ratio</small>
+                    {t("Pupils per academic counselor")}
+                    <small>2024–25 · {t("ratio")}</small>
                   </span>
                 </div>
                 {selectedSchools.map((school) => (
                   <strong key={school.id}>
-                    {formatValue(
-                      latest(
-                        resources.get(school.id),
-                        "pupils_per_academic_counselor",
-                        "all_students",
+                    {t(
+                      formatValue(
+                        latest(
+                          resources.get(school.id),
+                          "pupils_per_academic_counselor",
+                          "all_students",
+                        ),
+                        { maximumFractionDigits: 0 },
                       ),
-                      { maximumFractionDigits: 0 },
                     )}
                   </strong>
                 ))}
@@ -383,9 +398,9 @@ export function TeachingResources({
             <div className="resource-card-header">
               <div>
                 <p className="eyebrow">2025–26</p>
-                <h2>Teacher experience</h2>
+                <h2>{t("Teacher experience")}</h2>
               </div>
-              <span>Teacher headcounts, not full-time equivalents</span>
+              <span>{t("Teacher headcounts, not full-time equivalents")}</span>
             </div>
             <div className="resource-school-cards">
               {selectedSchools.map((school) => {
@@ -420,15 +435,17 @@ export function TeachingResources({
                       </span>
                     </header>
                     <div className="experience-stat">
-                      <strong>{formatValue(average)}</strong>
-                      <span>average years of experience</span>
+                      <strong>{t(formatValue(average))}</strong>
+                      <span>{t("average years of experience")}</span>
                     </div>
                     <div
                       className="experience-bar"
                       aria-label={
                         experienced
-                          ? `${experienced.toFixed(1)} percent experienced teachers`
-                          : "Experienced teacher share not reported"
+                          ? t("{percent} percent experienced teachers", {
+                              percent: experienced.toFixed(1),
+                            })
+                          : t("Experienced teacher share not reported")
                       }
                     >
                       <i
@@ -437,25 +454,25 @@ export function TeachingResources({
                     </div>
                     <dl>
                       <div>
-                        <dt>Total teachers</dt>
+                        <dt>{t("Total teachers")}</dt>
                         <dd>
                           {formatValue(total, { maximumFractionDigits: 0 })}
                         </dd>
                       </div>
                       <div>
-                        <dt>More than two years</dt>
+                        <dt>{t("More than two years")}</dt>
                         <dd>
                           {experienced === undefined
-                            ? "Not reported"
+                            ? t("Not reported")
                             : `${experienced.toFixed(1)}%`}
                         </dd>
                       </div>
                       <div>
-                        <dt>District experience</dt>
+                        <dt>{t("District experience")}</dt>
                         <dd>
                           {districtAverage
-                            ? `${formatValue(districtAverage)} years`
-                            : "Not reported"}
+                            ? `${formatValue(districtAverage)} ${t("years")}`
+                            : t("Not reported")}
                         </dd>
                       </div>
                     </dl>
@@ -468,11 +485,13 @@ export function TeachingResources({
           <section className="resource-card">
             <div className="resource-card-header">
               <div>
-                <p className="eyebrow">Teacher preparation and placement</p>
-                <h2>Assignment context</h2>
+                <p className="eyebrow">
+                  {t("Teacher preparation and placement")}
+                </p>
+                <h2>{t("Assignment context")}</h2>
               </div>
               <label className="resource-year-select">
-                <span>Data year</span>
+                <span>{t("Data year")}</span>
                 <select
                   value={preparationYear}
                   onChange={(event) => setPreparationYear(event.target.value)}
@@ -502,7 +521,7 @@ export function TeachingResources({
                     );
                     return (
                       <div className="preparation-row" key={dimension}>
-                        <span>{label}</span>
+                        <span>{t(label)}</span>
                         <div>
                           <i
                             style={{
@@ -517,7 +536,7 @@ export function TeachingResources({
                     );
                   })}
                   <small>
-                    Teaching-position FTE:{" "}
+                    {t("Teaching-position FTE:")}{" "}
                     {assignmentFte(resources.get(school.id), preparationYear)}
                   </small>
                 </article>
@@ -528,11 +547,11 @@ export function TeachingResources({
           <section className="resource-card">
             <div className="resource-card-header">
               <div>
-                <p className="eyebrow">Students per reported class</p>
-                <h2>Class size</h2>
+                <p className="eyebrow">{t("Students per reported class")}</p>
+                <h2>{t("Class size")}</h2>
               </div>
               <label className="resource-year-select">
-                <span>Data year</span>
+                <span>{t("Data year")}</span>
                 <select
                   value={classYear}
                   onChange={(event) => setClassYear(event.target.value)}
@@ -555,7 +574,9 @@ export function TeachingResources({
                     } as CSSProperties
                   }
                 >
-                  <div className="resource-grid-corner">Grade or subject</div>
+                  <div className="resource-grid-corner">
+                    {t("Grade or subject")}
+                  </div>
                   <SchoolColumns schools={selectedSchools} />
                   {visibleClassDimensions.flatMap(([dimension, label]) => [
                     <div
@@ -563,16 +584,18 @@ export function TeachingResources({
                       key={`${dimension}-label`}
                     >
                       <Icon name="book" size={17} />
-                      <span>{label}</span>
+                      <span>{t(label)}</span>
                     </div>,
                     ...selectedSchools.map((school) => (
                       <strong key={`${dimension}-${school.id}`}>
-                        {formatValue(
-                          latest(
-                            resources.get(school.id),
-                            "average_class_size",
-                            dimension,
-                            classYear,
+                        {t(
+                          formatValue(
+                            latest(
+                              resources.get(school.id),
+                              "average_class_size",
+                              dimension,
+                              classYear,
+                            ),
                           ),
                         )}
                       </strong>
@@ -581,24 +604,28 @@ export function TeachingResources({
                 </div>
               ) : (
                 <p className="resource-empty">
-                  No class-size values are reported for this selection and year.
+                  {t(
+                    "No class-size values are reported for this selection and year.",
+                  )}
                 </p>
               )}
             </div>
             <p className="resource-footnote">
-              Class-size bands are published with the source records. Averages
-              are shown by grade or subject and are not combined into a school
-              rating.
+              {t(
+                "Class-size bands are published with the source records. Averages are shown by grade or subject and are not combined into a school rating.",
+              )}
             </p>
           </section>
 
           <section className="resource-card">
             <div className="resource-card-header">
               <div>
-                <p className="eyebrow">2024–25 · full-time equivalents</p>
-                <h2>Student support</h2>
+                <p className="eyebrow">
+                  {t("2024–25 · full-time equivalents")}
+                </p>
+                <h2>{t("Student support")}</h2>
               </div>
-              <span>Blank source values remain Not reported</span>
+              <span>{t("Blank source values remain Not reported")}</span>
             </div>
             <div className="resource-table-wrap">
               <div
@@ -609,7 +636,7 @@ export function TeachingResources({
                   } as CSSProperties
                 }
               >
-                <div className="resource-grid-corner">Role</div>
+                <div className="resource-grid-corner">{t("Role")}</div>
                 <SchoolColumns schools={selectedSchools} />
                 {SUPPORT_DIMENSIONS.flatMap(([dimension, label]) => [
                   <div
@@ -617,15 +644,17 @@ export function TeachingResources({
                     key={`${dimension}-label`}
                   >
                     <Icon name="users" size={17} />
-                    <span>{label}</span>
+                    <span>{t(label)}</span>
                   </div>,
                   ...selectedSchools.map((school) => (
                     <strong key={`${dimension}-${school.id}`}>
-                      {formatValue(
-                        latest(
-                          resources.get(school.id),
-                          "support_staff_fte",
-                          dimension,
+                      {t(
+                        formatValue(
+                          latest(
+                            resources.get(school.id),
+                            "support_staff_fte",
+                            dimension,
+                          ),
                         ),
                       )}
                     </strong>
@@ -633,17 +662,19 @@ export function TeachingResources({
                 ])}
                 <div className="resource-row-label resource-row-label--emphasis">
                   <Icon name="info" size={17} />
-                  <span>Pupils per academic counselor</span>
+                  <span>{t("Pupils per academic counselor")}</span>
                 </div>
                 {selectedSchools.map((school) => (
                   <strong className="resource-cell--emphasis" key={school.id}>
-                    {formatValue(
-                      latest(
-                        resources.get(school.id),
-                        "pupils_per_academic_counselor",
-                        "all_students",
+                    {t(
+                      formatValue(
+                        latest(
+                          resources.get(school.id),
+                          "pupils_per_academic_counselor",
+                          "all_students",
+                        ),
+                        { maximumFractionDigits: 0 },
                       ),
-                      { maximumFractionDigits: 0 },
                     )}
                   </strong>
                 ))}
@@ -653,25 +684,27 @@ export function TeachingResources({
 
           <section className="resource-definitions">
             <article>
-              <strong>FTE (full-time equivalent)</strong>
+              <strong>{t("FTE (full-time equivalent)")}</strong>
               <p>
-                One FTE represents one person working full time for the entire
-                school year. Headcounts and FTE are not interchangeable.
+                {t(
+                  "One FTE represents one person working full time for the entire school year. Headcounts and FTE are not interchangeable.",
+                )}
               </p>
             </article>
             <article>
-              <strong>Different reporting years</strong>
+              <strong>{t("Different reporting years")}</strong>
               <p>
-                Staff experience is 2025–26, SARC class size and support are
-                2024–25, and teacher preparation currently ends in 2023–24.
+                {t(
+                  "Staff experience is 2025–26, SARC class size and support are 2024–25, and teacher preparation currently ends in 2023–24.",
+                )}
               </p>
             </article>
             <article>
-              <strong>Missing data</strong>
+              <strong>{t("Missing data")}</strong>
               <p>
-                Not reported means the source was blank, zero indicated no
-                usable counselor ratio, or the school could not be matched to
-                the current directory.
+                {t(
+                  "Not reported means the source was blank, zero indicated no usable counselor ratio, or the school could not be matched to the current directory.",
+                )}
               </p>
             </article>
           </section>
@@ -680,33 +713,37 @@ export function TeachingResources({
         <aside className="resources-guidance">
           <section>
             <Icon name="book" size={21} />
-            <h2>How to read this</h2>
+            <h2>{t("How to read this")}</h2>
             <p>
-              Use these measures alongside outcomes and school context. They
-              describe conditions, not school quality by themselves.
+              {t(
+                "Use these measures alongside outcomes and school context. They describe conditions, not school quality by themselves.",
+              )}
             </p>
           </section>
           <section>
             <Icon name="calendar" size={21} />
-            <h2>Different reporting years</h2>
+            <h2>{t("Different reporting years")}</h2>
             <p>
-              The latest official files do not all describe the same year, so
-              every section keeps its own date.
+              {t(
+                "The latest official files do not all describe the same year, so every section keeps its own date.",
+              )}
             </p>
           </section>
           <section>
             <Icon name="info" size={21} />
-            <h2>Not a rating</h2>
+            <h2>{t("Not a rating")}</h2>
             <p>
-              Higher or lower is not automatically better. Program design, grade
-              span, enrollment, and local context matter.
+              {t(
+                "Higher or lower is not automatically better. Program design, grade span, enrollment, and local context matter.",
+              )}
             </p>
           </section>
           <section>
-            <h2>Sources &amp; notes</h2>
+            <h2>{t("Sources & notes")}</h2>
             <p>
-              Values are derived from official CDE files. Raw files are not
-              redistributed or relicensed.
+              {t(
+                "Values are derived from official CDE files. Raw files are not redistributed or relicensed.",
+              )}
             </p>
             <a
               href="https://www.cde.ca.gov/ds/ad/filesstex.asp"
