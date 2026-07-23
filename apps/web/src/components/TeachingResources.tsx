@@ -257,7 +257,7 @@ export function TeachingResources({
                 <Icon name="users" size={18} />
               </span>
               <span>
-                <strong>2025–26 staff experience</strong>
+                <strong>{t("2025–26 staff experience")}</strong>
                 <small>{t("Latest staff data year")}</small>
               </span>
             </article>
@@ -275,7 +275,7 @@ export function TeachingResources({
                 <Icon name="calendar" size={18} />
               </span>
               <span>
-                <strong>2023–24 assignments</strong>
+                <strong>{t("2023–24 assignments")}</strong>
                 <small>{t("Latest preparation year")}</small>
               </span>
             </article>
@@ -442,7 +442,9 @@ export function TeachingResources({
                       className="experience-bar"
                       aria-label={
                         experienced
-                          ? `${experienced.toFixed(1)} percent experienced teachers`
+                          ? t("{percent} percent experienced teachers", {
+                              percent: experienced.toFixed(1),
+                            })
                           : t("Experienced teacher share not reported")
                       }
                     >
@@ -618,7 +620,9 @@ export function TeachingResources({
           <section className="resource-card">
             <div className="resource-card-header">
               <div>
-                <p className="eyebrow">2024–25 · full-time equivalents</p>
+                <p className="eyebrow">
+                  {t("2024–25 · full-time equivalents")}
+                </p>
                 <h2>{t("Student support")}</h2>
               </div>
               <span>{t("Blank source values remain Not reported")}</span>

@@ -4586,16 +4586,19 @@ tbody td small {
 .decision-brief-context > div {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
   min-height: 52px;
   padding: 8px 14px;
   color: #52647d;
   font-size: 8px;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .decision-brief-context > div > strong {
+  flex-basis: 100%;
   color: #293f5e;
   font-size: 9px;
 }
@@ -4604,6 +4607,7 @@ tbody td small {
   display: inline-flex;
   align-items: center;
   gap: 3px;
+  white-space: nowrap;
 }
 
 .decision-brief-context > div svg {

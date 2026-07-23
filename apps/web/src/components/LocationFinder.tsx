@@ -194,7 +194,7 @@ function PersonalizationControls({
         <small>
           {t(gradeLabel(options.grade))} ·
           {t(LOCATION_SCHOOL_TYPE_LABELS[options.schoolType])} ·{" "}
-          {Math.round(options.minimumCoverage * 100)}%+ evidence
+          {Math.round(options.minimumCoverage * 100)}%+ {t("evidence")}
         </small>
       </summary>
       <div className="location-personalization-body">

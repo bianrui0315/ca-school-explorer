@@ -86,6 +86,7 @@ const spanish: Record<string, string> = {
   "Evidence coverage": "Cobertura de evidencia",
   "Evidence score (not a rank)":
     "Puntuación de evidencia (no es una clasificación)",
+  evidence: "evidencia",
   "Experimental composite": "Índice compuesto experimental",
   Filters: "Filtros",
   "Find another school": "Buscar otra escuela",
@@ -98,6 +99,10 @@ const spanish: Record<string, string> = {
   "Four-year graduation rate": "Tasa de graduación de cuatro años",
   Graduation: "Graduación",
   "Graduation rate": "Tasa de graduación",
+  "Graduation and college preparation":
+    "Graduación y preparación universitaria",
+  "Academic performance": "Rendimiento académico",
+  "School climate": "Clima escolar",
   "Grade overlap": "Coincidencia de grados",
   "Grades / type": "Grados / tipo",
   "Higher is better": "Un valor mayor es mejor",
@@ -105,6 +110,7 @@ const spanish: Record<string, string> = {
   "How to read this": "Cómo interpretar esto",
   "Indicator weights": "Pesos de los indicadores",
   Kindergarten: "Kínder",
+  "Transitional kindergarten": "Kínder de transición",
   Language: "Idioma",
   "Latest evidence": "Evidencia más reciente",
   "Latest outcome context": "Contexto de resultados más reciente",
@@ -209,6 +215,7 @@ const spanish: Record<string, string> = {
   "Teaching & resources · California School Explorer":
     "Docencia y recursos · California School Explorer",
   "Three schools to review": "Tres escuelas para revisar",
+  "Three-year trend": "Tendencia de tres años",
   "Three-year direction": "Tendencia de tres años",
   "Total reported staff": "Personal total reportado",
   "Try a sample Decision Brief": "Probar un informe de ejemplo",
@@ -502,6 +509,8 @@ const spanish: Record<string, string> = {
   "Release {release}": "Versión {release}",
   "Latest available": "Más reciente disponible",
   "Latest available by measure": "Más reciente por indicador",
+  "{years} directory": "Directorio {years}",
+  "{start}–{end} outcomes": "Resultados {start}–{end}",
   "Context, not a rating.": "Contexto, no una calificación.",
   Measure: "Medida",
   Year: "Año",
@@ -573,8 +582,10 @@ const spanish: Record<string, string> = {
     "Compara experiencia docente, contexto de asignaciones, tamaño de clase y apoyo estudiantil reportados en datos públicos oficiales.",
   "Data reporting years": "Años de reporte de datos",
   "Latest staff data year": "Año más reciente de datos de personal",
+  "2025–26 staff experience": "Experiencia del personal 2025–26",
   "Class size and support": "Tamaño de clase y apoyo",
   "Latest preparation year": "Año más reciente de preparación",
+  "2023–24 assignments": "Asignaciones 2023–24",
   "Loading teaching and resource records…":
     "Cargando registros docentes y de recursos…",
   "Comparable context": "Contexto comparable",
@@ -590,6 +601,8 @@ const spanish: Record<string, string> = {
   "average years of experience": "años promedio de experiencia",
   "Experienced teacher share not reported":
     "Proporción de docentes con experiencia no reportada",
+  "{percent} percent experienced teachers":
+    "{percent}% de docentes con más de dos años de experiencia",
   "Total teachers": "Total de docentes",
   "More than two years": "Más de dos años",
   "District experience": "Experiencia en el distrito",
@@ -612,6 +625,12 @@ const spanish: Record<string, string> = {
   "Grade 4": "Grado 4",
   "Grade 5": "Grado 5",
   "Grade 6": "Grado 6",
+  "Grade 7": "Grado 7",
+  "Grade 8": "Grado 8",
+  "Grade 9": "Grado 9",
+  "Grade 10": "Grado 10",
+  "Grade 11": "Grado 11",
+  "Grade 12": "Grado 12",
   "Other elementary": "Otra primaria",
   Science: "Ciencias",
   "Social science": "Ciencias sociales",
@@ -620,6 +639,8 @@ const spanish: Record<string, string> = {
   "Class-size bands are published with the source records. Averages are shown by grade or subject and are not combined into a school rating.":
     "Los intervalos de tamaño de clase se publican con los registros originales. Los promedios se muestran por grado o materia y no se combinan en una calificación escolar.",
   "Student support": "Apoyo estudiantil",
+  "2024–25 · full-time equivalents":
+    "2024–25 · equivalentes de tiempo completo",
   "Blank source values remain Not reported":
     "Los valores vacíos permanecen como No reportado",
   Role: "Función",

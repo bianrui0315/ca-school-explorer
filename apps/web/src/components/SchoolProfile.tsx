@@ -508,7 +508,9 @@ export function SchoolProfile({
             <Icon name="calendar" size={19} />
             <span>
               <strong>
-                {catalog.manifest.profileSchoolYears.at(-1)} directory
+                {t("{years} directory", {
+                  years: catalog.manifest.profileSchoolYears.at(-1) ?? "—",
+                })}
               </strong>
               <small>{t("Latest available")}</small>
             </span>
@@ -517,8 +519,13 @@ export function SchoolProfile({
             <Icon name="pathways" size={19} />
             <span>
               <strong>
-                {catalog.manifest.outcomeSchoolYears[0]?.slice(0, 4)}–
-                {catalog.manifest.outcomeSchoolYears.at(-1)?.slice(-2)} outcomes
+                {t("{start}–{end} outcomes", {
+                  start:
+                    catalog.manifest.outcomeSchoolYears[0]?.slice(0, 4) ?? "—",
+                  end:
+                    catalog.manifest.outcomeSchoolYears.at(-1)?.slice(-2) ??
+                    "—",
+                })}
               </strong>
               <small>{t("Latest available by measure")}</small>
             </span>

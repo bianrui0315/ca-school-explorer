@@ -21,6 +21,22 @@ describe("I18nProvider", () => {
     ).toBe("Porter Ranch Community reporta los 8 indicadores del informe.");
   });
 
+  it("translates location, decision, profile, and resource labels", () => {
+    expect(translate("es", "Grade 10")).toBe("Grado 10");
+    expect(translate("es", "Academic performance")).toBe(
+      "Rendimiento académico",
+    );
+    expect(translate("es", "Three-year trend")).toBe("Tendencia de tres años");
+    expect(translate("es", "{years} directory", { years: "2025–26" })).toBe(
+      "Directorio 2025–26",
+    );
+    expect(
+      translate("es", "{percent} percent experienced teachers", {
+        percent: "93.1",
+      }),
+    ).toBe("93.1% de docentes con más de dos años de experiencia");
+  });
+
   it("switches to Spanish, updates the document language, and persists it", async () => {
     const storage = new Map<string, string>();
     Object.defineProperty(window, "localStorage", {
